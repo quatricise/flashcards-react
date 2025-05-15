@@ -1,0 +1,116 @@
+/* Global Light Theme (default) */
+:root {
+  --color-light-0: #000000;
+  --color-light-1: #1a1a1a;
+  --color-light-2: #333333;
+  --color-light-3: #4d4d4d;
+  --color-light-4: #666666;
+  --color-light-5: #808080;
+  --color-light-6: #999999;
+  --color-light-7: #b3b3b3;
+  --color-light-8: #d6d6d6;
+  --color-light-9: #ffffff;
+  
+  --color-dark-0: #000000;
+  --color-dark-1: #2a2a2a;
+  --color-dark-2: #444444;
+  --color-dark-3: #5e5e5e;
+  --color-dark-4: #787878;
+  --color-dark-5: #929292;
+  --color-dark-6: #ababab;
+  --color-dark-7: #c5c5c5;
+  --color-dark-8: #dddddd;
+  --color-dark-9: #f2f2f2;
+
+  --color-accent: #1f3a92;
+  --color-white: #ffffff;
+/* 
+  --color-inverse-0: var(--color-dark-9);
+  --color-inverse-1: var(--color-dark-8);
+  --color-inverse-2: var(--color-dark-7);
+  --color-inverse-3: var(--color-dark-6);
+  --color-inverse-4: var(--color-dark-5);
+  --color-inverse-5: var(--color-dark-4);
+  --color-inverse-6: var(--color-dark-3);
+  --color-inverse-7: var(--color-dark-2);
+  --color-inverse-8: var(--color-dark-1);
+  --color-inverse-9: var(--color-dark-0); */
+}
+
+/* Dark Theme Overrides */
+[data-theme="dark"] {
+  --color-dark-0:  #ffffff;
+  --color-dark-1:  #d6d6d6;
+  --color-dark-2:  #b3b3b3;
+  --color-dark-3:  #999999;
+  --color-dark-4:  #808080;
+  --color-dark-5:  #666666;
+  --color-dark-6:  #4d4d4d;
+  --color-dark-7:  #333333;
+  --color-dark-8:  #1a1a1a;
+  --color-dark-9:  #000000;
+  
+  --color-light-9:  #000000;
+  --color-light-8:  #1a1a1a;
+  --color-light-7:  #333333;
+  --color-light-6:  #4d4d4d;
+  --color-light-5:  #666666;
+  --color-light-4:  #808080;
+  --color-light-3:  #999999;
+  --color-light-2:  #b3b3b3;
+  --color-light-1:  #d6d6d6;
+  --color-light-0:  #ffffff;
+}
+
+@font-face {
+  src: url(assets/fonts/RobotoSlab-VariableFont_wght.ttf);
+  font-family: "Roboto Slab";
+}
+
+html {
+  overflow-x: hidden;
+  font-family: "Roboto Slab";
+}
+
+body {
+  margin: 0;
+}
+
+h1 {
+  margin: 0;
+}
+
+img {
+  outline: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+
+
+/* COMPONENTS */
+
+.window {
+  color: var(--color-light-0);
+  background-color: var(--color-light-8);
+}
+
+button {
+  padding: 20px 40px;
+  border: none;
+  outline: none;
+  font-family: unset;
+  font-weight: 500;
+  background-color: var(--color-light-7);
+  color: var(--color-light-0);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+}

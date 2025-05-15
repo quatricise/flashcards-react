@@ -1,0 +1,23 @@
+#window-main {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 40px;
+}
+
+#window-main h1 {
+  font-size: 5rem;
+}
+
+#window-main .buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#window-main button {
+  font-size: 2rem;
+}
