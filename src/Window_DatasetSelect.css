@@ -5,3 +5,8 @@
   width: 100vw;
   height: 100vw;
 }
+
+.dataset-cards {
+  display: flex;
+  gap: 20px;
+}

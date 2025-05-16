@@ -1,22 +1,19 @@
-
-
-function DatasetCard() {
-  return <div style={
-    {
+function DatasetCard(id: number, title: string, description: string) {
+  return <div style={{
       display: "flex", 
       flexDirection: "column", 
       gap: 5, 
-      backgroundColor: "var(--color-light-6)",
+      backgroundColor: "var(--color-light-7)",
       color: "var(--color-light-0)",
       padding: "10px", 
-      borderRadius: "10px"}
-    }>
+      borderRadius: "10px"
+    }}>
       <img src="" alt="" style={{width: 160, height: 160}}/>
       <div style={{fontWeight: "bold"}}>
-        Dataset title
+        {title}
       </div>
       <div>
-        Dataset description
+        {description}
       </div>
     </div>
 }
