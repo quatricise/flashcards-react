@@ -1,4 +1,4 @@
-#window-dataset-select {
+#window--dataset-select {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,7 +14,7 @@
   gap: 5px;
 }
 
-.widnow-dataset-select--buttons {
+.window--dataset-select--buttons {
   display: flex;
   gap: 5px;
 }

@@ -25,6 +25,7 @@
   --color-accent: #1f3a92;
   --color-accent-hover: #2a50ce;
   --color-white: #ffffff;
+  --color-warning: #962525;
 }
 
 /* Dark Theme Overrides */
@@ -90,6 +91,7 @@ img {
 .window {
   color: var(--color-light-0);
   background-color: var(--color-light-8);
+  transition: background-color 0.25s ease-in-out;
 }
 
 button {
@@ -104,6 +106,11 @@ button {
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.1s ease-in-out;
+}
+
+button.warning:hover,
+button.warning.active {
+  background-color: var(--color-warning);
 }
 
 button:hover, button.active {

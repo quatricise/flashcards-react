@@ -1,19 +1,41 @@
 .button--create-dataset {
   display: flex;
-  /* flex-direction: column; */
   gap: 20px;
   justify-content: center;
   align-items: center;
+  height: 90px;
   font-size: 1rem;
   user-select: none;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  border: 2px solid var(--color-light-7);
+  padding: 10px 10px 10px 30px;
+  background-color: transparent;
+  transition: all 0.1s ease-in-out;
+}
+
+.button--create-dataset.active,
+.button--create-dataset:hover {
+  border-color: var(--color-accent-hover);
+}
+
+.button--create-dataset.active {
+  justify-content: space-between;
+}
+
+.button--create-dataset.active .button--create-dataset--input {
+  display: block;
+  background-color: var(--color-light-9);
 }
 
 .button--create-dataset--input {
-  background-color: var(--color-light-8);
+  display: none;
+  background-color: transparent;
   padding: 5px 10px;
   height: 40px;
   color: var(--color-light-0);
-  width: 100px;
+  width: 240px;
+  height: 100%;
+}
+
+.button--create-dataset--text {
+  white-space: nowrap;
 }

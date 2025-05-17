@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+/* I'll gut this file for the actual upload button/place whatever */
+
 function DummyUploadButton() {
   const [file, setFile] = useState<File | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);

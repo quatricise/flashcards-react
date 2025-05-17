@@ -47,12 +47,12 @@ function Button_CreateDataset() {
   let buttonClass = 'button--create-dataset'
   if(focus) buttonClass += " active"
   
-  let buttonText = "New dataset"
+  let buttonText = "+ New dataset"
   if(focus) buttonText = "Enter to submit"
 
   return (
     <button onClick={handleClick} onKeyDown={handleKeyDown} className={buttonClass} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}>
-        {buttonText}
+        <div className="button--create-dataset--text">{buttonText}</div>
         <input type="text" ref={datasetName} className='button--create-dataset--input'/>
     </button>
     )
