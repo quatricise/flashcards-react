@@ -8,11 +8,15 @@ async function main() {
   const item2 = await prisma.item.create({
     data: { title: 'Marcel Makrela', description: 'Husky reality.' },
   })
+  const item3 = await prisma.item.create({
+    data: { title: 'Radek Burgerový Poradce', description: 'Husky reality.' },
+  })
   await prisma.dataset.create({
     data: {
+      title: "Test Dataset",
       items: {
-        connect: [{ id: item1.id }, { id: item2.id }],
-      }
+        connect: [{ id: item1.id }, { id: item2.id }, {id: item3.id}],
+      },
     }
   })
 }

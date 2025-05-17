@@ -1,0 +1,46 @@
+.dataset-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 480px;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: var(--color-light-7);
+  color: var(--color-light-0);
+  cursor: pointer;
+  user-select: none;
+  border-left: 10px solid transparent;
+  transition: all 0.08s ease-in-out;
+}
+.dataset-card:hover {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  transform: translateX(5px);
+}
+.dataset-card:hover * {
+  color: var(--color-white);
+}
+.dataset-card.active {
+  /* background-color: var(--color-accent);
+  color: var(--color-white); */
+  border-left: 10px solid var(--color-accent);
+}
+
+.dataset-card.active:hover {
+  border-left: 10px solid var(--color-accent-hover);;
+}
+
+.dataset-card--title {
+  font-weight: 500;
+  letter-spacing: 0.02rem;
+  width: 100%;
+  transition: color 0.1s ease-in-out;
+}
+
+.dataset-card--items {
+  font-weight: 300;
+  color: var(--color-light-3);
+  width: 100%;
+  transition: color 0.1s ease-in-out;
+}

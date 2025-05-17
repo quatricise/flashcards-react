@@ -13,15 +13,15 @@ interface CreateItemArgs {
 
 
 interface CreateImageArgs {
-  id:       number
   url:      string
-  itemIds:  number[] /* this array might actually contain a singular image for a long time, I'm not sure how uploads will work. */
+  title:    string
+  items:  number[] /* this array might actually contain a singular image for a long time, I'm not sure how uploads will work. */
 }
 
 
 /* dataset is created wrong, it should be possile to create it empty, and later add items into it. Items by default must belong to a dataset */
 interface CreateDatasetArgs {
-  itemIds: number[]
+  title:    string
 }
 
 export const resolvers = {
@@ -49,6 +49,7 @@ export const resolvers = {
           title: args.title,
           description: args.description,
         },
+        include: { datasets: true }
       })
     },
 
@@ -57,14 +58,16 @@ export const resolvers = {
       args: CreateDatasetArgs,
       context: Context
     ) => {
-      return await context.prisma.dataset.create({
+      try {
+        return await context.prisma.dataset.create({
         data: {
-          items: {
-            connect: args.itemIds.map(id => ({ id })),
+          title: args.title
           },
-        },
-        include: { items: true },
-      })
+        })
+      }
+      catch(error) {
+        console.error(error)
+      }
     },
     
     addImageToItem: async (
@@ -75,8 +78,9 @@ export const resolvers = {
       return await context.prisma.image.create({
         data: {
           url: args.url,
+          title: args.title,
           items: { 
-            connect: args.itemIds.map(id => ({ id })) //will only be one item most likely, but still
+            connect: args.items.map(id => ({ id })) //will only be one item most likely, but still
           },
         },
       })

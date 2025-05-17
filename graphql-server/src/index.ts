@@ -3,10 +3,16 @@ import { ApolloServer } from 'apollo-server-express'
 import { typeDefs } from './schema'
 import { resolvers } from './resolvers'
 import { PrismaClient } from '@prisma/client'
+import cors from "cors"
 import uploadRouter from './upload'
 
 const prisma = new PrismaClient()
 const app = express()
+app.use(cors({
+  origin: "http://localhost:5173",
+  // allowedHeaders: ['Content-Type', 'Authorization'],
+  // methods: ["GET", "POST", "PUT", "DELETE"],
+}))
 app.use("/api", uploadRouter)
 app.use("/uploads", express.static("uploads"))
 

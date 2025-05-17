@@ -2,11 +2,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 20px;
   width: 100vw;
   height: 100vw;
 }
 
 .dataset-cards {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.widnow-dataset-select--buttons {
+  display: flex;
+  gap: 5px;
 }

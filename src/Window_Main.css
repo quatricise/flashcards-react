@@ -15,9 +15,11 @@
 #window-main .buttons {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 20px;
 }
 
 #window-main button {
   font-size: 2rem;
+  width: max-content;
 }

@@ -1,42 +1,56 @@
 import "./Window_DatasetSelect.css";
-import DatasetCard from "./DatasetCard";
 import { gql, useQuery } from '@apollo/client';
 
+/* COMPONENTS */
+import DatasetCard from "./DatasetCard";
+import Button_CreateDataset from "./Button_CreateDataset";
+import DummyUploadButton from "./DummyUploadButton";
+
 /* missing field 'datasets', when included it throws 400 Bad Request. */
-const GET_ITEMS = gql`
+const GET_DATASETS = gql`
   query {
-    items {
+    datasets {
       id
       title
-      description
+      items {
+        id
+      }
     }
   }
 `
 
-type Item = {
+type Dataset = {
   id:           number;
   title:        string;
-  description:  string;
+  items:        number[];
 }
 
-type RETURN_VALUE = {
-  items: Item[]
+type RETURN_DATA = {
+  datasets: Dataset[]
 }
 
 function Window_DatasetSelect() {
 
-  const { loading, data, error } = useQuery<RETURN_VALUE>(GET_ITEMS)
+  const { data } = useQuery<RETURN_DATA>(GET_DATASETS)
   
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error: {error.message}</p>
-
-  return <div id="window-dataset-select" className="window">
-    <div className="dataset-cards">
-      {data?.items.map(dataset => (
-        <div key={dataset.id}>{DatasetCard(dataset.id, dataset.title, dataset.description)}</div>
-      ))}
-    </div>
-  </div>
+  /* doing no error,loading checks. */
+  
+  return  <div id="window-dataset-select" className="window">
+            <div style={{fontSize: "2rem", margin: "0 0 20px 0"}}>
+              Select datasets
+            </div>
+            <div className="dataset-cards">
+              {data?.datasets.map(d => (
+                <DatasetCard key={d.id} id={d.id} title={d.title} items={d.items}></DatasetCard>
+              ))}
+            </div>
+            <div className="widnow-dataset-select--buttons">
+              <Button_CreateDataset/>
+              <button style={{fontSize: "1rem"}} >Train</button>
+              <button style={{fontSize: "1rem"}} >Edit</button>
+            </div>
+            <DummyUploadButton/>
+          </div>
 }
 
 export default Window_DatasetSelect

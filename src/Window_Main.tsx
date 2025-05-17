@@ -6,8 +6,7 @@ function Window_Main() {
   return <div id="window-main" className="window">
     <h1>Flashcards</h1>
     <div className="buttons">
-      <button>Train</button>
-      <button>Edit</button>
+      <button>Start the pain train</button>
       {ThemeToggle()}
     </div>
   </div>

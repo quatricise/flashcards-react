@@ -18,10 +18,12 @@ model Item {
 model Image {
   id    Int @id @default(autoincrement())
   url   String
+  title String
   items Item[]
 }
 
 model Dataset {
   id     Int    @id @default(autoincrement())
+  title  String
   items  Item[]
 }

@@ -16,7 +16,9 @@ const upload = multer({ storage })
 
 router.post('/upload', upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).send('No file uploaded.')
-  const imageUrl = `/uploads/${req.file.filename}`
+  /* the url stuff is a bit wonky here, it probably should be up a level in the root of the project? 
+  or maybe its good to keep it here so the graphql server does not interfere with the enclosing scope */
+  const imageUrl = `graphql-server/uploads/${req.file.filename}`
   res.json({ url: imageUrl })
 })
 

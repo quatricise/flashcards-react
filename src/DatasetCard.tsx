@@ -1,21 +1,31 @@
-function DatasetCard(id: number, title: string, description: string) {
-  return <div style={{
-      display: "flex", 
-      flexDirection: "column", 
-      gap: 5, 
-      backgroundColor: "var(--color-light-7)",
-      color: "var(--color-light-0)",
-      padding: "10px", 
-      borderRadius: "10px"
-    }}>
-      <img src="" alt="" style={{width: 160, height: 160}}/>
-      <div style={{fontWeight: "bold"}}>
-        {title}
-      </div>
-      <div>
-        {description}
-      </div>
-    </div>
+import { useState } from "react";
+import "./DatasetCard.css";
+
+type Props = {
+  id: number
+  title: string
+  items: number[]
+}
+
+function DatasetCard({id, title, items}: Props) {
+
+  const [active, setActive] = useState<true | false>(false);
+
+  let cardClass = "dataset-card"
+  if(active) {
+     cardClass += " active"
+  }
+
+  return <>
+          <div key={id} className={cardClass} onClick={() => setActive(active ? false : true)} tabIndex={0}>
+            <div className="dataset-card--title">
+              {title}
+            </div>
+            <div className="dataset-card--items">
+              {items.length} {items.length !== 1 ? "items" : "item"}
+            </div>
+          </div>
+        </>
 }
 
 export default DatasetCard
