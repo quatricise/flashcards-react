@@ -26,6 +26,7 @@
   --color-accent-hover: #2a50ce;
   --color-white: #ffffff;
   --color-warning: #962525;
+  --color-warning-hover: #ca3434;
 }
 
 /* Dark Theme Overrides */
@@ -82,6 +83,25 @@ img {
   padding: 0;
 }
 
+::-webkit-scrollbar {
+  width: 10px; /* == height for horizontal */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-light-5); /* dark gray */
+  border-radius: 4px;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-light-5) transparent;
+}
+
 
 
 
@@ -124,4 +144,8 @@ input[type=text] {
   outline: none;
   font-family: unset;
   font-size: 1rem;
+}
+
+.text--secondary {
+  color: var(--color-dark-2);
 }

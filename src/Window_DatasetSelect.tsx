@@ -5,7 +5,6 @@ import { gql, useQuery } from '@apollo/client';
 import DatasetCard from "./DatasetCard";
 import Button_CreateDataset from "./Button_CreateDataset";
 
-/* missing field 'datasets', when included it throws 400 Bad Request. */
 const GET_DATASETS = gql`
   query {
     datasets {
@@ -42,11 +41,11 @@ function Window_DatasetSelect() {
               {data?.datasets.map(d => (
                 <DatasetCard key={d.id} id={d.id} title={d.title} items={d.items}></DatasetCard>
               ))}
-              <Button_CreateDataset/>
             </div>
+            <Button_CreateDataset/>
             <div className="window--dataset-select--buttons">
-              <button style={{fontSize: "1rem"}} >Train</button>
-              <button style={{fontSize: "1rem"}} >Edit</button>
+              <button style={{fontSize: "1rem"}} >Drink the poison</button>
+              <button style={{fontSize: "1rem"}} >Edit the poison</button>
               <button style={{fontSize: "1rem"}} className="warning" >Delete</button>
             </div>
           </div>

@@ -6,7 +6,7 @@ function App() {
   return <>
   <Window_Main/>
   <Window_DatasetSelect/>
-  <Window_Edit/>
+  <Window_Edit datasetIds={[1, 2]} />
   </>
 }
 

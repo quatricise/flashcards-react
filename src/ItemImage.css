@@ -1,0 +1,40 @@
+.item-image {
+  position: relative;
+  border-radius: 10px;
+  background-color: var(--color-light-7);
+}
+
+.item-image--img {
+  height: 160px;
+  border-radius: 10px;
+}
+
+.item-image--icon-delete {
+  --size: 32px;
+  position: absolute;
+  top: calc(var(--size) / 4);
+  right: calc(var(--size) / 4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 2px 1px;
+  text-align: center;
+  border-radius: 100px;
+  width: var(--size);
+  height: var(--size);
+  background-color: var(--color-warning);
+  font-size: 1.2rem;
+  transform: rotate(45deg);
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 0 10px 2px #00000040;
+  z-index: 1;
+}
+
+.item-image:hover .item-image--icon-delete {
+
+}
+
+.item-image--icon-delete:hover {
+  background-color: var(--color-warning-hover);
+}

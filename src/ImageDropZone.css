@@ -1,0 +1,28 @@
+.image-drop-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  min-height: 80px;
+  border: 2px dashed var(--color-light-6);
+  border-radius: 10px;
+  user-select: none;
+}
+
+.image-drop-zone:hover {
+  border-color: var(--color-light-5);
+}
+
+.image-drop-zone.active {
+  border-color: var(--color-white);
+  color: var(--color-white);
+  background-color: var(--color-accent);
+}
+
+.image-drop-zone--images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}

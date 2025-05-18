@@ -25,11 +25,15 @@ export const typeDefs = gql`
   type Query {
     items:    [Item!]!
     datasets: [Dataset!]!
+    images:   [Image!]!
+    datasetsByIds(ids: [Int!]!): [Dataset!]!
   }
 
   type Mutation {
     createItem(title: String!, description: String!): Item!
     createDataset(title: String!, items: [Int!]): Dataset!
     addImageToItem(url: String!, items: [Int!]!): Image!
+
+    deleteItem(id: Int!): Boolean
   }
 `

@@ -1,5 +1,69 @@
+:root {
+  --width--window--edit: 1600px;
+  --width--window--edit--right-side: 360px;
+}
 #window--edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
   width: 100vw;
   height: 100vh;
-  padding: 40px;
+  padding: 80px;
+  border: 2px solid var(--color-light-7);
+}
+
+.window--edit--left-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  flex-grow: 1;
+  max-width: calc(var(--width--window--edit) - var(--width--window--edit--right-side));
+  background-color: var(--color-light-7);
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.window--edit--left-side--images-heading {
+  font-size: 1.2rem;
+}
+
+.window--edit--right-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  width: var(--width--window--edit--right-side);
+  min-width: var(--width--window--edit--right-side);
+  background-color: var(--color-light-7);
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.window--edit--right-side--heading {
+  font-size: 1.2rem;
+  user-select: none;
+}
+
+.window--edit--right-side--heading--dataset {
+  padding: 10px 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+.window--edit--right-side--heading--dataset:hover {
+  background-color: var(--color-light-6);
+}
+
+.window--edit--right-side--item-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.window--edit--right-side--contents {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
