@@ -1,5 +1,6 @@
 import ImageDropZone from "./ImageDropZone"
 import { useQuery } from "@apollo/client"
+import { useState } from "react"
 import { gql } from "@apollo/client"
 import "./Window_Edit.css"
 import ItemCard from "./ItemCard"
@@ -45,9 +46,15 @@ type Props = {
 
 export default function Window_Edit({datasetIds}: Props) {
 
-  const { data, loading, error } = useQuery<RETURN_DATA>(GET_DATASETS, {
+  const { data, loading, error, refetch } = useQuery<RETURN_DATA>(GET_DATASETS, {
     variables: {ids: datasetIds}
   })
+
+  const [currentItem, setCurrentItem] = useState<number | null>(null)
+
+  const selectItem = (itemId: number) => {
+    setCurrentItem(itemId)
+  }
   
   const createItemCards = () => {
     if(!datasetIds.length)    return <div>datasetIds length === 0</div>
@@ -65,13 +72,17 @@ export default function Window_Edit({datasetIds}: Props) {
                   </div>
                   <div className="window--edit--right-side--item-cards">
                     {dataset.items.map(item => {
-                      return <ItemCard key={item.id} id={item.id} title={item.title} description={item.description} ></ItemCard>
+                      return <ItemCard flags={{isActive: item.id === currentItem}} key={item.id} id={item.id} title={item.title} description={item.description} onDeleted={refetch} onSelect={selectItem} ></ItemCard>
                     })}
                   </div>
                 </>
               })}
             </div>
           </>
+  }
+
+  const handleUpload = () => {
+    //tidi dada upload to database with all the form data
   }
   
   return <>
@@ -80,7 +91,7 @@ export default function Window_Edit({datasetIds}: Props) {
           <div className="window--edit--left-side--input-form">
             
           </div>
-          <ImageDropZone></ImageDropZone>
+          <ImageDropZone onUpload={handleUpload}></ImageDropZone>
         </div>
 
         <div className="window--edit--right-side">

@@ -4,23 +4,23 @@
   justify-content: center;
   flex-direction: column;
   gap: 4px;
-  padding: 10px 0;
+  padding: 10px 10px;
   height: 64px;
   border-radius: 10px;
   background-color: var(--color-light-6);
   cursor: pointer;
-  border-left: 10px solid transparent;
+  /* border-left: 10px solid transparent; */
   transition: all 0.08s ease-in-out;
 }
 
 .item-card:hover,
 .item-card.active {
-  border-left-color: var(--color-accent);
+  /* border-left-color: var(--color-accent); */
   background-color: var(--color-accent);
 }
 
 .item-card.active:hover {
-  border-left-color: var(--color-accent-hover);
+  /* border-left-color: var(--color-accent-hover); */
   background-color: var(--color-accent);
 }
 

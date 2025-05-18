@@ -2,6 +2,11 @@
   position: relative;
   border-radius: 10px;
   background-color: var(--color-light-7);
+  transition: all 0.08s ease-in-out;
+}
+
+.item-image:hover {
+  box-shadow: 0 0 10px 2px #00000080;
 }
 
 .item-image--img {

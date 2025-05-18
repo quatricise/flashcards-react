@@ -120,7 +120,8 @@ export const resolvers = {
       args: DeleteItemArgs, 
       context: Context
     ) => {
-      return await context.prisma.item.delete({where: {id: args.id}})
+      await context.prisma.item.delete({where: {id: args.id}})
+      return args.id
     },
   },
 

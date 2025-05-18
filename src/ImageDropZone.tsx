@@ -6,10 +6,10 @@ import ItemImage from "./ItemImage";
 type ImagePreview = File & { previewURL: string}
 
 type Props = {
-  itemId: number
+  onUpload: () => unknown
 }
 
-export default function ImageDropZone({ itemId }: Props) {
+export default function ImageDropZone({ onUpload }: Props) {
   const [images, setImages] = useState<ImagePreview[]>();
 
   const onDrop = useCallback((acceptedFiles: ImagePreview[]) => {
@@ -53,13 +53,6 @@ export default function ImageDropZone({ itemId }: Props) {
           </div>
           <div className="image-drop-zone--images">
             {images?.map((file, index) => (
-              // <img
-              //   key={index}
-              //   src={file.previewURL}
-              //   alt="preview"
-              //   width={100}
-              //   style={{ margin: '5px' }}
-              // />
               <ItemImage flags={{editable: true}} url={file.previewURL} key={index} itemId={itemId} onDelete={() => removeImage(index)} ></ItemImage>
             ))}
           </div>

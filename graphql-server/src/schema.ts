@@ -34,6 +34,6 @@ export const typeDefs = gql`
     createDataset(title: String!, items: [Int!]): Dataset!
     addImageToItem(url: String!, items: [Int!]!): Image!
 
-    deleteItem(id: Int!): Boolean
+    deleteItem(id: Int!): Int!
   }
 `
