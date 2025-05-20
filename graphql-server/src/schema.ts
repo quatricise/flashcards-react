@@ -6,7 +6,7 @@ export const typeDefs = gql`
     title:        String!
     description:  String
     datasets:     [Dataset!]!
-    images:       [Image!]
+    images:       [Image!]!
   }
 
   type Dataset {
@@ -30,10 +30,9 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createItem(title: String!, description: String!): Item!
+    createItem(title: String!, description: String!, datasets: [Int!]!): Item!
     createDataset(title: String!, items: [Int!]): Dataset!
-    addImageToItem(url: String!, items: [Int!]!): Image!
-
+    createImage(url: String!, items: [Int!]!): Image!
     deleteItem(id: Int!): Int!
   }
 `

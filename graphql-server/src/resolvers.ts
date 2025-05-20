@@ -50,8 +50,7 @@ export const resolvers = {
       })
     },
     datasetsByIds: async (_parent: unknown, args: DatasetsByIdsArgs, context: Context) => {
-      console.log("Looking for IDs:", args.ids)
-      const result = await context.prisma.dataset.findMany({
+      const data =  await context.prisma.dataset.findMany({
         where: { id: { in: args.ids } },
         include: {
           items: {
@@ -62,8 +61,8 @@ export const resolvers = {
           }
         }
       })
-      console.log(JSON.stringify(result, null, 2))
-      return result
+      console.log(data)
+      return data
     },
   },
 
@@ -99,7 +98,7 @@ export const resolvers = {
       }
     },
     
-    addImageToItem: async (
+    createImage: async (
       _parent: unknown,
       args: CreateImageArgs, 
       context: Context

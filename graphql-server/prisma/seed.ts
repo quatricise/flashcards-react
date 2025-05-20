@@ -2,33 +2,35 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  const item1 = await prisma.item.create({
-    data: { title: 'Bohumín Kubišta', description: 'Malíř a město.' },
-  })
-  const item2 = await prisma.item.create({
-    data: { title: 'Marcel Makrela', description: 'Husky reality.' },
-  })
-  const item3 = await prisma.item.create({
-    data: { title: 'Radek Burgerový Poradce', description: 'Husky reality.' },
-  })
-  const item4 = await prisma.item.create({
-    data: { title: 'Michal Míchačka', description: 'Michal Fuglík Černění.' },
-  })
-  await prisma.dataset.create({
+  const dataset1 = await prisma.dataset.create({
     data: {
       title: "Test Dataset",
-      items: {
-        connect: [{ id: item1.id }, { id: item2.id }, {id: item3.id}],
-      },
     }
   })
-  await prisma.dataset.create({
+  const dataset2 = await prisma.dataset.create({
     data: {
       title: "M+G Fuglík",
-      items: {
-        connect: [{ id: item4.id }],
-      },
     }
+  })
+  /* const item1 =  */await prisma.item.create({
+    data: { title: 'Bohumín Kubišta', description: 'Malíř a město.', datasets: {
+      connect: [{id: dataset1.id}, {id: dataset2.id}]
+    }},
+  })
+  /* const item2 =  */await prisma.item.create({
+    data: { title: 'Marcel Makrela', description: 'Husky reality.' , datasets: {
+      connect: [{id: dataset1.id}, {id: dataset2.id}]
+    }},
+  })
+  /* const item3 =  */await prisma.item.create({
+    data: { title: 'Radek Burgerový Poradce', description: 'Husky reality.' , datasets: {
+      connect: [{id: dataset1.id}, {id: dataset2.id}]
+    }},
+  })
+  /* const item4 =  */await prisma.item.create({
+    data: { title: 'Michal Míchačka', description: 'Michal Fuglík Černění.' , datasets: {
+      connect: [{id: dataset1.id}, {id: dataset2.id}]
+    }},
   })
 }
 

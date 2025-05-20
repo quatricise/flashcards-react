@@ -2,14 +2,13 @@ import "./ItemCard.css"
 import { useState, useRef } from "react"
 import type { KeyboardEvent } from "react"
 import { gql, useMutation } from "@apollo/client"
+import type { Item } from "./GlobalTypes"
 
 type Props = {
-  id: number
-  title: string
-  description: string
-  flags:        ItemCardFlags
-  onDeleted: () => unknown
-  onSelect: (itemId: number) => void
+  item:       Item
+  flags:      ItemCardFlags
+  onDeleted:  () => unknown
+  onSelect:   (itemId: number) => void
 }
 
 const DELETE_ITEM = gql`
@@ -26,7 +25,7 @@ interface ItemCardFlags {
   isActive: boolean
 }
 
-export default function ItemCard({ id, title, description, flags, onDeleted, onSelect }: Props) {
+export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
 
   const [isTryToDelete, setIsTryToDelete] = useState(false)
 
@@ -39,7 +38,7 @@ export default function ItemCard({ id, title, description, flags, onDeleted, onS
   }
 
   const deleteFrFr = () => {
-    deleteItem({variables: {id: id}})
+    deleteItem({variables: {id: item.id}})
   }
 
   const [deleteItem] = useMutation<DELETE_ITEM_RETURN>(DELETE_ITEM, {
@@ -64,15 +63,15 @@ export default function ItemCard({ id, title, description, flags, onDeleted, onS
   }
 
   const handleClick = () => {
-    onSelect?.(id)
+    onSelect?.(item.id)
   }
 
   let className = "item-card"
   if(flags.isActive) className += " active"
 
   const contentsNormal = <>
-    <div className="item-card--title">{title}</div>
-    <div className="item-card--description">{description}</div>
+    <div className="item-card--title">{item.title}</div>
+    <div className="item-card--description">{item.description}</div>
   </>
 
   const contentsWarning = <div className="item-card--title">Really delete?</div>

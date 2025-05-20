@@ -5,6 +5,7 @@
   flex-direction: column;
   width: 100%;
   min-height: 80px;
+  flex-grow: 1;
   border: 2px dashed var(--color-light-6);
   border-radius: 10px;
   user-select: none;
@@ -25,4 +26,9 @@
   flex-wrap: wrap;
   gap: 10px;
   width: 100%;
+  flex-grow: -1;
+}
+
+.image-drop-zone--images .item-image--img {
+  max-width: 100%;
 }

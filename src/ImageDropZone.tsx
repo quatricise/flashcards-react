@@ -1,15 +1,16 @@
 import "./ImageDropZone.css";
 import { useDropzone } from "react-dropzone";
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import ItemImage from "./ItemImage";
 
 type ImagePreview = File & { previewURL: string}
 
 type Props = {
-  onUpload: () => unknown
+  itemId: number | null,
+  onImagesChange: (files: File[]) => void
 }
 
-export default function ImageDropZone({ onUpload }: Props) {
+export default function ImageDropZone({ itemId, onImagesChange }: Props) {
   const [images, setImages] = useState<ImagePreview[]>();
 
   const onDrop = useCallback((acceptedFiles: ImagePreview[]) => {
@@ -17,24 +18,27 @@ export default function ImageDropZone({ onUpload }: Props) {
       file.previewURL = URL.createObjectURL(file)
       return file
     }));
-  }, []);
+    onImagesChange(acceptedFiles)
+  }, [onImagesChange]);
 
-  //@todo URL.revokeObjectURL(url) on the file preview, to release the memory for the blob
-
-  //   useEffect(() => {
-  //   return () => {
-  //     // This runs **when the component unmounts**
-  //     cleanupStuff();
-  //   };
-  // }, []);
+  useEffect(() => {
+    return () => {
+      // This runs **when the component unmounts**
+      // images?.forEach(img => URL.revokeObjectURL(img.previewURL)) 
+      // //actually this caused a bug ↑
+    };
+  }, [images]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'image/*': [] },
-    onDrop,
+    onDrop, //not sure what the rror here is
   });
 
   const removeImage = (index: number) => {
-    setImages(images?.filter((_img, i) => i !== index))
+    const newImages = images?.filter((_img, i) => i !== index)
+    if(newImages) onImagesChange(newImages)
+    
+    setImages(newImages)
   }
 
   const [isMouseOver, setIsMouseOver] = useState(false)
@@ -52,9 +56,11 @@ export default function ImageDropZone({ onUpload }: Props) {
             {message}
           </div>
           <div className="image-drop-zone--images">
-            {images?.map((file, index) => (
-              <ItemImage flags={{editable: true}} url={file.previewURL} key={index} itemId={itemId} onDelete={() => removeImage(index)} ></ItemImage>
-            ))}
+            {
+              images?.map((file, index) => (
+                <ItemImage flags={{editable: true}} url={file.previewURL} key={index} itemId={itemId} onDelete={() => removeImage(index)} ></ItemImage>
+              ))
+            }
           </div>
           </>
 }

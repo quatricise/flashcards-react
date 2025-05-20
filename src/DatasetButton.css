@@ -1,0 +1,19 @@
+.dataset-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  /* width: 120px; */
+  padding: 0 10px;
+  border-radius: 10px;
+  background-color: var(--color-light-6);
+  cursor: pointer;
+}
+
+.dataset-button:hover {
+  background-color: var(--color-light-5);
+}
+
+.dataset-button.active {
+  background-color: var(--color-accent);
+}
