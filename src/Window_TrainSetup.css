@@ -1,0 +1,15 @@
+#window--train-setup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100vw;
+  height: 100vh;
+  padding: 80px;
+}
+
+.window--train-setup--contents {
+  width: 640px;
+  border-radius: 20px;
+  background-color: var(--color-light-7);
+}

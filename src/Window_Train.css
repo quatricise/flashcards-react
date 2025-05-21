@@ -1,0 +1,68 @@
+#window--train {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  width: 100vw;
+  height: 100vh;
+  padding: 80px;
+}
+
+.window--train--buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.window--train--button--fail {
+  font-size: 1rem;
+}
+
+.window--train--button--success {
+  font-size: 1rem;
+}
+
+.training-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 800px;
+  height: 520px;
+  border-radius: 20px;
+  user-select: none;
+  cursor: pointer;
+  transition: all 0.08s ease-in-out;
+}
+
+.training-card.side-a {
+  background-color: var(--color-light-7);
+}
+
+.training-card.side-b {
+  background-color: var(--color-accent);
+}
+.training-card.side-a:hover {
+  background-color: var(--color-light-6);
+}
+
+.training-card.side-b:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.training-card--title {
+  font-weight: 400;
+  font-size: 2rem;
+}
+
+.training-card--description {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+.training-card--images {
+  font-size: 1.5rem;
+  font-weight: 300;
+  /* transition: all 0.5s cubic-bezier(0.1, 1.0, 0.1, 0.8); */
+}

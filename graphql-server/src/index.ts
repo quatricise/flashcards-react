@@ -10,8 +10,6 @@ const prisma = new PrismaClient()
 const app = express()
 app.use(cors({
   origin: "http://localhost:5173",
-  // allowedHeaders: ['Content-Type', 'Authorization'],
-  // methods: ["GET", "POST", "PUT", "DELETE"],
 }))
 app.use("/api", uploadRouter)
 app.use("/uploads", express.static("uploads"))

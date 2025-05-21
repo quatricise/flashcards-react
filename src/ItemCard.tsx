@@ -23,6 +23,7 @@ type DELETE_ITEM_RETURN = {
 
 interface ItemCardFlags {
   isActive: boolean
+  isDim: boolean
 }
 
 export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
@@ -68,6 +69,7 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
 
   let className = "item-card"
   if(flags.isActive) className += " active"
+  if(flags.isDim)    className += " dim"
 
   const contentsNormal = <>
     <div className="item-card--title">{item.title}</div>

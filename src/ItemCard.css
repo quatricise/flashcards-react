@@ -3,9 +3,9 @@
   display: flex;
   justify-content: center;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 10px;
-  height: 64px;
+  gap: 3px;
+  padding: 0 10px;
+  height: 60px;
   border-radius: 10px;
   background-color: var(--color-light-6);
   cursor: pointer;
@@ -24,10 +24,14 @@
   background-color: var(--color-accent);
 }
 
+.item-card.dim {
+  opacity: 0.5;
+}
+
 
 .item-card--title {
   color: var(--color-light-0);
-  font-size: 1rem;
+  font-size: 0.9rem;
   user-select: none;
 }
 

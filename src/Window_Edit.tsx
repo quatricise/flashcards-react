@@ -30,6 +30,24 @@ const GET_DATASETS = gql`
   }
 `
 
+const GET_ITEMS = gql`
+  query {
+    items {
+      id
+      title
+      description
+      datasets {
+        id
+        title
+      }
+      images {
+        id
+        url
+      }
+    }
+  }
+`
+
 const CREATE_ITEM = gql`
   mutation CreateItem($title: String!, $description: String!, $datasets: [Int!]!) {
     createItem(title: $title, description: $description, datasets: $datasets) {
@@ -53,6 +71,10 @@ type GET_DATASETS_RETURN = {
   datasetsByIds: Dataset[]
 }
 
+type GET_ITEMS_RETURN = {
+  items: Item[]
+}
+
 type CREATE_ITEM_RETURN = {
   item: Item
 }
@@ -72,19 +94,47 @@ type UploadData = {
 
 export default function Window_Edit({datasetIds}: Props) {
 
-  const { data, loading, error, refetch } = useQuery<GET_DATASETS_RETURN>(GET_DATASETS, {
+  const { data: dataDatasets, loading, error, refetch } = useQuery<GET_DATASETS_RETURN>(GET_DATASETS, {
     variables: {ids: datasetIds}
   })
 
+  const {data: dataItems} = useQuery<GET_ITEMS_RETURN>(GET_ITEMS)
+  
   const items: Map<number, Item> = new Map() //oh god this has to be managed by the useState monster
-  
-  data?.datasetsByIds.forEach(dataset => {
-    dataset.items.forEach(item => items.set(item.id, item))
-  })
-  
-  // const [windowState, setWindowState] = useState<"add"|"edit">("add");
 
-  const [currentItemId, setCurrentItemId] = useState<number>(0)
+  if(dataItems) {
+    dataItems.items.forEach(item => items.set(item.id, item))
+  }
+  
+  const [itemState, setItemState] = useState<"add"|"edit">("add");
+
+  const setItemStateAdd = () => {
+    if(inputTitle.current) {
+      inputTitle.current.value = ""
+    }
+    if(inputDescription.current) {
+      inputDescription.current.value = ""
+    }
+    setCurrentItemId(0)
+    setItemState("add")
+  }
+
+  const setItemStateEdit = (itemId: number) => {
+    const currentItem = items.get(itemId)
+    if(!currentItem) {
+      throw new Error("No current item. Cannot set state to 'edit'.")
+    }
+    if(inputTitle.current) {
+      inputTitle.current.value = currentItem.title
+    }
+    if(inputDescription.current) {
+      inputDescription.current.value = currentItem.description
+    }
+    setCurrentItemId(itemId)
+    setItemState("edit")
+  }
+
+  const [currentItemId, setCurrentItemId] = useState<number>(0) //zero (0) here means there is no item
 
   const uploadData: UploadData = {title: "Empty", description: "Empty", images: [], datasets: []}
 
@@ -92,7 +142,7 @@ export default function Window_Edit({datasetIds}: Props) {
   const inputDescription = useRef<HTMLTextAreaElement>(null)
   
   const selectItem = (id: number) => {
-    setCurrentItemId(id)
+    setItemStateEdit(id)
   }
 
   const handleImageChange = (images: File[]) => {
@@ -109,7 +159,12 @@ export default function Window_Edit({datasetIds}: Props) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     console.log(uploadData)
+    console.log("Submitted upload form.")
     uploadItemSingle({variables: { title: uploadData.title, description: uploadData.description, datasets: uploadData.datasets}})
+  }
+
+  const handleDiscardChanges = () => {
+    setItemStateAdd()
   }
 
   const [uploadItemSingle] = useMutation<CREATE_ITEM_RETURN>(CREATE_ITEM, {
@@ -161,41 +216,43 @@ export default function Window_Edit({datasetIds}: Props) {
   }
 
   const createItemCards = () => {
-  if(!datasetIds.length)    return <div>datasetIds length === 0</div>
-  if(loading)               return <div>Loading datasets...</div>
-  if(error)                 return <div>Error loading datasets...</div>
-  if(!data)                 return <div>No data</div>
-  if(!data?.datasetsByIds)  return <div>No datasets</div>
+    if(!datasetIds.length)    return <div>datasetIds length === 0</div>
+    if(loading)               return <div>Loading datasets...</div>
+    if(error)                 return <div>Error loading datasets...</div>
+    if(!dataDatasets)                 return <div>No data</div>
+    if(!dataDatasets?.datasetsByIds)  return <div>No datasets</div>
 
-  return <>
-          <div className="window--edit--right-side--contents">
-            {data?.datasetsByIds?.map(dataset => {
-              return <div key={dataset.id} className="window--edit--right-side--contents-block" >
-                <div className="window--edit--right-side--heading--dataset" key={dataset.id}>
-                  {dataset.title} <span className="text--secondary">{" (" + dataset.items.length + ")"}</span>
+    return <>
+            <div className="window--edit--right-side--contents">
+              {dataDatasets?.datasetsByIds?.map(dataset => {
+                return <div key={dataset.id} className="window--edit--right-side--contents-block" >
+                  <div className="window--edit--right-side--heading--dataset" key={dataset.id}>
+                    {dataset.title} <span className="text--secondary">{" (" + dataset.items.length + ")"}</span>
+                  </div>
+                  <div className="window--edit--right-side--item-cards">
+                    {dataset.items.map(item => {
+                      const isDim = currentItemId !== 0 && item.id !== currentItemId 
+                      return <ItemCard item={item} flags={{isActive: item.id === currentItemId, isDim}} key={item.id} onDeleted={refetch} onSelect={selectItem} ></ItemCard>
+                    })}
+                  </div>
                 </div>
-                <div className="window--edit--right-side--item-cards">
-                  {dataset.items.map(item => {
-                    return <ItemCard item={item} flags={{isActive: item.id === currentItemId}} key={item.id} onDeleted={refetch} onSelect={selectItem} ></ItemCard>
-                  })}
-                </div>
-              </div>
-            })}
-          </div>
-        </>
+              })}
+            </div>
+          </>
   }
 
   const createDatasetButtons = () => {
-    const item = items.get(currentItemId)
+    const item = items
     if(!item) return null
     
     return <>
-        {data?.datasetsByIds.map(dataset => {
+        {dataDatasets?.datasetsByIds.map(dataset => {
           const active = items.get(currentItemId)?.datasets.find(d => d.id === dataset.id);
           return <DatasetButton key={dataset.id} dataset={dataset} flags={{ active: !!active }} onToggle={handleDatasetToggle}></DatasetButton>
         })}
     </>
   }
+  
   /** Handles what happens when you click the dataset button on left-side. */
   const handleDatasetToggle = (dataset: Dataset) => {
     const item = items.get(currentItemId)
@@ -210,13 +267,13 @@ export default function Window_Edit({datasetIds}: Props) {
     }
   }
 
-  let textHeadingLeft = <span>New item</span>
+  let textHeadingLeft = <span className="text--secondary">New item</span>
   let textSubmitValue = "Add item"
 
   if(currentItemId !== 0) {
     textHeadingLeft = <span>
-      <span>Editing item: </span>
-      <span className="text--secondary">{items.get(currentItemId)?.title}</span>
+      {/* <span>Editing item: </span> */}
+      <span>{items.get(currentItemId)?.title}</span>
     </span>
     textSubmitValue = "Update item"
   }
@@ -236,7 +293,7 @@ export default function Window_Edit({datasetIds}: Props) {
             <div className="window--edit--left-side--bottom-bar">
               <h2 className="window--edit--left-side--bottom-bar--heading" >{textHeadingLeft}</h2>
               <div style={{flexGrow: 1}}></div>
-              {currentItemId !== 0 ? <button className="window--edit--left-side--button--cancel">Discard changes</button> : null}
+              {currentItemId !== 0 ? <button type="button" onClick={handleDiscardChanges} className="window--edit--left-side--button--cancel">Discard changes</button> : null}
               <input type="submit" value={textSubmitValue}/>
             </div>
           </form>
