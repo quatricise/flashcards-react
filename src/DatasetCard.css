@@ -2,7 +2,8 @@
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  width: 480px;
+  /* width: 480px; */
+  width: 100%;
   padding: 20px;
   border-radius: 10px;
   background-color: var(--color-light-7);
@@ -23,6 +24,16 @@
 }
 .dataset-card.active {
   border-left: 10px solid var(--color-accent);
+}
+
+.dataset-card.warning {
+  background-color: var(--color-warning);
+  color: var(--color-white);
+}
+
+.dataset-card.warning .dataset-card--title,
+.dataset-card.warning .dataset-card--items {
+  color: var(--color-white);
 }
 
 .dataset-card.active:hover {

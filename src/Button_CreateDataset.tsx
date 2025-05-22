@@ -3,14 +3,19 @@ import { useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import "./Button_CreateDataset.css";
 
-function Button_CreateDataset() {
-  const CREATE_DATASET = gql`
-    mutation CreateDataset($title: String!) {
-      createDataset(title: $title) {
-        title
-      }
+const CREATE_DATASET = gql`
+  mutation CreateDataset($title: String!) {
+    createDataset(title: $title) {
+      title
     }
-  `
+  }
+`
+
+type Props = {
+  onCreate: () => void
+}
+
+function Button_CreateDataset({ onCreate }: Props) {
   const [createDataset] = useMutation(CREATE_DATASET, {
     onCompleted: (data) => {
       console.log('Item added:', data.createDataset);
@@ -18,6 +23,7 @@ function Button_CreateDataset() {
       if(datasetName.current) {
         datasetName.current.value = ""
       }
+      onCreate()
     },
     onError: (err) => {
       console.error('Failed to add item:', err.message, err.cause, err.extraInfo);
@@ -25,6 +31,7 @@ function Button_CreateDataset() {
   });
 
   const handleKeyDown = (e: KeyboardEvent) => {
+    if(e.code === "Escape") return setFocus(false)
     if(e.code !== "Enter") return
     
     if(datasetName.current?.value) {

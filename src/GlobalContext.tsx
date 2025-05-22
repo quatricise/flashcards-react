@@ -1,38 +1,36 @@
 import { createContext, useReducer, useContext } from "react"
-import type { ReactNode } from "react"
-import type { AppWindow } from "./GlobalTypes"
+import type { ReactNode, Dispatch } from "react"
+import type { AppWindow, AppAction, AppActionPayload } from "./GlobalTypes"
 
 export type AppState = {
-  window: AppWindow | null
+  window:   AppWindow | undefined
+  history:  AppWindowHistory
 }
 
-const appStateInitial = {
-  window: null,
+type AppWindowHistory = AppWindow[]
+
+const appStateInitial: AppState = {
+  window:   undefined,
+  history:  []
 };
 
-const AppContext = createContext(appStateInitial);
+const appDispatchInitial: Dispatch<AppAction> = () => {
+  throw new Error('Dispatch called outside of GlobalProvider')
+}
+
+const AppContextState =     createContext <AppState> (appStateInitial);
+const AppContextDispatch =  createContext <Dispatch<AppAction>> (appDispatchInitial);
 
 interface Props {
   children: ReactNode
 }
 
-interface AppAction {
-  name:     AppActionName
-  payload:  AppActionPayload
-}
-
-interface AppActionPayload {
-  window: AppWindow,
-}
-
-type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE"
-
-function stateReducer(state: AppState, action: AppAction) {
+function stateReducer(state: AppState, action: AppAction): AppState {
   switch (action.name) {
     case 'WINDOW_SET':
       return { ...state, window: action.payload.window };
     case 'WINDOW_CLOSE':
-      return { ...state, theme: action.payload };
+      return { ...state, window: state.history.pop() };
     default:
       return state;
   }
@@ -41,10 +39,13 @@ function stateReducer(state: AppState, action: AppAction) {
 export const AppProvider = ({ children }: Props) => {
   const [state, dispatch] = useReducer(stateReducer, appStateInitial);
   return (
-    <AppContext.Provider value={{ state, dispatch }}>
-      {children}
-    </AppContext.Provider>
+    <AppContextState.Provider value={state}>
+      <AppContextDispatch.Provider value={dispatch}>
+        {children}
+      </AppContextDispatch.Provider>
+    </AppContextState.Provider>
   );
 };
 
-export const useAppContext = () => useContext(AppContext);
+export const useAppValue =    () => useContext(AppContextState);
+export const useAppDispatch = () => useContext(AppContextDispatch);

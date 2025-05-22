@@ -3,13 +3,13 @@
   gap: 20px;
   justify-content: center;
   align-items: center;
-  height: 90px;
+  height: 60px;
   width: 480px;
   font-size: 1rem;
   user-select: none;
   border: 2px solid var(--color-light-7);
+  background-color: var(--color-light-7);
   padding: 10px 10px 10px 30px;
-  background-color: transparent;
   transition: all 0.1s ease-in-out;
 }
 

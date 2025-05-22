@@ -48,3 +48,14 @@ export type AppWindow =
   | typeof Window_DatasetSelect
   | typeof Window_Main
   | typeof Window_TrainSetup;
+
+export type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE"
+
+export interface AppActionPayload {
+  window: AppWindow
+}
+
+export interface AppAction {
+  name:     AppActionName
+  payload:  AppActionPayload
+}

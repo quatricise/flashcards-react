@@ -116,7 +116,8 @@ button {
 }
 
 button.warning:hover,
-button.warning.active {
+button.warning.active,
+button.warning.permanent {
   background-color: var(--color-warning);
 }
 
@@ -144,6 +145,10 @@ input[type=submit]:hover {
   background-color: var(--color-accent-hover);
 }
 
+
+
+/* SCROLLBARS */
+
 ::-webkit-scrollbar {
   width: 10px; /* == height for horizontal */
 }
@@ -157,8 +162,7 @@ input[type=submit]:hover {
   border-radius: 4px;
 }
 
-/* For Firefox */
-* {
+* { /* for Firefox */
   scrollbar-width: thin;
   scrollbar-color: var(--color-light-5) transparent;
 }

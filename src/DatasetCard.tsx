@@ -4,17 +4,22 @@ import type { Dataset } from "./GlobalTypes";
 
 type Props = {
   dataset: Dataset
+  warn: boolean
   onSelectedChange: (dataset: Dataset, state: boolean) => void
 }
 
-function DatasetCard({ dataset, onSelectedChange }: Props) {
+function DatasetCard({ dataset, warn, onSelectedChange }: Props) {
 
   const [active, setActive] = useState<true | false>(false);
 
   let cardClass = "dataset-card"
+  if(warn) {
+    cardClass += " warning"
+  } else
   if(active) {
      cardClass += " active"
   }
+  
 
   const toggleSelected = () => {
     onSelectedChange(dataset, !active) // --→ !active because the state does does not update immediately

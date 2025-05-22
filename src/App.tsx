@@ -5,6 +5,9 @@ import Window_Train from "./Window_Train";
 import Window_TrainSetup from './Window_TrainSetup';
 
 function App() {
+
+  //I need to push windows into some neat global array, I think, or a map, otherwise I cannot use them
+
   return <>
     <Window_Main/>
     <Window_DatasetSelect/>
