@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import './index.css'
 import App from './App.tsx'
+import { AppProvider } from './GlobalContext';
 
 
 
@@ -16,7 +17,9 @@ const client = new ApolloClient({
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <ApolloProvider client={client}>
-          <App />
+          <AppProvider>
+            <App/>
+          </AppProvider>
       </ApolloProvider>
     </StrictMode>,
 )

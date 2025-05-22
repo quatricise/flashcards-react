@@ -126,6 +126,7 @@
   height: 60px;
   padding-top: 0;
   padding-bottom: 0;
+  color: var(--color-white);
 }
 
 .window--edit--left-side--button--cancel {

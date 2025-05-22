@@ -1,13 +1,13 @@
 import { useState } from "react";
 import "./DatasetCard.css";
+import type { Dataset } from "./GlobalTypes";
 
 type Props = {
-  id: number
-  title: string
-  items: number[]
+  dataset: Dataset
+  onSelectedChange: (dataset: Dataset, state: boolean) => void
 }
 
-function DatasetCard({id, title, items}: Props) {
+function DatasetCard({ dataset, onSelectedChange }: Props) {
 
   const [active, setActive] = useState<true | false>(false);
 
@@ -16,13 +16,18 @@ function DatasetCard({id, title, items}: Props) {
      cardClass += " active"
   }
 
+  const toggleSelected = () => {
+    onSelectedChange(dataset, !active) // --→ !active because the state does does not update immediately
+    setActive(active ? false : true)
+  }
+
   return <>
-          <div key={id} className={cardClass} onClick={() => setActive(active ? false : true)} tabIndex={0}>
+          <div key={dataset.id} className={cardClass} onClick={toggleSelected} tabIndex={0}>
             <div className="dataset-card--title">
-              {title}
+              {dataset.title}
             </div>
             <div className="dataset-card--items">
-              {items.length} {items.length !== 1 ? "items" : "item"}
+              {dataset.items.length} {dataset.items.length !== 1 ? "items" : "item"}
             </div>
           </div>
         </>

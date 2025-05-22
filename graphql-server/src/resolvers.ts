@@ -15,11 +15,15 @@ interface CreateItemArgs {
 interface CreateImageArgs {
   url:      string
   title:    string
-  items:  number[] /* this array might actually contain a singular image for a long time, I'm not sure how uploads will work. */
+  items:    number[] /* this array might actually contain a singular image for a long time, I'm not sure how uploads will work. */
 }
 
 interface DeleteItemArgs {
   id: number
+}
+
+interface DeleteDatasetsArgs {
+  ids: number[]
 }
 
 
@@ -89,7 +93,7 @@ export const resolvers = {
       try {
         return await context.prisma.dataset.create({
         data: {
-          title: args.title
+            title: args.title
           },
         })
       }
@@ -119,8 +123,30 @@ export const resolvers = {
       args: DeleteItemArgs, 
       context: Context
     ) => {
+      console.log("Hi, deleting item.")
       await context.prisma.item.delete({where: {id: args.id}})
+      //@todo delete images if they only had this item as reference
       return args.id
+    },
+
+    deleteDatasets: async (
+      _parent: unknown,
+      args: DeleteDatasetsArgs,
+      context: Context
+    ) => {
+      console.log("Ids: " + args.ids)
+      for(const id of args.ids) {
+        await context.prisma.dataset.update({
+          where: {id: id},
+          data: {
+            items: {
+              set: []
+            }
+          }
+        })
+      }
+      await context.prisma.dataset.deleteMany({where: {id: {in: args.ids}}})
+      return args.ids
     },
   },
 

@@ -1,3 +1,9 @@
+import Window_Train from './Window_Train';
+import Window_Edit from './Window_Edit';
+import Window_DatasetSelect from './Window_DatasetSelect';
+import Window_Main from './Window_Main';
+import Window_TrainSetup from './Window_TrainSetup';
+
 export type Dataset = {
   id:           number;
   title:        string;
@@ -35,3 +41,10 @@ export type TrainingSetup = {
   A: TrainingData[]
   B: TrainingData[]
 }
+
+export type AppWindow =
+  | typeof Window_Train
+  | typeof Window_Edit
+  | typeof Window_DatasetSelect
+  | typeof Window_Main
+  | typeof Window_TrainSetup;
