@@ -9,6 +9,7 @@ interface Context {
 interface CreateItemArgs {
   title:        string
   description:  string
+  datasets:     number[]
 }
 
 
@@ -40,12 +41,30 @@ export const resolvers = {
   Query: {
     datasets: async (_parent: unknown, _args: unknown, context: Context) => {
       return await context.prisma.dataset.findMany({
-        include: { items: true },
+        include: {
+          items: {
+            include: {
+              images: true,
+              datasets: true
+            }
+          }
+        }
       })
     },
     items: async (_parent: unknown, _args: unknown, context: Context) => {
       return await context.prisma.item.findMany({
-        include: { datasets: true, images: true },
+        include: {
+          datasets: {
+            include: {
+              items: {
+                include: {
+                  images: true
+                }
+              }
+            }
+          }, 
+          images: true 
+        },
       })
     },
     images: async (_parent: unknown, _args: unknown, context: Context) => {
@@ -78,10 +97,13 @@ export const resolvers = {
     ) => {
       return await context.prisma.item.create({
         data: {
-          title: args.title,
-          description: args.description,
+          title:        args.title,
+          description:  args.description,
+          datasets: {
+            connect: args.datasets.map(datasetId => ({id: datasetId}))
+          },
         },
-        include: { datasets: true }
+        include: { datasets: true },
       })
     },
 
@@ -90,16 +112,11 @@ export const resolvers = {
       args: CreateDatasetArgs,
       context: Context
     ) => {
-      try {
-        return await context.prisma.dataset.create({
+      return await context.prisma.dataset.create({
         data: {
             title: args.title
           },
         })
-      }
-      catch(error) {
-        console.error(error)
-      }
     },
     
     createImage: async (
@@ -112,9 +129,10 @@ export const resolvers = {
           url: args.url,
           title: args.title,
           items: { 
-            connect: args.items.map(id => ({ id })) //will only be one item most likely, but still
+            connect: args.items.map(itemId => ({ id: itemId })) //will only be one item most likely, but still
           },
         },
+        include: { items: true }
       })
     },
 

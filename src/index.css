@@ -182,3 +182,22 @@ input[type=submit]:hover {
 .text--secondary {
   color: var(--color-dark-2);
 }
+
+.filler {
+  flex-grow: 1;
+}
+
+
+
+
+/* ICONS */
+
+.icon {
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.icon.datasets {
+  background-image: url(./images/ui/icon_datasets.png);
+}

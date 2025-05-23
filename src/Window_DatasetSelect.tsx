@@ -7,6 +7,7 @@ import type { Dataset } from "./GlobalTypes";
 /* COMPONENTS */
 import DatasetCard from "./DatasetCard";
 import Button_CreateDataset from "./Button_CreateDataset";
+import { useAppDispatch, useAppState } from "./GlobalContext";
 
 const GET_DATASETS = gql`
   query {
@@ -36,6 +37,9 @@ type DELETE_DATASET_RETURN = {
 
 function Window_DatasetSelect() {
 
+  const dispatch = useAppDispatch()
+  const state = useAppState()
+
   const { data, refetch } = useQuery<GET_DATASETS_RETURN>(GET_DATASETS, {
     onCompleted: () => {
       console.log("GET_DATASETS: Fetched datasets.")
@@ -61,6 +65,10 @@ function Window_DatasetSelect() {
     const vars = {ids: datasetsSelected.map(d => d.id)}
     deleteDatasets({variables: vars})
     setDatasetsSelected([])
+  }
+
+  const handleEdit = () => {
+    dispatch({name: "WINDOW_SET", payload: {window: state.windows.Edit}})
   }
 
   const handleWindowClick = (e: MouseEvent) => {
@@ -133,6 +141,7 @@ function Window_DatasetSelect() {
               <button 
               title={"Edit items in the selected datasets."}
               style={{fontSize: "1rem", pointerEvents: isNoSelection ? "none" : undefined}}
+              onClick={handleEdit}
               >
                 Edit the poison
               </button>

@@ -7,10 +7,14 @@ import Window_TrainSetup from './Window_TrainSetup';
 export type Dataset = {
   id:           number;
   title:        string;
-  items:        Item[];
+  items:        ItemRef[];
 }
 
 export type DatasetRef = {
+  id: number
+}
+
+export type ItemRef = {
   id: number
 }
 
@@ -49,10 +53,11 @@ export type AppWindow =
   | typeof Window_Main
   | typeof Window_TrainSetup;
 
-export type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE"
+export type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE" | "EDIT_DATA"
 
 export interface AppActionPayload {
-  window: AppWindow
+  window:     AppWindow | undefined
+  datasets?:   number[]
 }
 
 export interface AppAction {

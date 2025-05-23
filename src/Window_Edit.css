@@ -50,13 +50,21 @@
 }
 
 .window--edit--right-side--heading--dataset {
-  padding: 10px 5px;
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+  height: 40px;
   border-radius: 5px;
   cursor: pointer;
   user-select: none;
 }
+
 .window--edit--right-side--heading--dataset:hover {
   background-color: var(--color-light-6);
+}
+
+.window--edit--right-side--heading--dataset:hover .icon {
+  opacity: 1;
 }
 
 .window--edit--right-side--item-cards {
@@ -76,6 +84,13 @@
   flex-direction: column;
   gap: 5px;
 }
+
+.icon.window--edit--right-side--icon--dropdown {
+  width: 16px;
+  height: 16px;
+  opacity: 0.5;
+}
+
 
 .window--edit--left-side--input-form {
   display: flex;
@@ -104,6 +119,7 @@
 .window--edit--left-side--heading {
   font-weight: 400;
   padding-left: 2px;
+  user-select: none;
 }
 
 .window--edit--left-side--dataset-list {
@@ -117,9 +133,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 5px 5px 5px 10px;
+  padding: 5px 5px 5px 20px;
   border: 2px solid var(--color-light-6);
   border-radius: 14px;
+  user-select: none;
 }
 
 #window--edit input[type=submit] {
@@ -133,7 +150,7 @@
   background-color: var(--color-light-6);
   font-size: 1.2rem;
   font-weight: 300;
-  height: 64px;
+  height: 60px;
 }
 
 .window--edit--left-side--button--cancel:hover {
@@ -144,4 +161,29 @@
   font-weight: 400;
   font-size: 1.2rem;
   color: var(--color-light-0);
+}
+
+.window--edit--very-left-side {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--color-light-7);
+  border-radius: 20px;
+}
+
+.window--edit--very-left-side.collapsed {
+  width: 60px;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+}
+
+#window--edit .icon.datasets {
+  width:  40px;
+  height: 40px;
+  border-radius: 5px;
+}
+
+#window--edit .icon.datasets:hover {
+  background-color: var(--color-light-6);
 }

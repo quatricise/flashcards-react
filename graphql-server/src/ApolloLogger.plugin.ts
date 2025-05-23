@@ -7,12 +7,15 @@ export const ApolloLogger: ApolloServerPlugin = {
     return {
       async didResolveOperation(ctx) {
         console.log('[GraphQL] Operation:', ctx.operationName);
-        console.log('[GraphQL] Query:', ctx.request.query);
+        console.log('[GraphQL] Query:',     ctx.request.query);
         console.log('[GraphQL] Variables:', ctx.request.variables);
       },
       async willSendResponse(ctx) {
         console.log('[GraphQL] Sending response');
       },
+      async didEncounterErrors(ctx) {
+        console.log("[GraphQL] Encountered errors:", ctx.errors);
+      }
     };
   },
 };

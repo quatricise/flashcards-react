@@ -1,6 +1,6 @@
 import "./ItemCard.css"
 import { useState, useRef } from "react"
-import type { KeyboardEvent } from "react"
+import type { KeyboardEvent, MouseEvent } from "react"
 import { gql, useMutation } from "@apollo/client"
 import type { Item } from "./GlobalTypes"
 
@@ -29,6 +29,8 @@ interface ItemCardFlags {
 export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
 
   const [isTryToDelete, setIsTryToDelete] = useState(false)
+
+  const buttonDelete = useRef<HTMLImageElement>(null)
 
   const deleteTry = () => {
     if(isTryToDelete) {
@@ -63,8 +65,13 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
     }
   }
 
-  const handleClick = () => {
-    onSelect?.(item.id)
+  const handleClick = (e: MouseEvent) => {
+
+    if(buttonDelete.current && e.target === buttonDelete.current) {
+      //
+    } else {
+      onSelect?.(item.id)
+    }
   }
 
   let className = "item-card"
@@ -79,13 +86,13 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
   const contentsWarning = <div className="item-card--title">Really delete?</div>
 
   const inputTrap = useRef<HTMLInputElement>(null)
-  if(isTryToDelete) inputTrap.current?.focus() //@todo this is disgraceful, I need to do this topdown and trap the input differently.
+  if(isTryToDelete) inputTrap.current?.focus() //@todo this is very disgraceful, I need to do this topdown from Window_Edit and trap the input differently. This can break!
 
   return  <>
             <div className={className} onClick={handleClick} onKeyDown={handleKeyDown}>
               <input ref={inputTrap} type="text" name="" id="" style={{filter: "opacity(0)", position: "absolute", zIndex: -1}}/>
               {isTryToDelete ? contentsWarning : contentsNormal}
-              <img src="./images/ui/icon_trash.png" alt="" className="item-card--icon-delete" onClick={deleteTry} />
+              <img src="./images/ui/icon_trash.png" alt="" className="item-card--icon-delete" onClick={deleteTry} ref={buttonDelete} />
             </div>
           </>
 }

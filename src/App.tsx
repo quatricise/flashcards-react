@@ -1,19 +1,16 @@
-import Window_DatasetSelect from "./Window_DatasetSelect";
-import Window_Main from "./Window_Main";
-import Window_Edit from "./Window_Edit";
-import Window_Train from "./Window_Train";
-import Window_TrainSetup from './Window_TrainSetup';
+import { useEffect } from 'react';
+import { useAppState } from './GlobalContext';
+
 
 function App() {
+  const state = useAppState()
 
-  //I need to push windows into some neat global array, I think, or a map, otherwise I cannot use them
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', "dark"); //temp hack, I suppose
+  });
 
   return <>
-    <Window_Main/>
-    <Window_DatasetSelect/>
-    <Window_Edit datasetIds={[1, 2, 3]} />
-    <Window_Train/>
-    <Window_TrainSetup/>
+    {state.window()}
   </>
 }
 

@@ -3,11 +3,11 @@
   align-items: center;
   justify-content: center;
   height: 40px;
-  /* width: 120px; */
   padding: 0 10px;
   border-radius: 10px;
   background-color: var(--color-light-6);
   cursor: pointer;
+  user-select: none;
 }
 
 .dataset-button:hover {
