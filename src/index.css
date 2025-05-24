@@ -201,3 +201,7 @@ input[type=submit]:hover {
 .icon.datasets {
   background-image: url(./images/ui/icon_datasets.png);
 }
+
+.icon.items {
+  background-image: url(./images/ui/icon_items.png);
+}

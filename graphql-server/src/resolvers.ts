@@ -1,22 +1,31 @@
 import { PrismaClient } from '@prisma/client'
 
-// Define resolver context type
 interface Context {
   prisma: PrismaClient
 }
 
-// Args types for your mutations
+
+
+/* QUERY ARGS */
+
+interface DatasetsByIdsArgs {
+  ids: number[]
+}
+
+
+
+/* MUTATION ARGS */
+
 interface CreateItemArgs {
   title:        string
   description:  string
   datasets:     number[]
 }
 
-
 interface CreateImageArgs {
   url:      string
   title:    string
-  items:    number[] /* this array might actually contain a singular image for a long time, I'm not sure how uploads will work. */
+  items:    number[] /* this array might actually contain a singular Item for a long time. But it's no harm if this is an array. */
 }
 
 interface DeleteItemArgs {
@@ -27,14 +36,15 @@ interface DeleteDatasetsArgs {
   ids: number[]
 }
 
-
-/* dataset is created wrong, it should be possile to create it empty, and later add items into it. Items by default must belong to a dataset */
 interface CreateDatasetArgs {
   title:    string
 }
 
-interface DatasetsByIdsArgs {
-  ids: number[]
+interface UpdateItemArgs {
+  id:           number
+  title:        string
+  description:  string
+  datasets:     number[]
 }
 
 export const resolvers = {
@@ -166,6 +176,24 @@ export const resolvers = {
       await context.prisma.dataset.deleteMany({where: {id: {in: args.ids}}})
       return args.ids
     },
+
+    updateItem: async (
+      _parent: unknown,
+      args: UpdateItemArgs,
+      context: Context
+    ) => {
+      return await context.prisma.item.update({
+        where: {id: args.id},
+        data: {
+          title: args.title,
+          description: args.description,
+          datasets: {
+            set: args.datasets.map(datasetId => ({id: datasetId}))
+          },
+        },
+        include: {images: true, datasets: true}
+      })
+    }
   },
 
   // Dataset: {

@@ -13,8 +13,8 @@
   transition: all 0.08s ease-in-out;
 }
 
-.item-card:hover,
-.item-card.active {
+.item-card:hover:not(.warning),
+.item-card.active:not(.warning) {
   /* border-left-color: var(--color-accent); */
   background-color: var(--color-accent);
 }
@@ -24,8 +24,19 @@
   background-color: var(--color-accent);
 }
 
+.item-card.warning {
+  background-color: var(--color-warning);
+}
+
+.item-card.warning:hover {
+  background-color: var(--color-warning);
+}
+
 .item-card.dim {
   opacity: 0.5;
+}
+.item-card.dim:hover {
+  background-color: var(--color-light-6);
 }
 
 
@@ -50,12 +61,23 @@
   top: calc(50% - var(--size)/2);
   right: calc(var(--size) / 2);
   border-radius: 5px;
+  user-select: none;
 }
 
-.item-card--icon-delete:hover {
+.item-card .item-card--icon-delete:hover {
   background-color: var(--color-accent-hover);
 }
 
-.item-card:hover .item-card--icon-delete {
+.item-card.warning .item-card--icon-delete:hover {
+  background-color: var(--color-warning-hover);
+}
+
+.item-card:hover .item-card--icon-delete,
+.item-card.warning .item-card--icon-delete {
   display: flex;
+}
+
+.item-card input[type=text] {
+  width: 0;
+  height: 0;
 }

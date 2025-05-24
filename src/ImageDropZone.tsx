@@ -11,6 +11,7 @@ type Props = {
 }
 
 export default function ImageDropZone({ itemId, onImagesChange }: Props) {
+  
   const [images, setImages] = useState<ImagePreview[]>();
 
   const onDrop = useCallback((acceptedFiles: ImagePreview[]) => {
@@ -23,20 +24,22 @@ export default function ImageDropZone({ itemId, onImagesChange }: Props) {
 
   useEffect(() => {
     return () => {
-      // This runs **when the component unmounts**
+      //@todo I actually need this to work in the future to avoid hogging up much memory if users upload shit tons of images
       // images?.forEach(img => URL.revokeObjectURL(img.previewURL)) 
-      // //actually this caused a bug ↑
+      // //actually this caused a bug ↑ but it should ideally run when the component is dismounted??
     };
   }, [images]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'image/*': [] },
-    onDrop, //not sure what the rror here is
+    onDrop, //not sure what the error here is
   });
 
   const removeImage = (index: number) => {
     const newImages = images?.filter((_img, i) => i !== index)
     if(newImages) onImagesChange(newImages)
+
+    //maybe here I revoke the url for the image blobs and this has to be called even when resetting state ?? perhaps I'd need something here that's called when the component resets state
     
     setImages(newImages)
   }
@@ -57,6 +60,7 @@ export default function ImageDropZone({ itemId, onImagesChange }: Props) {
           </div>
           <div className="image-drop-zone--images">
             {
+              itemId !== null &&
               images?.map((file, index) => (
                 <ItemImage flags={{editable: true}} url={file.previewURL} key={index} itemId={itemId} onDelete={() => removeImage(index)} ></ItemImage>
               ))

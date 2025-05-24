@@ -5,6 +5,7 @@
 #window--edit {
   display: flex;
   align-items: center;
+  align-items: start;
   justify-content: center;
   gap: 20px;
   width: 100vw;
@@ -23,7 +24,7 @@
   max-width: calc(var(--width--window--edit) - var(--width--window--edit--right-side));
   background-color: var(--color-light-7);
   border-radius: 20px;
-  padding: 20px;
+  padding: 60px;
 }
 
 .window--edit--left-side--images-heading {
@@ -44,7 +45,17 @@
   padding: 20px;
 }
 
+.window--edit--right-side.collapsed {
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 60px;
+  height: 60px;
+}
+
 .window--edit--right-side--heading {
+  display: flex;
+  align-items: center;
   font-size: 1.2rem;
   user-select: none;
 }
@@ -57,10 +68,7 @@
   border-radius: 5px;
   cursor: pointer;
   user-select: none;
-}
-
-.window--edit--right-side--heading--dataset:hover {
-  background-color: var(--color-light-6);
+  transition: all 0.08s ease-in-out;
 }
 
 .window--edit--right-side--heading--dataset:hover .icon {
@@ -124,6 +132,7 @@
 
 .window--edit--left-side--dataset-list {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   padding-left: 2px;
@@ -166,16 +175,28 @@
 .window--edit--very-left-side {
   display: flex;
   flex-direction: column;
+  gap: 20px;
   height: 100%;
-  background-color: var(--color-light-7);
+  padding: 20px;
   border-radius: 20px;
+  background-color: var(--color-light-8);
+  border: 2px solid var(--color-light-7);
+  transition: background-color 0.2s ease-in-out;
 }
 
 .window--edit--very-left-side.collapsed {
   width: 60px;
   justify-content: center;
   align-items: center;
+  padding: 0;
   height: 60px;
+  background-color: var(--color-light-7);
+}
+
+.window--edit--very-left-side--datasets {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 #window--edit .icon.datasets {
@@ -185,5 +206,15 @@
 }
 
 #window--edit .icon.datasets:hover {
+  background-color: var(--color-light-6);
+}
+
+#window--edit .icon.items {
+  width:  40px;
+  height: 40px;
+  border-radius: 5px;
+}
+
+#window--edit .icon.items:hover {
   background-color: var(--color-light-6);
 }

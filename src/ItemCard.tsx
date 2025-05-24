@@ -22,8 +22,9 @@ type DELETE_ITEM_RETURN = {
 }
 
 interface ItemCardFlags {
-  isActive: boolean
-  isDim: boolean
+  isActive:     boolean
+  isDim:        boolean 
+  canBeDeleted: boolean
 }
 
 export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
@@ -77,6 +78,7 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
   let className = "item-card"
   if(flags.isActive) className += " active"
   if(flags.isDim)    className += " dim"
+  if(isTryToDelete)  className += " warning"
 
   const contentsNormal = <>
     <div className="item-card--title">{item.title}</div>
@@ -92,7 +94,7 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
             <div className={className} onClick={handleClick} onKeyDown={handleKeyDown}>
               <input ref={inputTrap} type="text" name="" id="" style={{filter: "opacity(0)", position: "absolute", zIndex: -1}}/>
               {isTryToDelete ? contentsWarning : contentsNormal}
-              <img src="./images/ui/icon_trash.png" alt="" className="item-card--icon-delete" onClick={deleteTry} ref={buttonDelete} />
+              {flags.canBeDeleted && <img src="./images/ui/icon_trash.png" alt="" className="item-card--icon-delete" onClick={deleteTry} ref={buttonDelete} />}
             </div>
           </>
 }

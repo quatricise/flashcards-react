@@ -12,7 +12,7 @@
 }
 
 .image-drop-zone:hover {
-  border-color: var(--color-light-5);
+  border-color: var(--color-light-2);
 }
 
 .image-drop-zone.active {

@@ -5,15 +5,17 @@
   height: 40px;
   padding: 0 10px;
   border-radius: 10px;
-  background-color: var(--color-light-6);
+  border: 2px solid var(--color-light-6);
   cursor: pointer;
   user-select: none;
 }
 
 .dataset-button:hover {
-  background-color: var(--color-light-5);
+  background-color: var(--color-light-6);
+  border-color: transparent;
 }
 
 .dataset-button.active {
   background-color: var(--color-accent);
+  border-color: var(--color-accent-hover);
 }

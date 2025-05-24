@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 async function main() {
   const dataset1 = await prisma.dataset.create({
     data: {
-      title: "Test Dataset",
+      title: "Bobby Mandle",
     }
   })
   const dataset2 = await prisma.dataset.create({
@@ -14,7 +14,7 @@ async function main() {
   })
   const dataset3 = await prisma.dataset.create({
     data: {
-      title: "Pišta a jeho parta ze Zlína",
+      title: "Z-lean Koks party",
     }
   })
   const dataset4 = await prisma.dataset.create({

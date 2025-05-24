@@ -11,7 +11,7 @@ import { AppProvider } from './GlobalContext';
 const client = new ApolloClient({
   uri: 'http://localhost:4000/graphql',
   cache: new InMemoryCache(),
-  connectToDevTools: false,
+  connectToDevTools: true,
 })
 
 createRoot(document.getElementById('root')!).render(
