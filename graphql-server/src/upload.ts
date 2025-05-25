@@ -33,7 +33,7 @@ router.post('/upload', upload.array("images"), async (req, res) => {
 
   if (!files || files.length === 0) return res.status(400).send('No images uploaded. This request should not even have gone through.')
 
-  const results: ImageUploadResult = []
+  const results: ImageUploadResult[] = []
 
   for (const file of files) {
     const originalPath = path.join(uploadDir, file.filename)
