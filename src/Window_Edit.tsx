@@ -1,5 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client"
 import { useState, useRef, useEffect, useCallback } from "react"
+import type { MouseEvent, KeyboardEvent } from "react"
 const API_URL = import.meta.env.VITE_API_BASE_URL
 
 import ImageDropZone from "./ImageDropZone"
@@ -87,9 +88,7 @@ const UPDATE_ITEM = gql`
 
 const DELETE_DATASETS = gql`
   mutation DeleteDatasets($ids: [Int!]!) {
-    deleteDatasets(ids: $ids) {
-      ids
-    }
+    deleteDatasets(ids: $ids)
   }
 `
 
@@ -106,6 +105,10 @@ type CREATE_ITEM_RETURN = {
   createItem: Item
 }
 
+type DELETE_DATASETS_RETURN = {
+  deleteDatasets: number[]
+}
+
 type UploadData = {
   title:        string
   description:  string
@@ -113,15 +116,19 @@ type UploadData = {
   datasets:     Dataset[]
 }
 
+type ImageUploadResults = {
+  url:          string,
+  thumbnailUrl: string
+  error:        string
+}
+
 
 export default function Window_Edit() {
 
   const { data: serverData, loading, error, refetch } = useQuery<GET_ITEMS_AND_DATASETS_RETURN>(GET_ITEMS_AND_DATASETS, {
-
     onCompleted: () => {
       console.log("Fetched items and datasets on component load.")
     },
-
     onError: (error) => {
       console.log(error.message)
     },
@@ -129,9 +136,7 @@ export default function Window_Edit() {
 
   useEffect(() => {
     if(!serverData) return
-    
     processServerData(serverData)
-
   }, [serverData])
 
   const handleRefetch = () => {
@@ -142,15 +147,17 @@ export default function Window_Edit() {
 
   const processServerData = (data: GET_ITEMS_AND_DATASETS_RETURN) => {
     setItems(() => {
-        const map: Map<number, Item> = new Map()
-        data.items.forEach(item => map.set(item.id, item))
-        return map
-      })
-
+      const map: Map<number, Item> = new Map()
+      data.items.forEach(item => map.set(item.id, item))
+      return map
+    })
     setDatasets(() => {
       const map: Map<number, Dataset> = new Map()
       data.datasets.forEach(dataset => map.set(dataset.id, dataset))
       return map
+    })
+    setDatasetsSelected((prev) => {
+      return prev.filter(d => data.datasets.find(dataset => dataset.id === d.id))
     })
   }
 
@@ -163,11 +170,54 @@ export default function Window_Edit() {
 
   const [datasets, setDatasets] = useState<Map<number, Dataset>>(new Map())
 
+  const [datasetsSelected, setDatasetsSelected] = useState<Dataset[]>([])
+
   const [deleteDatasets] = useMutation<DELETE_DATASETS_RETURN>(DELETE_DATASETS, {
     onCompleted: () => {
+      //I need to match datasetsSelected against actual datasets, so maybe on handleRefetch
       handleRefetch()
     }
   })
+
+  const [shouldDeleteDatasets, setShouldDeleteDatasets] = useState<boolean>(false)
+
+  const updateDatasetsSelected = (dataset: Dataset, state: boolean) => {
+    if(state === true) {
+      setDatasetsSelected(
+        (prev) => {
+          const newVal = prev.concat([dataset])
+          console.log(newVal)
+          return newVal
+        }
+      )
+    } else {
+      setDatasetsSelected(
+        (prev) => {
+          const newVal = prev.filter(d => d !== dataset)
+          console.log(newVal)
+          return newVal
+        }
+      )
+    }
+  }
+
+  useEffect(() => {
+    console.log(datasetsSelected)
+  }, [datasetsSelected])
+
+  const handleButtonDeleteDatasetsClick = () => {
+    if(!shouldDeleteDatasets) {
+      return setShouldDeleteDatasets(true)
+    }
+    else {
+      const variables = {ids: datasetsSelected.map(d => d.id)}
+      deleteDatasets({variables})
+    }
+  }
+
+  const handleButtonDeselectClick = () => {
+    setDatasetsSelected([]) //this is broken because the state is kept locally in the stupid DatasetButton components
+  }
 
   const [imageDropZoneKey, setImageDropzoneKey] = useState<number>(0)
 
@@ -203,6 +253,17 @@ export default function Window_Edit() {
     setCurrentItemId(itemId)
     setCachedItem(currentItem)
     setWindowState("edit")
+
+    currentItem.images.forEach(img => {
+      const image = new Image()
+
+      //@todo horrible shittiness but good enough for now
+      const [name, ext] = img.url.split(".")
+      image.src = name + "_thumbnail." + ext
+
+      image.width = 128
+      document.querySelector(".image-drop-zone--images")?.append(image)
+    })
 
     //fetch images for the item, if it has any
     //but I have to differentiate between uploaded images and local images, at least in code.
@@ -401,14 +462,14 @@ export default function Window_Edit() {
     }
 
     const data = await res.json();
-    const results: ImageUploadResults = data.results
+    const results: ImageUploadResults[] = data.results
     if(!results) {
       throw new Error("Missing 'images' in response data.")
     }
     for(const result of results) {
-    uploadImageSingle({ //"No title" var for now
-      variables: {url: result.url, title: "No title", items: [itemId]}
-    })
+      uploadImageSingle({
+        variables: {url: result.url, title: "No title", items: [itemId]}
+      })
     }
   }
 
@@ -602,6 +663,31 @@ export default function Window_Edit() {
       if(isVeryLeftSideCollapsed) setIsVeryLeftSideCollapsed((prev) => !prev)
     }, 25)
   };
+
+  /** Component's main click handler, usually used to resolve some conditions */
+  const handleClick = (e: MouseEvent) => {
+    if(shouldDeleteDatasets) {
+      if(e.target !== buttonDeleteDatasets.current) {
+        setShouldDeleteDatasets(false)
+      }
+    }
+  }
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if(shouldDeleteDatasets) {
+      if(e.code === "Escape") {
+        setShouldDeleteDatasets(false)
+      }
+    }
+  }
+
+  const handleButtonDeleteKeydown = (e: KeyboardEvent) => {
+    if(e.code === "Enter") {
+      e.preventDefault()
+    }
+  }
+
+  const buttonDeleteDatasets = useRef<HTMLButtonElement>(null)
   
   let textHeadingLeft = <span className="text--secondary">New item</span>
   let textSubmitValue = "Add item"
@@ -616,28 +702,51 @@ export default function Window_Edit() {
 
   let rightSideClass = "window--edit--right-side"
   if(isRightSideCollapsed) rightSideClass += " collapsed"
+
+  let buttonDeleteDatasetsClass = "warning button--delete-datasets"
+  if(shouldDeleteDatasets) buttonDeleteDatasetsClass += " confirm"
   
   return <>
-    <div className="window" id="window--edit">
+    <div className="window" id="window--edit" onClick={handleClick} onKeyDown={handleKeyDown}>
       <motion.div
         className={veryLeftSideClass}
         animate={animatorVeryLeftSide}
         style={{pointerEvents: isVeryLeftSideAnimating ? "none" : undefined}}
         ref={veryLeftSideRef}
         >
-        <div className="icon datasets" title="Toggle dataset panel" onClick={toggleVeryLeftSide}></div>
+        <div className="window--edit--very-left-side--datasets-heading">
+          <div className="icon datasets" title="Toggle dataset panel" onClick={toggleVeryLeftSide}></div>
+          {
+            !isVeryLeftSideCollapsed &&
+            <div className="window--edit--very-left-side--datasets-heading--title" >Datasets</div>
+          }
+        </div>
         {
         !isVeryLeftSideCollapsed &&
         <div className="window--edit--very-left-side--contents">
           <div className="window--edit--very-left-side--datasets">
             {Array.from(datasets).map(d => {
                 const dataset = d[1]
-                return <DatasetCard key={dataset.id} dataset={dataset} warn={false} onSelectedChange={() => {}} onRename={handleRefetch}></DatasetCard>
+                const warn = !!datasetsSelected.find(d => d.id == dataset.id) && shouldDeleteDatasets
+                return <DatasetCard key={dataset.id} dataset={dataset} warn={warn} onSelectedChange={updateDatasetsSelected} onRename={handleRefetch}></DatasetCard>
             })}
           </div>
           <Button_CreateDataset onCreate={handleRefetch} ></Button_CreateDataset>
           <div className="window--edit--very-left-side--buttons">
-            <button className="warning" >Delete</button>
+            <button className="button--deselect-all" onClick={handleButtonDeselectClick}>
+              Deselect
+            </button>
+            <button 
+            ref={buttonDeleteDatasets}
+            className={buttonDeleteDatasetsClass}
+            onClick={handleButtonDeleteDatasetsClick}
+            onKeyDown={handleButtonDeleteKeydown}
+            disabled={datasetsSelected.length !== 0 ? false : true}>
+              {shouldDeleteDatasets ?
+              "Confirm?" :
+              "Delete"
+              }
+            </button>
           </div>
         </div>
         }

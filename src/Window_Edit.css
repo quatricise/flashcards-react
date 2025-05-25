@@ -36,8 +36,7 @@
   flex-direction: column;
   gap: 20px;
   height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   width: var(--width--window--edit--right-side);
   min-width: var(--width--window--edit--right-side);
   background-color: var(--color-light-7);
@@ -85,6 +84,8 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .window--edit--right-side--contents-block {
@@ -135,7 +136,10 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  padding-left: 2px;
+  padding: 10px;
+  margin-bottom: -10px;
+  border-radius: 10px;
+  background-color: var(--color-light-8);
 }
 
 .window--edit--left-side--bottom-bar {
@@ -217,12 +221,45 @@
   padding: 0;
 }
 
+#window--edit .button--delete-datasets {
+  font-size: inherit;
+  width: 100%;
+}
+
+#window--edit .button--deselect-all {
+  font-size: inherit;
+  width: 100%;
+}
+
+#window--edit .button--delete-datasets.confirm {
+  background-color: var(--color-warning);
+}
+
+#window--edit .button--delete-datasets.confirm:hover {
+  background-color: var(--color-warning-hover);
+}
+
 #window--edit .button--create-dataset.active .button--create-dataset--text {
   display: none;
 }
 
 #window--edit .button--create-dataset.active .button--create-dataset--input {
   width: 100%;
+}
+
+.window--edit--very-left-side--buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.window--edit--very-left-side--datasets-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.window--edit--very-left-side--datasets-heading--title {
+  font-size: 1.2rem;
 }
 
 

@@ -11,11 +11,16 @@
 }
 
 .dataset-button:hover {
-  background-color: var(--color-light-6);
-  border-color: transparent;
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .dataset-button.active {
   background-color: var(--color-accent);
+  border-color: var(--color-accent-hover);
+}
+
+.dataset-button.active:hover {
+  background-color: var(--color-accent-hover);
   border-color: var(--color-accent-hover);
 }

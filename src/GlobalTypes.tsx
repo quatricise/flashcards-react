@@ -22,7 +22,8 @@ export type Item = {
   id:               number;
   title:            string;
   description:      string;
-  images:           number[];
+  // images:           number[];
+  images:           ImageType[];
   datasets:         DatasetRef[];
 
   /** Used only in training. Ephemeral, is not kept between sessions. Tracks how well the trainee is doing. Percentage of successful card draws (0-100%).  */

@@ -36,7 +36,7 @@ async function startServer() {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    // plugins: [ApolloLogger],
+    plugins: [ApolloLogger],
     context: () => ({ prisma }),
   })
   await server.start()

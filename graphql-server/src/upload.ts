@@ -5,6 +5,7 @@ import path from 'path'
 import sharp from 'sharp'
 
 const uploadDir = 'uploads/'
+const serverPath = 'graphql-server/'
 const router = express.Router()
 
 const storage = multer.diskStorage({
@@ -17,18 +18,15 @@ const storage = multer.diskStorage({
 
 
 //@todo this definition is not shared across the frontend-backend, could maybe break things in the future
-type ImageUploadResult = {
-  url: string,
-  thumbnailUrl: string,
+interface ImageUploadResult  {
+  url?: string
+  thumbnailUrl?: string
+  error?: string
 }
 
 const upload = multer({ storage })
 
 router.post('/upload', upload.array("images"), async (req, res) => {
-
-  // console.log('Files:', req.files);
-  // console.log('Body:', req.body);
-
   const files = req.files as Express.Multer.File[]
 
   if (!files || files.length === 0) return res.status(400).send('No images uploaded. This request should not even have gone through.')
@@ -41,32 +39,38 @@ router.post('/upload', upload.array("images"), async (req, res) => {
     const thumbnailName = `${name}_thumbnail${ext}`
     const thumbnailPath = path.join(uploadDir, thumbnailName)
 
+    console.log(
+      "Image upload vars: \n", 
+      originalPath, 
+      "\n",
+      name, 
+      "\n",
+      thumbnailName, 
+      "\n",
+      thumbnailPath,
+      "\n",
+    )
+
     try {
       await sharp(originalPath)
         .resize({ width: 256 })
         .toFile(thumbnailPath)
 
       results.push({
-        url: `/${uploadDir}${file.filename}`,
-        thumbnailUrl: `/${uploadDir}${thumbnailName}`,
+        url: `${serverPath}${uploadDir}${file.filename}`,
+        thumbnailUrl: `${serverPath}${uploadDir}${thumbnailName}`,
       })
     } 
     catch (error) {
       console.error(`Error processing ${file.filename}:`, error)
-      results.push({
-        url: `/${uploadDir}${file.filename}`,
-        error: 'Thumbnail creation failed',
-      })
+      /* data decoupling away from the try block, keep those consistent so it can be returned to the client */
     }
   }
-
-  res.json({ images: results })
+  console.log(
+    "Image upload response: \n",
+    results
+  )
+  res.json({ results })
 })
-
-
-/* the url stuff is a bit wonky here, it probably should be up a level in the root of the project? 
-or maybe its good to keep it here so the graphql server does not interfere with the enclosing scope */
-// const imageUrl = `graphql-server/uploads/${req.file.filename}`
-// res.json({ url: imageUrl })
 
 export default router

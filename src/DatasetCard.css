@@ -29,11 +29,13 @@
 
 .dataset-card.warning {
   background-color: var(--color-warning);
+  border-color: transparent;
   color: var(--color-white);
 }
 
 .dataset-card.renaming {
-  background-color: var(--color-light-7);
+  background-color: var(--color-light-7)!important;
+  border-left-color: transparent!important;
   padding: 10px 10px 10px 0;
 }
 
@@ -44,6 +46,7 @@
 
 .dataset-card.active:hover {
   border-left: 10px solid var(--color-accent-hover);
+  background-color: var(--color-accent-hover);
 }
 
 
