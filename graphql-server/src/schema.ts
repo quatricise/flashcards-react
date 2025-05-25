@@ -38,5 +38,6 @@ export const typeDefs = gql`
     deleteDatasets(ids: [Int!]!): [Int!]!
 
     updateItem(id: Int!, title: String!, description: String!, datasets: [Int!]!): Item!
+    renameDataset(id: Int!, title: String!): Dataset!
   }
 `

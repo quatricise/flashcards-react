@@ -47,6 +47,11 @@ interface UpdateItemArgs {
   datasets:     number[]
 }
 
+interface UpdateDatasetArgs {
+  id:           number
+  title:        string
+}
+
 export const resolvers = {
   Query: {
     datasets: async (_parent: unknown, _args: unknown, context: Context) => {
@@ -193,7 +198,20 @@ export const resolvers = {
         },
         include: {images: true, datasets: true}
       })
-    }
+    },
+
+    renameDataset: async (
+      _parent: unknown,
+      args: UpdateDatasetArgs,
+      context: Context
+    ) => {
+      return await context.prisma.dataset.update({
+        where: {id: args.id},
+        data: {
+          title: args.title,
+        },
+      })
+    },
   },
 
   // Dataset: {

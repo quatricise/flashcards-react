@@ -25,7 +25,7 @@ type AppWindows = {
 type AppWindowHistory = AppWindow[]
 
 const appStateInitial: AppState = {
-  window:   () => <Window_Train/>,
+  window:   () => <Window_Edit/>,
   history:  [],
   windows:  {
     Main:          () => <Window_Main/>,

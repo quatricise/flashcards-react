@@ -1,5 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client"
 import { useState, useRef, useEffect, useCallback } from "react"
+const API_URL = import.meta.env.VITE_API_BASE_URL
 
 import ImageDropZone from "./ImageDropZone"
 import ItemCard from "./ItemCard"
@@ -12,6 +13,7 @@ import type {Item, Dataset, ImageType, DatasetRef } from "./GlobalTypes"
 import "./Window_Edit.css"
 import { waitFor } from "./GlobalFunctions"
 import DatasetCard from "./DatasetCard"
+import Button_CreateDataset from './Button_CreateDataset';
 
 /** 
  * We get ALL THE DATA for now. 
@@ -83,6 +85,14 @@ const UPDATE_ITEM = gql`
   }
 `
 
+const DELETE_DATASETS = gql`
+  mutation DeleteDatasets($ids: [Int!]!) {
+    deleteDatasets(ids: $ids) {
+      ids
+    }
+  }
+`
+
 type GET_ITEMS_AND_DATASETS_RETURN = {
   items:    Item[]
   datasets: Dataset[]
@@ -102,7 +112,6 @@ type UploadData = {
   images:       File[]
   datasets:     Dataset[]
 }
-
 
 
 export default function Window_Edit() {
@@ -153,6 +162,12 @@ export default function Window_Edit() {
   const [items, setItems] = useState<Map<number, Item>>(new Map())
 
   const [datasets, setDatasets] = useState<Map<number, Dataset>>(new Map())
+
+  const [deleteDatasets] = useMutation<DELETE_DATASETS_RETURN>(DELETE_DATASETS, {
+    onCompleted: () => {
+      handleRefetch()
+    }
+  })
 
   const [imageDropZoneKey, setImageDropzoneKey] = useState<number>(0)
 
@@ -367,26 +382,34 @@ export default function Window_Edit() {
   const uploadImageFiles = async (itemId: number) => {
     if(uploadData.images.length === 0) throw new Error("Expected uploadData.images.length to not be '0'.")
 
-    const imageForm = new FormData();
-    uploadData.images.forEach(img => imageForm.append('image', img))
+    const formData = new FormData();
 
-    const res = await fetch('http://localhost:4000/api/upload', { //should setup proxy once this goes live
+    for(const img of uploadData.images) {
+      formData.append('images', img)
+    }
+
+    console.log(`${API_URL}/upload`)
+
+    const res = await fetch(`${API_URL}/upload`, {
       method: 'POST',
-      body: imageForm,
+      body: formData,
     });
 
     if (!res.ok) {
-      throw new Error('Upload failed');
+      const text = await res.text()
+      console.error("Image upload failed: ", res.status, text)
     }
 
     const data = await res.json();
-    if(!data.url) {
-      throw new Error("No 'url' property on response.")
+    const results: ImageUploadResults = data.results
+    if(!results) {
+      throw new Error("Missing 'images' in response data.")
     }
-
+    for(const result of results) {
     uploadImageSingle({ //"No title" var for now
-      variables: {url: data.url, title: "No title", items: [itemId]}
+      variables: {url: result.url, title: "No title", items: [itemId]}
     })
+    }
   }
 
   const createItemCards = () => {
@@ -596,9 +619,9 @@ export default function Window_Edit() {
   
   return <>
     <div className="window" id="window--edit">
-      <motion.div 
-        className={veryLeftSideClass} 
-        animate={animatorVeryLeftSide} 
+      <motion.div
+        className={veryLeftSideClass}
+        animate={animatorVeryLeftSide}
         style={{pointerEvents: isVeryLeftSideAnimating ? "none" : undefined}}
         ref={veryLeftSideRef}
         >
@@ -608,10 +631,13 @@ export default function Window_Edit() {
         <div className="window--edit--very-left-side--contents">
           <div className="window--edit--very-left-side--datasets">
             {Array.from(datasets).map(d => {
-              const dataset = d[1]
-              return <DatasetCard key={dataset.id} dataset={dataset} warn={false} onSelectedChange={() => {}}></DatasetCard>
-            })
-          }
+                const dataset = d[1]
+                return <DatasetCard key={dataset.id} dataset={dataset} warn={false} onSelectedChange={() => {}} onRename={handleRefetch}></DatasetCard>
+            })}
+          </div>
+          <Button_CreateDataset onCreate={handleRefetch} ></Button_CreateDataset>
+          <div className="window--edit--very-left-side--buttons">
+            <button className="warning" >Delete</button>
           </div>
         </div>
         }

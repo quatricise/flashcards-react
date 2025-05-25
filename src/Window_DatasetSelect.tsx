@@ -123,7 +123,7 @@ function Window_DatasetSelect() {
             <div className="dataset-cards">
               {data?.datasets.map(d => {
                 const warn = !!datasetsSelected.find(dataset => dataset.id == d.id) && shouldDelete
-                return <DatasetCard key={d.id} dataset={d} onSelectedChange={updateDatasetsSelected} warn={warn}></DatasetCard>
+                return <DatasetCard key={d.id} dataset={d} onSelectedChange={updateDatasetsSelected} warn={warn} onRename={ /* @todo maybe check if this refreshes the view */ refetch}></DatasetCard>
               })}
             </div>
             <Button_CreateDataset onCreate={() => refetch()}/>

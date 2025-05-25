@@ -177,6 +177,7 @@
   flex-direction: column;
   gap: 20px;
   height: 100%;
+  overflow: hidden;
   padding: 20px;
   border-radius: 20px;
   background-color: var(--color-light-8);
@@ -193,15 +194,46 @@
   background-color: var(--color-light-7);
 }
 
+.window--edit--very-left-side--contents {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: calc(100% - 60px); /* this is total bullshit but I need to subtract padding and gaps from the height */
+  min-height: calc(100% - 60px); /* this is total bullshit but I need to subtract padding and gaps from the height */
+}
+
 .window--edit--very-left-side--datasets {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  height: 80%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: 10px;
 }
+
+#window--edit .button--create-dataset {
+  width: 100%;
+  padding: 0;
+}
+
+#window--edit .button--create-dataset.active .button--create-dataset--text {
+  display: none;
+}
+
+#window--edit .button--create-dataset.active .button--create-dataset--input {
+  width: 100%;
+}
+
+
+
+/* ICONS */
 
 #window--edit .icon.datasets {
   width:  40px;
+  min-width:  40px;
   height: 40px;
+  min-height: 40px;
   border-radius: 5px;
 }
 

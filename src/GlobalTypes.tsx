@@ -64,3 +64,9 @@ export interface AppAction {
   name:     AppActionName
   payload:  AppActionPayload
 }
+
+export type ImageUploadResult = {
+  url: string,
+  thumbnailUrl: string,
+}
+

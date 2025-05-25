@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import "./Button_CreateDataset.css";
 
@@ -49,6 +49,13 @@ function Button_CreateDataset({ onCreate }: Props) {
 
   const [focus, setFocus] = useState<true | false>(false);
 
+  /* wipe the name once you change the focus */
+  useEffect(() => {
+    if(datasetName.current) {
+      datasetName.current.value = ""
+    }
+  }, [focus])
+
   const datasetName = useRef<HTMLInputElement>(null)
 
   let buttonClass = 'button--create-dataset'
@@ -60,7 +67,7 @@ function Button_CreateDataset({ onCreate }: Props) {
   return (
     <button onClick={handleClick} onKeyDown={handleKeyDown} className={buttonClass} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}>
         <div className="button--create-dataset--text">{buttonText}</div>
-        <input type="text" ref={datasetName} className='button--create-dataset--input'/>
+        <input type="text" ref={datasetName} className='button--create-dataset--input' placeholder='Dataset name'/>
     </button>
     )
 }
