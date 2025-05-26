@@ -36,6 +36,7 @@ export const typeDefs = gql`
 
     deleteItem(id: Int!): Int!
     deleteDatasets(ids: [Int!]!): [Int!]!
+    deleteImages(ids: [Int!]!): [Int!]!
 
     updateItem(id: Int!, title: String!, description: String!, datasets: [Int!]!): Item!
     renameDataset(id: Int!, title: String!): Dataset!

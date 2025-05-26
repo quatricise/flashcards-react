@@ -23,22 +23,32 @@ async function main() {
     }
   })
   await prisma.item.create({
-    data: { title: 'Bohumín Kubišta', description: 'Malíř a město.', datasets: {
+    data: { title: 'Homo Erectus Fiscalis', description: 'Ústřičná omáčka ve slevě', datasets: {
       connect: [{id: dataset1.id}, {id: dataset2.id}, {id: dataset3.id}, {id: dataset4.id}]
     }},
   })
   await prisma.item.create({
-    data: { title: 'Marcel Makrela', description: 'Fine fish AGRO Jesenice.' , datasets: {
+    data: { title: 'Radoslav Šrot', description: '1000 dobrých rad zahrádkářům', datasets: {
       connect: [{id: dataset1.id}, {id: dataset2.id}, {id: dataset3.id}, {id: dataset4.id}]
     }},
   })
   await prisma.item.create({
-    data: { title: 'Radek Burgerový Poradce', description: 'Husky reality.' , datasets: {
+    data: { title: 'Bohumín Kubišta', description: 'Malíř a město', datasets: {
       connect: [{id: dataset1.id}, {id: dataset2.id}, {id: dataset3.id}, {id: dataset4.id}]
     }},
   })
   await prisma.item.create({
-    data: { title: 'Michal Míchačka', description: 'Michal Fuglík Černění.' , datasets: {
+    data: { title: 'Marcel Makrela', description: 'Fine fish AGRO Jesenice' , datasets: {
+      connect: [{id: dataset1.id}, {id: dataset2.id}, {id: dataset3.id}, {id: dataset4.id}]
+    }},
+  })
+  await prisma.item.create({
+    data: { title: 'Radek Burgerový Poradce', description: 'Husky reality' , datasets: {
+      connect: [{id: dataset1.id}, {id: dataset2.id}, {id: dataset3.id}, {id: dataset4.id}]
+    }},
+  })
+  await prisma.item.create({
+    data: { title: 'Michal Míchačka', description: 'Michal Fuglík Černění' , datasets: {
       connect: [{id: dataset1.id}, {id: dataset2.id}, {id: dataset3.id}, {id: dataset4.id}]
     }},
   })

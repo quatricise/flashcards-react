@@ -9,7 +9,7 @@ import DatasetButton from "./DatasetButton"
 
 import { motion, useAnimation } from "motion/react"
 
-import type {Item, Dataset, ImageType, DatasetRef } from "./GlobalTypes"
+import type {Item, Dataset, ImageType, DatasetRef, ImageFromServer } from "./GlobalTypes"
 
 import "./Window_Edit.css"
 import { waitFor } from "./GlobalFunctions"
@@ -92,6 +92,13 @@ const DELETE_DATASETS = gql`
   }
 `
 
+//note: this kind of presupposes that images can only exist on one item, for now that is okay, but it'll break shit in the future maybe
+const DELETE_IMAGES = gql`
+  mutation DeleteImages($ids: [Int!]!) {
+    deleteImages(ids: $ids)
+  }
+`
+
 type GET_ITEMS_AND_DATASETS_RETURN = {
   items:    Item[]
   datasets: Dataset[]
@@ -109,11 +116,16 @@ type DELETE_DATASETS_RETURN = {
   deleteDatasets: number[]
 }
 
+type DELETE_IMAGES_RETURN = {
+  deleteImages: number[]
+}
+
 type UploadData = {
-  title:        string
-  description:  string
-  images:       File[]
-  datasets:     Dataset[]
+  title:          string
+  description:    string
+  images:         File[]
+  datasets:       Dataset[]
+  imagesToDelete: number[]
 }
 
 type ImageUploadResults = {
@@ -161,7 +173,7 @@ export default function Window_Edit() {
     })
   }
 
-  const uploadDataInitial: UploadData = {title: "", description: "", images: [], datasets: []}
+  const uploadDataInitial: UploadData = {title: "", description: "", images: [], datasets: [], imagesToDelete: []}
 
   /* the currently edited item is stored here so it can be restored on discard */
   const [cachedItem, setCachedItem] = useState<Item | null>(null)
@@ -180,6 +192,7 @@ export default function Window_Edit() {
   })
 
   const [shouldDeleteDatasets, setShouldDeleteDatasets] = useState<boolean>(false)
+  const [shouldDeleteItem, setShouldDeleteItem]         = useState<boolean>(false) //for some reason Item is only deleted one by one, which is weird but fuck it
 
   const updateDatasetsSelected = (dataset: Dataset, state: boolean) => {
     if(state === true) {
@@ -202,7 +215,7 @@ export default function Window_Edit() {
   }
 
   useEffect(() => {
-    console.log(datasetsSelected)
+    console.log("Updated datasetsSelected:", datasetsSelected)
   }, [datasetsSelected])
 
   const handleButtonDeleteDatasetsClick = () => {
@@ -246,30 +259,12 @@ export default function Window_Edit() {
     inputTitle.current.value = currentItem.title
     inputDescription.current.value = currentItem.description
     
-    //@todo this shit will need to also update images once I figure out how they are fetched
     handleTitleChange()
     handleDescriptionChange()
-
     setCurrentItemId(itemId)
     setCachedItem(currentItem)
+    resetImageDropZone()
     setWindowState("edit")
-
-    currentItem.images.forEach(img => {
-      const image = new Image()
-
-      //@todo horrible shittiness but good enough for now
-      const [name, ext] = img.url.split(".")
-      image.src = name + "_thumbnail." + ext
-
-      image.width = 128
-      document.querySelector(".image-drop-zone--images")?.append(image)
-    })
-
-    //fetch images for the item, if it has any
-    //but I have to differentiate between uploaded images and local images, at least in code.
-    //not sure if the user has to know, probably not
-    //but maybe I simply need to abstract the idea of an image into being one of two things, either a simple link to server URL, or the local blob in memory
-    //type ImagePreview = ImageInMemory | ImageFromServer      ???
   }
 
   const [currentItemId, setCurrentItemId] = useState<number>(0) // '0' means there is no item
@@ -319,6 +314,18 @@ export default function Window_Edit() {
   const handleImageChange = (images: File[]) => {
     setUploadData((prev) => {
       return {...prev, images: images}
+    })
+  }
+
+  const handleImageFromServerChange = (images: ImageFromServer[]) => {
+    const item = items.get(currentItemId)
+    if(!item) throw new Error("Missing item, there really fucking should be one.")
+
+    setUploadData((prev) => {
+      const imagesToDelete = images.filter(img => img.willDelete).map(i => i.id)
+
+      console.log("Images to be deleted: ", imagesToDelete)
+      return {...prev, imagesToDelete}
     })
   }
 
@@ -377,13 +384,14 @@ export default function Window_Edit() {
         id: currentItemId,
         title: uploadData.title, 
         description: uploadData.description, 
-        datasets, 
+        datasets,
       }})
     }
 
     console.log("Submitted upload form. \n", "windowState: ", windowState, "\n", "Variables: ", variables, "\n")
   }
 
+  /** The title is a bit misleading, it's an event handler but also a function used normally somewhere. */
   const handleDiscardChanges = () => {
     setItemStateAdd()
     if(cachedItem) {
@@ -410,24 +418,56 @@ export default function Window_Edit() {
   const [uploadItemSingle] = useMutation<CREATE_ITEM_RETURN>(CREATE_ITEM, {
     onCompleted: (data) => {
       const itemId = data.createItem.id
+
       if(uploadData.images.length !== 0) {
         uploadImageFiles(itemId)
+        .then(() => handleRefetch())
+      } else {
+        handleRefetch()
       }
+
       setItemStateAdd()
       resetImageDropZone()
-      handleRefetch()
     },
     onError: (err) => {
-      console.log("Error in uploadItemSingle: \n", err.message)
+      console.log("Error in uploadItemSingle:\n", err.message)
     },
   })
 
   const [updateItemSingle] = useMutation<UPDATE_ITEM_RETURN>(UPDATE_ITEM, {
-    onCompleted: () => {
+    onCompleted: async (data) => {
+
+      const itemId = data.updateItem.id
+      const actions: (() => Promise<void>)[] = []
+
+      if(uploadData.images.length !== 0) {
+        actions.push(
+          async () => {
+            await uploadImageFiles(itemId)
+          }
+        )
+      }
+      if(uploadData.imagesToDelete.length !== 0) {
+        actions.push(
+          async () => {
+            await deleteImageFiles()
+          }
+        )
+      }
+      console.log("updateItemSingle -> onCompleted:\n")
+      console.log(uploadData)
+      console.log("Actions:\n")
+      console.log(...actions)
+
+      await Promise.all(actions.map(a => a()))
+
+      handleRefetch();
       setItemStateAdd();
       resetImageDropZone();
-      handleRefetch();
-    }
+    },
+    onError: (err) => {
+      console.log("Error in updateItemSingle:\n", err.message)
+    },
   })
 
   const [uploadImageSingle] = useMutation(CREATE_IMAGE, {
@@ -449,7 +489,7 @@ export default function Window_Edit() {
       formData.append('images', img)
     }
 
-    console.log(`${API_URL}/upload`)
+    console.log(`uploadImageFiles: \n url: ${API_URL}/upload \n data: ${uploadData.images}`)
 
     const res = await fetch(`${API_URL}/upload`, {
       method: 'POST',
@@ -466,12 +506,24 @@ export default function Window_Edit() {
     if(!results) {
       throw new Error("Missing 'images' in response data.")
     }
-    for(const result of results) {
-      uploadImageSingle({
-        variables: {url: result.url, title: "No title", items: [itemId]}
-      })
-    }
+    const uploads = results.map(result => {
+        return async () => await uploadImageSingle({
+          variables: {url: result.url, title: "No title", items: [itemId]}
+        })
+    })
+    await Promise.all(uploads.map(upload => upload()))
   }
+
+  /** Again, another reminder that this deletes images even if they're associated with multiple items. */
+  const deleteImageFiles = async () => {
+    if(uploadData.imagesToDelete.length === 0) throw new Error("Expected uploadData.imagesToDelete.length to not be '0'.")
+
+    await deleteImages({variables: {ids: uploadData.imagesToDelete}})
+    .then(() => console.log("deleteImageFiles: Success: ", uploadData.imagesToDelete))
+    .catch((error) => console.log("deleteImageFiles: Error: ", error))
+  }
+
+  const [deleteImages] = useMutation<DELETE_IMAGES_RETURN>(DELETE_IMAGES)
 
   const createItemCards = () => {
     if(loading)     return <div>Loading datasets...</div>
@@ -674,9 +726,12 @@ export default function Window_Edit() {
   }
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if(shouldDeleteDatasets) {
-      if(e.code === "Escape") {
+    if(e.code === "Escape") {
+      if(shouldDeleteDatasets) {
         setShouldDeleteDatasets(false)
+      } else
+      if(windowState === "edit") {
+        handleDiscardChanges()
       }
     }
   }
@@ -707,7 +762,7 @@ export default function Window_Edit() {
   if(shouldDeleteDatasets) buttonDeleteDatasetsClass += " confirm"
   
   return <>
-    <div className="window" id="window--edit" onClick={handleClick} onKeyDown={handleKeyDown}>
+    <div className="window" id="window--edit" onClick={handleClick} onKeyDown={handleKeyDown} tabIndex={0}>
       <motion.div
         className={veryLeftSideClass}
         animate={animatorVeryLeftSide}
@@ -715,7 +770,7 @@ export default function Window_Edit() {
         ref={veryLeftSideRef}
         >
         <div className="window--edit--very-left-side--datasets-heading">
-          <div className="icon datasets" title="Toggle dataset panel" onClick={toggleVeryLeftSide}></div>
+          <div className="icon datasets" title="Toggle dataset panel" onClick={toggleVeryLeftSide} tabIndex={0}></div>
           {
             !isVeryLeftSideCollapsed &&
             <div className="window--edit--very-left-side--datasets-heading--title" >Datasets</div>
@@ -728,7 +783,8 @@ export default function Window_Edit() {
             {Array.from(datasets).map(d => {
                 const dataset = d[1]
                 const warn = !!datasetsSelected.find(d => d.id == dataset.id) && shouldDeleteDatasets
-                return <DatasetCard key={dataset.id} dataset={dataset} warn={warn} onSelectedChange={updateDatasetsSelected} onRename={handleRefetch}></DatasetCard>
+                const selected = !!datasetsSelected.find(d => d.id == dataset.id)
+                return <DatasetCard key={dataset.id} dataset={dataset} warn={warn} selected={selected} onSelectedChange={updateDatasetsSelected} onRename={handleRefetch}></DatasetCard>
             })}
           </div>
           <Button_CreateDataset onCreate={handleRefetch} ></Button_CreateDataset>
@@ -755,12 +811,23 @@ export default function Window_Edit() {
       <div className="window--edit--left-side">
         <h1 className="window--edit--left-side--heading">{textHeadingLeft}</h1>
         <div className="window--edit--left-side--dataset-list">
+          <div 
+          className="window--edit--left-side--dataset-list--title text--secondary" 
+          title="Which datasets this item will be added into. Select at least 1.">
+            Datasets:&nbsp;
+          </div>
           {createDatasetButtons()}
         </div>
         <form className="window--edit--left-side--input-form" onSubmit={handleSubmit}>
-          <input type="text" name="title" id="" placeholder="Title" onChange={handleTitleChange} ref={inputTitle} />
+          <input className="window--edit--left-side--input--title" type="text" name="title" id="" placeholder="Title" onChange={handleTitleChange} ref={inputTitle} />
           <textarea name="description" id="" placeholder="Description" onChange={handleDescriptionChange} ref={inputDescription} />
-          <ImageDropZone key={imageDropZoneKey} onImagesChange={handleImageChange} itemId={currentItemId ?? null}></ImageDropZone> {/* create some .value on this that acts as the file input value */}
+          <ImageDropZone 
+          key={imageDropZoneKey} 
+          itemId={currentItemId ?? null}
+          onImagesChange={handleImageChange}
+          onImagesFromServerChange={handleImageFromServerChange}
+          imagesFromServerInput={items.get(currentItemId)?.images ?? []}
+          />
 
           <div className="window--edit--left-side--bottom-bar">
             <h2 className="window--edit--left-side--bottom-bar--heading" >{textHeadingLeft}</h2>
@@ -789,7 +856,7 @@ export default function Window_Edit() {
           <div className="filler"></div>
           </>
           }
-          <div className="icon items" onClick={toggleRightSide} title="Toggle items panel"></div>
+          <div className="icon items" onClick={toggleRightSide} title="Toggle items panel" tabIndex={0}></div>
         </div>
         {
         !isRightSideCollapsed &&

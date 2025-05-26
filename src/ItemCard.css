@@ -7,25 +7,27 @@
   padding: 0 10px;
   height: 60px;
   border-radius: 10px;
+  border: 2px solid transparent;
   background-color: var(--color-light-6);
+  border-color: var(--color-light-6);
   cursor: pointer;
-  /* border-left: 10px solid transparent; */
   transition: all 0.08s ease-in-out;
 }
 
 .item-card:hover:not(.warning),
 .item-card.active:not(.warning) {
-  /* border-left-color: var(--color-accent); */
   background-color: var(--color-accent);
+  border-color:     var(--color-accent);
 }
 
 .item-card.active:hover {
-  /* border-left-color: var(--color-accent-hover); */
   background-color: var(--color-accent);
+  border-color:     var(--color-accent);
 }
 
 .item-card.warning {
   background-color: var(--color-warning);
+  border-color:     var(--color-warning);
 }
 
 .item-card.warning:hover {
@@ -37,6 +39,11 @@
 }
 .item-card.dim:hover {
   background-color: var(--color-light-6);
+}
+
+.item-card:focus-visible {
+  border: 2px solid var(--color-white);
+  outline: none;
 }
 
 

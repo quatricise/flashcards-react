@@ -56,13 +56,18 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
   })
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if(!isTryToDelete) return
-
-    if(e.code === "Enter" || e.code === "NumpadEnter") {
-      deleteFrFr()
-    } else
-    if(e.code === "Escape" || e.code === "Backspace") {
-      setIsTryToDelete(false)
+    
+    if(isTryToDelete) {
+      if(e.code === "Enter" || e.code === "NumpadEnter") {
+        deleteFrFr()
+      } else
+      if(e.code === "Escape" || e.code === "Backspace") {
+        setIsTryToDelete(false)
+      }
+    } else {
+      if(e.code === "Enter" || e.code === "NumpadEnter") {
+        onSelect?.(item.id)
+      }
     }
   }
 
@@ -91,8 +96,11 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
   if(isTryToDelete) inputTrap.current?.focus() //@todo this is very disgraceful, I need to do this topdown from Window_Edit and trap the input differently. This can break!
 
   return  <>
-            <div className={className} onClick={handleClick} onKeyDown={handleKeyDown}>
+            <div className={className} onClick={handleClick} onKeyDown={handleKeyDown} tabIndex={0}>
+              {
+              isTryToDelete &&
               <input ref={inputTrap} type="text" name="" id="" style={{filter: "opacity(0)", position: "absolute", zIndex: -1}}/>
+              }
               {isTryToDelete ? contentsWarning : contentsNormal}
               {flags.canBeDeleted && <img src="./images/ui/icon_trash.png" alt="" className="item-card--icon-delete" onClick={deleteTry} ref={buttonDelete} />}
             </div>

@@ -9,10 +9,15 @@
   border: 2px dashed var(--color-light-6);
   border-radius: 10px;
   user-select: none;
+  cursor: pointer;
 }
 
 .image-drop-zone:hover {
   border-color: var(--color-light-2);
+}
+
+.image-drop-zone:focus {
+  outline: 2px solid var(--color-white);
 }
 
 .image-drop-zone.active {

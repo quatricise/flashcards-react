@@ -36,6 +36,10 @@ interface DeleteDatasetsArgs {
   ids: number[]
 }
 
+interface DeleteImageArgs {
+  ids: number[]
+}
+
 interface CreateDatasetArgs {
   title:    string
 }
@@ -179,6 +183,18 @@ export const resolvers = {
         })
       }
       await context.prisma.dataset.deleteMany({where: {id: {in: args.ids}}})
+      return args.ids
+    },
+
+    deleteImages: async (
+      _parent: unknown,
+      args: DeleteImageArgs,
+      context: Context
+    ) => {
+      //@todo this does not probably unregister them from the Item table
+      await context.prisma.image.deleteMany({
+        where: {id: {in: args.ids}}
+      })
       return args.ids
     },
 

@@ -1,47 +1,73 @@
 import "./ImageDropZone.css";
 import { useDropzone } from "react-dropzone";
 import { useCallback, useState, useEffect } from 'react';
+import type { ImageType, ImageFromServer, ImageBlob } from "./GlobalTypes";
 import ItemImage from "./ItemImage";
 
-type ImagePreview = File & { previewURL: string}
-
 type Props = {
-  itemId: number | null,
-  onImagesChange: (files: File[]) => void
+  itemId:                     number | null,
+  onImagesChange:             (files: File[]) => void
+  onImagesFromServerChange:   (images: ImageFromServer[]) => void
+  imagesFromServerInput?:     ImageType[]
 }
 
-export default function ImageDropZone({ itemId, onImagesChange }: Props) {
+//@todo there is some weird setState rendering trouble again in this component
+export default function ImageDropZone({ itemId, onImagesChange, onImagesFromServerChange, imagesFromServerInput }: Props) {
   
-  const [images, setImages] = useState<ImagePreview[]>();
+  const [images, setImages] = useState<ImageBlob[]>([]);
+  const [imagesFromServer, setImagesFromServer] = useState<ImageFromServer[]>([])
+  useEffect(() => {
+    // console.log("ImageDropZone: Refreshed imagesFromServer by prop.")
+    setImagesFromServer(imagesFromServerInput?.map(i => {return {...i, willDelete: false}}) ?? []) //this is ugly as shit but it works
+  }, [imagesFromServerInput])
 
-  const onDrop = useCallback((acceptedFiles: ImagePreview[]) => {
-    setImages(acceptedFiles.map(file => {
-      file.previewURL = URL.createObjectURL(file)
-      return file
-    }));
-    onImagesChange(acceptedFiles)
+  //it should keep the state for imagesFromServer locally 
+  //the images which will be removed from the server later, I need to first load them here and then this component takes over and makes modifications
+
+  const onDrop = useCallback((acceptedFiles: ImageBlob[]) => {
+    setImages((prev) => {
+      const newFiles = acceptedFiles.map(file => {
+        file.previewURL = URL.createObjectURL(file)
+        return file
+      })
+      onImagesChange(newFiles)
+      return prev.concat(...newFiles)
+    });
   }, [onImagesChange]);
 
-  useEffect(() => {
-    return () => {
-      //@todo I actually need this to work in the future to avoid hogging up much memory if users upload shit tons of images
-      // images?.forEach(img => URL.revokeObjectURL(img.previewURL)) 
-      // //actually this caused a bug ↑ but it should ideally run when the component is dismounted??
-    };
-  }, [images]);
+  // useEffect(() => {
+  //   return () => {
+  //     //@todo I believe I need to revokeObjectURL when this component resets state, otherwise there may be memory leaks
+  //   };
+  // }, [images]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'image/*': [] },
-    onDrop, //not sure what the error here is
+    onDrop, //this does not accept ImageBlob[], only File[], but it works in practice
   });
 
-  const removeImage = (index: number) => {
-    const newImages = images?.filter((_img, i) => i !== index)
-    if(newImages) onImagesChange(newImages)
-
-    //maybe here I revoke the url for the image blobs and this has to be called even when resetting state ?? perhaps I'd need something here that's called when the component resets state
+  const removeImageBlob = (index: number) => {
+    const removedImage = images[index]
+    const newImages = images.filter((_img, i) => i !== index)
     
+    URL.revokeObjectURL(removedImage.previewURL)
     setImages(newImages)
+    onImagesChange(newImages)
+  }
+
+  const removeImageFromServer = (id: number) => {
+    //no, actually toggle the delete state for the item, diff the two arrays 'imagesFromServerInput' and 'imagesFromServer'
+    //and then fade the images which will be deleted. The delete icon will actually cause a toggle here, not immediate delete.
+
+    const newImages = imagesFromServer.map(i => {
+      if(i.id === id) {
+        i.willDelete = !i.willDelete
+      }
+      return i
+    })
+    setImagesFromServer(newImages)
+    console.log(`ImageDropZone: Flagged imageFromServer with id: '${id}' for removal`)
+    onImagesFromServerChange(newImages)
   }
 
   const [isMouseOver, setIsMouseOver] = useState(false)
@@ -50,19 +76,50 @@ export default function ImageDropZone({ itemId, onImagesChange }: Props) {
   if(isDragActive) className += " active"
 
   let message = "Drop images here"
-  if(isMouseOver) message = "...or click to choose files"
-  if(isDragActive) message = "Release to drop files"
+  if(isMouseOver)   message = "...or click to choose files"
+  if(isDragActive)  message = "Release to drop files"
 
   return  <>
           <div className={className} {...getRootProps()} onMouseEnter={() => setIsMouseOver(true)} onMouseLeave={() => setIsMouseOver(false)}>
-            <input {...getInputProps()} />
+            <input {...getInputProps()}/>
             {message}
           </div>
           <div className="image-drop-zone--images">
             {
+              imagesFromServer.length !== 0 &&
+              <div style={{width: "100%"}} >Existing images: </div>
+            }
+            {
+              /*
+                here the handling must be very different, these images are to be deleted locally, but not from the server until you hit 'Update item'
+                so this means that images and imagesFromServer should be merged for the purposes of editing an item.
+                the output of this imagedropzone will then be 'imagesToUpload' and 'imagesToDelete'
+                images which were fetched and not deleted remain untouched, their data simply is not sent at all.
+              */
+
               itemId !== null &&
-              images?.map((file, index) => (
-                <ItemImage flags={{editable: true}} url={file.previewURL} key={index} itemId={itemId} onDelete={() => removeImage(index)} ></ItemImage>
+              imagesFromServer?.map((image, index) => (
+                <ItemImage 
+                key={index} 
+                flags={{ editable: true, fromServer: true, willDelete: image.willDelete }} 
+                image={image} 
+                url={image.url} 
+                onDelete={() => removeImageFromServer(image.id)}/>
+              ))
+            }
+            {
+              imagesFromServer.length !== 0 && images.length !== 0 &&
+              <div style={{width: "100%"}} >For upload: </div>
+            }
+            {
+              itemId !== null &&
+              images?.map((image, index) => (
+                <ItemImage 
+                key={index} 
+                flags={{ editable: true, fromServer: false, willDelete: false }} 
+                image={image} 
+                url={image.previewURL} 
+                onDelete={() => removeImageBlob(index)}/>
               ))
             }
           </div>

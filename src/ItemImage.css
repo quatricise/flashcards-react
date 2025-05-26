@@ -9,16 +9,27 @@
   box-shadow: 0 0 10px 2px #00000080;
 }
 
+.item-image.will-delete .item-image--img {
+  opacity: 0.4;
+}
+
 .item-image--img {
-  height: 160px;
+  height: 128px;
   border-radius: 10px;
+}
+
+.item-image--icons {
+  --icon-size: 32px;
+  position: absolute;
+  top: calc(var(--icon-size) / 4);
+  right: calc(var(--icon-size) / 4);
+  display: flex;
+  gap: 4px;
+  z-index: 1;
 }
 
 .item-image--icon-delete {
   --size: 32px;
-  position: absolute;
-  top: calc(var(--size) / 4);
-  right: calc(var(--size) / 4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,7 +44,6 @@
   cursor: pointer;
   user-select: none;
   box-shadow: 0 0 10px 2px #00000040;
-  z-index: 1;
 }
 
 .item-image:hover .item-image--icon-delete {
@@ -42,4 +52,12 @@
 
 .item-image--icon-delete:hover {
   background-color: var(--color-warning-hover);
+}
+
+.item-image .icon.database-yes {
+  --size: 32px;
+  width: var(--size);
+  height: var(--size);
+  background-color: var(--color-light-5);
+  border-radius: 5px;
 }

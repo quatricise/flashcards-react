@@ -84,6 +84,8 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  padding-right: 5px;
+  border-radius: 10px;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -110,7 +112,9 @@
 
 .window--edit--left-side--input-form input[type=text] {
   border-radius: 10px;
-  padding: 10px;
+  padding: 0 10px;
+  height: 60px;
+  min-height: 60px;
   font-size: 1rem;
   background-color: var(--color-light-8);
   color: var(--color-light-0);
@@ -159,11 +163,16 @@
   color: var(--color-white);
 }
 
+#window--edit input[type=submit]:focus-visible {
+  outline: 2px solid var(--color-white);
+}
+
 .window--edit--left-side--button--cancel {
   background-color: var(--color-light-6);
   font-size: 1.2rem;
   font-weight: 300;
   height: 60px;
+  white-space: nowrap;
 }
 
 .window--edit--left-side--button--cancel:hover {
@@ -175,6 +184,16 @@
   font-size: 1.2rem;
   color: var(--color-light-0);
 }
+
+.window--edit--left-side--dataset-list--title {
+  user-select: none;
+  cursor: help;
+}
+.window--edit--left-side--dataset-list--title:hover {
+  text-decoration: underline 1px dashed;
+}
+
+
 
 .window--edit--very-left-side {
   display: flex;
@@ -224,6 +243,7 @@
 #window--edit .button--delete-datasets {
   font-size: inherit;
   width: 100%;
+  padding-inline: 10px;
 }
 
 #window--edit .button--deselect-all {

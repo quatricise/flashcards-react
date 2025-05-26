@@ -7,6 +7,7 @@ import "./DatasetCard.css";
 type Props = {
   dataset: Dataset
   warn: boolean
+  selected: boolean,
   onSelectedChange: (dataset: Dataset, state: boolean) => void
   onRename: () => void
 }
@@ -24,9 +25,9 @@ type RENAME_DATASET_RETURN = {
   renameDataset: Dataset
 }
 
-function DatasetCard({ dataset, warn, onSelectedChange, onRename }: Props) {
+function DatasetCard({ dataset, warn, selected, onSelectedChange, onRename }: Props) {
+  //@todo this won't now work in Window_DatasetSelect due to changes to selection, fix this and remove the comment
 
-  const [isActive, setIsActive]             = useState<true | false>(false);
   const [isHover, setIsHover]               = useState<true | false>(false);
   const [isRenaming, setIsRenaming]         = useState<true | false>(false);
 
@@ -34,7 +35,7 @@ function DatasetCard({ dataset, warn, onSelectedChange, onRename }: Props) {
   if(isRenaming) {
     cardClass += " renaming"
   } 
-  if(isActive) {
+  if(selected) {
      cardClass += " active"
   } 
   if(warn) {
@@ -102,8 +103,8 @@ function DatasetCard({ dataset, warn, onSelectedChange, onRename }: Props) {
 
     console.log(e.target)
 
-    onSelectedChange(dataset, !isActive) // '!active' because of the state update delay
-    setIsActive(isActive ? false : true)
+    onSelectedChange(dataset, !selected) // '!active' because of the state update delay
+    // setIsActive(active ? false : true)
   }
 
   if(isRenaming) {

@@ -34,10 +34,15 @@ export type Item = {
 }
 
 export type ImageType = {
+  id:     number
   url:    string;
   items:  Item[];
   title:  string;
 }
+
+export type ImageBlob =        File & { previewURL: string }
+
+export type ImageFromServer =  ImageType & { willDelete: boolean }
 
 /** Refers to properties on type Item */
 export type TrainingData = "title" | "description" | "images"

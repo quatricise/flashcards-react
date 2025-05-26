@@ -24,3 +24,10 @@
   background-color: var(--color-accent-hover);
   border-color: var(--color-accent-hover);
 }
+
+.dataset-button:focus-visible {
+  /* border-color: var(--color-white); */
+  /* border-width: 2px; */
+    outline: 2px solid var(--color-white);
+  border-color: transparent;
+}
