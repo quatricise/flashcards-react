@@ -27,6 +27,7 @@ export const typeDefs = gql`
     datasets: [Dataset!]!
     images:   [Image!]!
     datasetsByIds(ids: [Int!]!): [Dataset!]!
+    itemsByDatasetIds(datasetIds: [Int!]!): [Item!]!
   }
 
   type Mutation {

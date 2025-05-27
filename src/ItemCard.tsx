@@ -1,14 +1,15 @@
 import "./ItemCard.css"
-import { useState, useRef } from "react"
+import { useRef } from "react"
 import type { KeyboardEvent, MouseEvent } from "react"
 import { gql, useMutation } from "@apollo/client"
 import type { Item } from "./GlobalTypes"
 
 type Props = {
-  item:       Item
-  flags:      ItemCardFlags
-  onDeleted:  () => unknown
-  onSelect:   (itemId: number) => void
+  item:           Item
+  flags:          ItemCardFlags
+  onDeleted:      () => unknown
+  onTryToDelete:  (itemId: number, state: boolean) => unknown
+  onSelect:       (itemId: number) => void
 }
 
 const DELETE_ITEM = gql`
@@ -22,22 +23,22 @@ type DELETE_ITEM_RETURN = {
 }
 
 interface ItemCardFlags {
-  isActive:     boolean
-  isDim:        boolean 
-  canBeDeleted: boolean
+  isActive:       boolean
+  isDim:          boolean 
+  canBeDeleted:   boolean
+  isTryToDelete:  boolean
 }
 
-export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
+export default function ItemCard({ item, flags, onSelect, onTryToDelete, onDeleted }: Props) {
 
-  const [isTryToDelete, setIsTryToDelete] = useState(false)
 
   const buttonDelete = useRef<HTMLImageElement>(null)
 
   const deleteTry = () => {
-    if(isTryToDelete) {
+    if(flags.isTryToDelete) {
       deleteFrFr()
     } else {
-      setIsTryToDelete(true)
+      onTryToDelete(item.id, true)
     }
   }
 
@@ -57,12 +58,12 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
 
   const handleKeyDown = (e: KeyboardEvent) => {
     
-    if(isTryToDelete) {
+    if(flags.isTryToDelete) {
       if(e.code === "Enter" || e.code === "NumpadEnter") {
         deleteFrFr()
       } else
       if(e.code === "Escape" || e.code === "Backspace") {
-        setIsTryToDelete(false)
+        onTryToDelete(item.id, false)
       }
     } else {
       if(e.code === "Enter" || e.code === "NumpadEnter") {
@@ -71,6 +72,7 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
     }
   }
 
+  /** This is just to prevent firing the onSelect function when you click the delete button. */
   const handleClick = (e: MouseEvent) => {
 
     if(buttonDelete.current && e.target === buttonDelete.current) {
@@ -81,9 +83,9 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
   }
 
   let className = "item-card"
-  if(flags.isActive) className += " active"
-  if(flags.isDim)    className += " dim"
-  if(isTryToDelete)  className += " warning"
+  if(flags.isActive)       className += " active"
+  if(flags.isDim)          className += " dim"
+  if(flags.isTryToDelete)  className += " warning"
 
   const contentsNormal = <>
     <div className="item-card--title">{item.title}</div>
@@ -92,16 +94,13 @@ export default function ItemCard({ item, flags, onDeleted, onSelect }: Props) {
 
   const contentsWarning = <div className="item-card--title">Really delete?</div>
 
-  const inputTrap = useRef<HTMLInputElement>(null)
-  if(isTryToDelete) inputTrap.current?.focus() //@todo this is very disgraceful, I need to do this topdown from Window_Edit and trap the input differently. This can break!
-
   return  <>
             <div className={className} onClick={handleClick} onKeyDown={handleKeyDown} tabIndex={0}>
               {
-              isTryToDelete &&
-              <input ref={inputTrap} type="text" name="" id="" style={{filter: "opacity(0)", position: "absolute", zIndex: -1}}/>
+              flags.isTryToDelete &&
+              <input type="text" name="" id="" style={{filter: "opacity(0)", position: "absolute", zIndex: -1}}/>
               }
-              {isTryToDelete ? contentsWarning : contentsNormal}
+              {flags.isTryToDelete ? contentsWarning : contentsNormal}
               {flags.canBeDeleted && <img src="./images/ui/icon_trash.png" alt="" className="item-card--icon-delete" onClick={deleteTry} ref={buttonDelete} />}
             </div>
           </>

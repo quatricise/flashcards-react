@@ -179,6 +179,10 @@
   background-color: var(--color-light-5);
 }
 
+.window--edit--left-side--button--cancel:focus-visible {
+  outline: 2px solid var(--color-white);
+}
+
 .window--edit--left-side--bottom-bar--heading {
   font-weight: 400;
   font-size: 1.2rem;
@@ -201,6 +205,8 @@
   gap: 20px;
   height: 100%;
   overflow: hidden;
+  width: 320px;
+  min-width: 320px;
   padding: 20px;
   border-radius: 20px;
   background-color: var(--color-light-8);
@@ -238,6 +244,10 @@
 #window--edit .button--create-dataset {
   width: 100%;
   padding: 0;
+}
+
+#window--edit .button--create-dataset:focus {
+  border: none;
 }
 
 #window--edit .button--delete-datasets {

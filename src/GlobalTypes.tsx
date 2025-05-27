@@ -22,7 +22,6 @@ export type Item = {
   id:               number;
   title:            string;
   description:      string;
-  // images:           number[];
   images:           ImageType[];
   datasets:         DatasetRef[];
 
@@ -40,6 +39,11 @@ export type ImageType = {
   title:  string;
 }
 
+/* 
+export type ImageTypeFlags = {
+  willDelete: boolean
+} */
+
 export type ImageBlob =        File & { previewURL: string }
 
 export type ImageFromServer =  ImageType & { willDelete: boolean }
@@ -50,7 +54,7 @@ export type TrainingData = "title" | "description" | "images"
 export type TrainingSetup = {
   A: TrainingData[]
   B: TrainingData[]
-}
+};
 
 export type AppWindow =
   | typeof Window_Train
@@ -58,6 +62,30 @@ export type AppWindow =
   | typeof Window_DatasetSelect
   | typeof Window_Main
   | typeof Window_TrainSetup;
+
+export type AppState = {
+  window:   AppWindow,
+  windows:  AppWindows,
+  history:  AppWindowHistory,
+};
+
+export type AppWindows = {
+  Main:          typeof Window_Main,
+  DatasetSelect: typeof Window_DatasetSelect,
+  Edit:          typeof Window_Edit,
+  Train:         typeof Window_Train,
+  TrainSetup:    typeof Window_TrainSetup,
+}
+
+export type AppWindowHistory = AppWindow[]
+
+export const WindowKeys_To_Names: Record<keyof AppWindows, string> = {
+  Main:          "Home",
+  DatasetSelect: "Select datasets",
+  Edit:          "Edit",
+  Train:         "Train",
+  TrainSetup:    "Setup training",
+}
 
 export type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE" | "EDIT_DATA"
 

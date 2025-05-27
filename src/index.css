@@ -226,3 +226,11 @@ input[type=submit]:hover {
 .icon.database-yes {
   background-image: url(./images/ui/icon_database_yes.png);
 }
+
+.icon.home {
+  background-image: url(./images/ui/icon_home.png);
+}
+
+.icon.train {
+  background-image: url(./images/ui/icon_train.png);
+}

@@ -25,7 +25,12 @@ export default function ItemImage({ image, url, flags, onDelete }: Props) {
   let className = "item-image"
   if(flags.willDelete) className += " will-delete"
 
-  const iconDelete =      <div className="item-image--icon-delete" title={iconDeleteTitle} onClick={() => onDelete?.()}>🞤</div>
+  const handleClick = () => {
+    onDelete?.()
+    console.log("ItemImage: onDelete() \n")
+  }
+
+  const iconDelete =      <div className="item-image--icon-delete" title={iconDeleteTitle} onClick={handleClick} tabIndex={0}>🞤</div>
   const iconDatabaseYes = <div className="icon database-yes" title="✔️ Already uploaded"></div>
   return (
         <div className={className} onMouseEnter={() => setIsMouseOver(true)} onMouseLeave={() => setIsMouseOver(false)}>

@@ -8,7 +8,7 @@ type Props = {
   itemId:                     number | null,
   onImagesChange:             (files: File[]) => void
   onImagesFromServerChange:   (images: ImageFromServer[]) => void
-  imagesFromServerInput?:     ImageType[]
+  imagesFromServerInput:      ImageType[] | undefined
 }
 
 //@todo there is some weird setState rendering trouble again in this component
@@ -16,25 +16,29 @@ export default function ImageDropZone({ itemId, onImagesChange, onImagesFromServ
   
   const [images, setImages] = useState<ImageBlob[]>([]);
   const [imagesFromServer, setImagesFromServer] = useState<ImageFromServer[]>([])
+
   useEffect(() => {
-    // console.log("ImageDropZone: Refreshed imagesFromServer by prop.")
-    setImagesFromServer(imagesFromServerInput?.map(i => {return {...i, willDelete: false}}) ?? []) //this is ugly as shit but it works
+    setImagesFromServer(() => {
+      if (!imagesFromServerInput) return []
+
+      return imagesFromServerInput.map(i => {return {...i, willDelete: false}})
+    })
   }, [imagesFromServerInput])
 
   //it should keep the state for imagesFromServer locally 
   //the images which will be removed from the server later, I need to first load them here and then this component takes over and makes modifications
 
   const onDrop = useCallback((acceptedFiles: ImageBlob[]) => {
+    const newFiles = acceptedFiles.map(file => {
+      file.previewURL = URL.createObjectURL(file)
+      return file
+    })
     setImages((prev) => {
-      const newFiles = acceptedFiles.map(file => {
-        file.previewURL = URL.createObjectURL(file)
-        return file
-      })
-      onImagesChange(newFiles)
       return prev.concat(...newFiles)
     });
+    onImagesChange(newFiles)
   }, [onImagesChange]);
-
+  
   // useEffect(() => {
   //   return () => {
   //     //@todo I believe I need to revokeObjectURL when this component resets state, otherwise there may be memory leaks
@@ -61,13 +65,13 @@ export default function ImageDropZone({ itemId, onImagesChange, onImagesFromServ
 
     const newImages = imagesFromServer.map(i => {
       if(i.id === id) {
-        i.willDelete = !i.willDelete
+        return {...i, willDelete: !i.willDelete}
       }
       return i
     })
-    setImagesFromServer(newImages)
     console.log(`ImageDropZone: Flagged imageFromServer with id: '${id}' for removal`)
     onImagesFromServerChange(newImages)
+    setImagesFromServer(newImages)
   }
 
   const [isMouseOver, setIsMouseOver] = useState(false)

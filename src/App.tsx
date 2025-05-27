@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useAppState } from './GlobalContext';
+import Navigation from './Navigation';
 
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
   });
 
   return <>
+    <Navigation></Navigation>
     {state.window()}
   </>
 }

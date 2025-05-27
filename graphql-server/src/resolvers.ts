@@ -12,6 +12,10 @@ interface DatasetsByIdsArgs {
   ids: number[]
 }
 
+interface ItemsByDatasetIdsArgs {
+  datasetIds: number[]
+}
+
 
 
 /* MUTATION ARGS */
@@ -92,7 +96,7 @@ export const resolvers = {
       })
     },
     datasetsByIds: async (_parent: unknown, args: DatasetsByIdsArgs, context: Context) => {
-      const data =  await context.prisma.dataset.findMany({
+      return await context.prisma.dataset.findMany({
         where: { id: { in: args.ids } },
         include: {
           items: {
@@ -103,9 +107,13 @@ export const resolvers = {
           }
         }
       })
-      console.log(data)
-      return data
     },
+    itemsByDatasetIds: async(_parent: unknown, args: ItemsByDatasetIdsArgs, context: Context) => {
+      return await context.prisma.item.findMany({
+        where: {datasets: {some: {id: {in: args.datasetIds}}}},
+        include: {datasets: true, images: true}
+      })
+    }
   },
 
   Mutation: {

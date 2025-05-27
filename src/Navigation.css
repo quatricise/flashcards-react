@@ -1,0 +1,37 @@
+#navigation {
+  position: absolute;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  padding: 20px;
+}
+
+.navigation--tab-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 120px;
+  gap: 10px;
+  border-radius: 10px;
+  background-color: var(--color-light-7);
+  color: var(--color-light-2);
+  font-size: 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.navigation--tab-button:focus-visible {
+  outline: 2px solid var(--color-white);
+}
+
+.navigation--tab-button:hover {
+  background-color: var(--color-light-6);
+}
+
+.navigation--tab-button .icon {
+  width: 24px;
+  height: 24px;
+}

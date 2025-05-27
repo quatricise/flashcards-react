@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client"
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import type { MouseEvent, KeyboardEvent } from "react"
 const API_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -9,7 +9,7 @@ import DatasetButton from "./DatasetButton"
 
 import { motion, useAnimation } from "motion/react"
 
-import type {Item, Dataset, ImageType, DatasetRef, ImageFromServer } from "./GlobalTypes"
+import type { Item, Dataset, ImageFromServer } from "./GlobalTypes"
 
 import "./Window_Edit.css"
 import { waitFor } from "./GlobalFunctions"
@@ -22,8 +22,8 @@ import Button_CreateDataset from './Button_CreateDataset';
  * It's obviously far below efficient to query this much redundant data.
  * */
 const GET_ITEMS_AND_DATASETS = gql`
-  query GetItems {
-    items {
+  query GetItems($datasetIds: [Int!]!) {
+    itemsByDatasetIds(datasetIds: $datasetIds) {
       id
       title
       description
@@ -70,9 +70,6 @@ const CREATE_IMAGE = gql`
   }
 `
 
-
-//note: updating an item does not directly update its images, 
-//images will be uploaded again if some of them were missing and then batch-assigned to this item after the item has been updated
 const UPDATE_ITEM = gql`
   mutation UpdateItem($id: Int!, $title: String!, $description: String!, $datasets: [Int!]!) {
     updateItem(id: $id, title: $title, description: $description, datasets: $datasets) {
@@ -92,7 +89,8 @@ const DELETE_DATASETS = gql`
   }
 `
 
-//note: this kind of presupposes that images can only exist on one item, for now that is okay, but it'll break shit in the future maybe
+//@todo: this kind of presupposes that images can only exist on one item, because they are deleted by this
+//for now that is okay, but it'll break shit in the future maybe
 const DELETE_IMAGES = gql`
   mutation DeleteImages($ids: [Int!]!) {
     deleteImages(ids: $ids)
@@ -100,8 +98,8 @@ const DELETE_IMAGES = gql`
 `
 
 type GET_ITEMS_AND_DATASETS_RETURN = {
-  items:    Item[]
-  datasets: Dataset[]
+  itemsByDatasetIds:  Item[]
+  datasets:           Dataset[]
 }
 
 type UPDATE_ITEM_RETURN = {
@@ -137,42 +135,6 @@ type ImageUploadResults = {
 
 export default function Window_Edit() {
 
-  const { data: serverData, loading, error, refetch } = useQuery<GET_ITEMS_AND_DATASETS_RETURN>(GET_ITEMS_AND_DATASETS, {
-    onCompleted: () => {
-      console.log("Fetched items and datasets on component load.")
-    },
-    onError: (error) => {
-      console.log(error.message)
-    },
-  })
-
-  useEffect(() => {
-    if(!serverData) return
-    processServerData(serverData)
-  }, [serverData])
-
-  const handleRefetch = () => {
-    refetch()
-    .then(result => processServerData(result.data))
-    .catch(error => console.log("Refetch error: ", error))
-  }
-
-  const processServerData = (data: GET_ITEMS_AND_DATASETS_RETURN) => {
-    setItems(() => {
-      const map: Map<number, Item> = new Map()
-      data.items.forEach(item => map.set(item.id, item))
-      return map
-    })
-    setDatasets(() => {
-      const map: Map<number, Dataset> = new Map()
-      data.datasets.forEach(dataset => map.set(dataset.id, dataset))
-      return map
-    })
-    setDatasetsSelected((prev) => {
-      return prev.filter(d => data.datasets.find(dataset => dataset.id === d.id))
-    })
-  }
-
   const uploadDataInitial: UploadData = {title: "", description: "", images: [], datasets: [], imagesToDelete: []}
 
   /* the currently edited item is stored here so it can be restored on discard */
@@ -192,7 +154,48 @@ export default function Window_Edit() {
   })
 
   const [shouldDeleteDatasets, setShouldDeleteDatasets] = useState<boolean>(false)
-  const [shouldDeleteItem, setShouldDeleteItem]         = useState<boolean>(false) //for some reason Item is only deleted one by one, which is weird but fuck it
+  const [itemAboutToDelete, setItemAboutToDelete]       = useState<Item | null>(null)
+
+  const { data: serverData, loading, error, refetch } = useQuery<GET_ITEMS_AND_DATASETS_RETURN>(GET_ITEMS_AND_DATASETS, {
+    onCompleted: () => {
+      console.log("Fetched items and datasets on component load.")
+    },
+    onError: (error) => {
+      console.log(error.message)
+    },
+    variables: {datasetIds: []},
+  })
+
+  const processServerData = useCallback((data: GET_ITEMS_AND_DATASETS_RETURN) => {
+    console.log("processServerData data:\n", data)
+    setItems(() => {
+      const map: Map<number, Item> = new Map()
+      data.itemsByDatasetIds.forEach(item => map.set(item.id, item))
+      return map
+    })
+    setDatasets(() => {
+      const map: Map<number, Dataset> = new Map()
+      data.datasets.forEach(dataset => map.set(dataset.id, dataset))
+      return map
+    })
+    /* this is temporarily disabled */
+    // setDatasetsSelected((prev) => {
+    //   return prev.filter(d => data.datasets.find(dataset => dataset.id === d.id))
+    // })
+  }, [])
+
+  const handleRefetch = useCallback(() => {
+    const variables = {datasetIds: datasetsSelected.map(d => d.id)}
+    console.log("handleRefetch: variables: \n", variables)
+    refetch(variables)
+    .then(result => processServerData(result.data))
+    .catch(error => console.log("Refetch error: ", error))
+  }, [datasetsSelected, refetch, processServerData])
+
+  useEffect(() => {
+    if(!serverData) return
+    processServerData(serverData)
+  }, [serverData, processServerData])
 
   const updateDatasetsSelected = (dataset: Dataset, state: boolean) => {
     if(state === true) {
@@ -206,7 +209,7 @@ export default function Window_Edit() {
     } else {
       setDatasetsSelected(
         (prev) => {
-          const newVal = prev.filter(d => d !== dataset)
+          const newVal = prev.filter(d => d.id !== dataset.id)
           console.log(newVal)
           return newVal
         }
@@ -216,7 +219,8 @@ export default function Window_Edit() {
 
   useEffect(() => {
     console.log("Updated datasetsSelected:", datasetsSelected)
-  }, [datasetsSelected])
+    handleRefetch()
+  }, [datasetsSelected, handleRefetch])
 
   const handleButtonDeleteDatasetsClick = () => {
     if(!shouldDeleteDatasets) {
@@ -229,7 +233,7 @@ export default function Window_Edit() {
   }
 
   const handleButtonDeselectClick = () => {
-    setDatasetsSelected([]) //this is broken because the state is kept locally in the stupid DatasetButton components
+    setDatasetsSelected([])
   }
 
   const [imageDropZoneKey, setImageDropzoneKey] = useState<number>(0)
@@ -391,8 +395,7 @@ export default function Window_Edit() {
     console.log("Submitted upload form. \n", "windowState: ", windowState, "\n", "Variables: ", variables, "\n")
   }
 
-  /** The title is a bit misleading, it's an event handler but also a function used normally somewhere. */
-  const handleDiscardChanges = () => {
+  const discardItemChanges = () => {
     setItemStateAdd()
     if(cachedItem) {
       setItems((prev) => {
@@ -409,6 +412,17 @@ export default function Window_Edit() {
   const handleItemDelete = () => {
     setItemStateAdd()
     handleRefetch()
+  }
+
+  const handleItemTryToDelete = (itemId: number, state: boolean) => {
+    const item = items.get(itemId)
+    if(!item) throw new Error("handleItemTryToDelete: No item found under itemId ${itemId}.")
+
+    if(state === true) {
+      setItemAboutToDelete(item)
+    } else {
+      setItemAboutToDelete(null)
+    }
   }
 
   const resetImageDropZone = () => {
@@ -479,7 +493,7 @@ export default function Window_Edit() {
     },
   })
   
-  /** @description Uploads files to server, then puts a record into the database after the image URL has been returned. */
+  /** @description Uploads image files to server, then puts a record into the database after the image URL has been returned. */
   const uploadImageFiles = async (itemId: number) => {
     if(uploadData.images.length === 0) throw new Error("Expected uploadData.images.length to not be '0'.")
 
@@ -508,7 +522,7 @@ export default function Window_Edit() {
     }
     const uploads = results.map(result => {
         return async () => await uploadImageSingle({
-          variables: {url: result.url, title: "No title", items: [itemId]}
+          variables: {url: result.url, title: "No title", items: [itemId]} //@todo maybe include the title as the image url as title, but only the filename
         })
     })
     await Promise.all(uploads.map(upload => upload()))
@@ -532,8 +546,38 @@ export default function Window_Edit() {
 
     return <>
             <div className="window--edit--right-side--contents">
+              {datasetsSelected.length === 0 &&
+                <div className="window--edit--right-side--contents--info-no-datasets">Items will appear here once you select datasets to edit.</div>
+              }
               {Array.from(datasets.entries())?.map(d => {
                 const dataset = d[1]
+                let itemCount = 0
+                const itemCards = <>
+                  {dataset.items.map(itemRef => {
+                          const item = items.get(itemRef.id)
+                          if(!item) {
+                            // throw new Error("Discrepancy between datasets and items, couldn't find item by id: " + itemRef.id)
+                            return
+                          }
+                          itemCount++
+
+                          const isDim = currentItemId !== 0 && itemRef.id !== currentItemId 
+                          //here this logic makes sense, item can only be deleted if it's the one selected or there is no selection
+                          const canBeDeleted = !isDim 
+                          const isTryToDelete = itemAboutToDelete?.id === itemRef.id
+                          return <ItemCard 
+                            item={item}
+                            flags={{isActive: itemRef.id === currentItemId, isDim, canBeDeleted, isTryToDelete}} 
+                            key={itemRef.id} 
+                            onDeleted={handleItemDelete} 
+                            onSelect={selectItem} 
+                            onTryToDelete={handleItemTryToDelete}>
+                          </ItemCard>
+                  })}
+                </>
+
+                if(itemCount === 0) return <></>
+
                 return (
                   <div key={dataset.id} className="window--edit--right-side--contents-block">
                     <div className="window--edit--right-side--heading--dataset" key={dataset.id} title={"Collapse items in '" + dataset.title + "'"}>
@@ -543,16 +587,7 @@ export default function Window_Edit() {
                       <img src="./images/ui/icon_dropdown.png" alt="" className="window--edit--right-side--icon--dropdown icon"/>
                     </div>
                     <div className="window--edit--right-side--item-cards">
-                      {dataset.items.map(itemRef => {
-                        const item = items.get(itemRef.id)
-                        if(!item) throw new Error("Discrepancy between datasets and items, couldn't find item by id: " + itemRef.id)
-                        
-                        const isDim = currentItemId !== 0 && item.id !== currentItemId 
-
-                        //here this logic makes sense, item can only be deleted if (it's the one selected) or (there is no selection)
-                        const canBeDeleted = !isDim 
-                        return <ItemCard item={item} flags={{isActive: item.id === currentItemId, isDim, canBeDeleted}} key={item.id} onDeleted={handleItemDelete} onSelect={selectItem} ></ItemCard>
-                      })}
+                      {itemCards}
                     </div>
                   </div>
                 )
@@ -595,7 +630,8 @@ export default function Window_Edit() {
         }
         return {...prev, datasets}
       })
-    } else
+    } 
+    else
     if(windowState === "edit") {
       setItems((prevMap) => {
         const newMap = new Map(prevMap)
@@ -621,11 +657,8 @@ export default function Window_Edit() {
   }
 
   const animatorRightSide = useAnimation();
-
   const [isRightSideCollapsed, setIsRightSideCollapsed] = useState<boolean>(false);
-
   const [isRightSideAnimating, setIsRightSideAnimating] = useState<boolean>(false);
-
   const rightSideRef = useRef<HTMLDivElement>(null)
 
   const toggleRightSide = async () => {
@@ -669,11 +702,8 @@ export default function Window_Edit() {
   
 
   const animatorVeryLeftSide = useAnimation();
-
-  const [isVeryLeftSideCollapsed, setIsVeryLeftSideCollapsed] = useState<boolean>(true);
-
+  const [isVeryLeftSideCollapsed, setIsVeryLeftSideCollapsed] = useState<boolean>(false);
   const [isVeryLeftSideAnimating, setIsVeryLeftSideAnimating] = useState<boolean>(false);
-
   const veryLeftSideRef = useRef<HTMLDivElement>(null)
 
   //sort of doesn't play out with the CSS class system, there is an overlap of definitions
@@ -719,19 +749,37 @@ export default function Window_Edit() {
   /** Component's main click handler, usually used to resolve some conditions */
   const handleClick = (e: MouseEvent) => {
     if(shouldDeleteDatasets) {
-      if(e.target !== buttonDeleteDatasets.current) {
+      if(e.target !== refButtonDeleteDatasets.current) {
         setShouldDeleteDatasets(false)
+      }
+    } else
+    if(itemAboutToDelete) {
+      if(e.target && e.target) {
+        //@todo this is utter trash, but the handler on the item itself is fired first, so it deletes the item, so it kinda works
+        setItemAboutToDelete(null) 
       }
     }
   }
 
+  /** Component's main keydown handler, usually used to resolve some conditions */
   const handleKeyDown = (e: KeyboardEvent) => {
     if(e.code === "Escape") {
       if(shouldDeleteDatasets) {
         setShouldDeleteDatasets(false)
       } else
+      if(itemAboutToDelete) {
+        setItemAboutToDelete(null)
+      } else
       if(windowState === "edit") {
-        handleDiscardChanges()
+        discardItemChanges()
+      } else
+      if(refSelf.current?.contains(document.activeElement)) {
+        function hasBlurMethod(el: Element | null): el is HTMLElement {
+          return !!el && typeof (el as HTMLElement).blur === 'function';
+        }
+        if(hasBlurMethod(document.activeElement)) {
+          document.activeElement?.blur()
+        }
       }
     }
   }
@@ -742,7 +790,8 @@ export default function Window_Edit() {
     }
   }
 
-  const buttonDeleteDatasets = useRef<HTMLButtonElement>(null)
+  const refButtonDeleteDatasets = useRef<HTMLButtonElement>(null)
+  const refSelf                 = useRef<HTMLDivElement>(null)
   
   let textHeadingLeft = <span className="text--secondary">New item</span>
   let textSubmitValue = "Add item"
@@ -760,9 +809,16 @@ export default function Window_Edit() {
 
   let buttonDeleteDatasetsClass = "warning button--delete-datasets"
   if(shouldDeleteDatasets) buttonDeleteDatasetsClass += " confirm"
+
+  /* memo for ImageDropZone */
+  const currentImagesFromServer = useMemo(() => {
+    // console.log("Memoized currentImagesFromServer")
+    return items.get(currentItemId)?.images ?? []
+  }, [items, currentItemId])
   
   return <>
-    <div className="window" id="window--edit" onClick={handleClick} onKeyDown={handleKeyDown} tabIndex={0}>
+    <div className="window" id="window--edit" onClick={handleClick} onKeyDown={handleKeyDown} tabIndex={0} ref={refSelf}>
+
       <motion.div
         className={veryLeftSideClass}
         animate={animatorVeryLeftSide}
@@ -784,7 +840,12 @@ export default function Window_Edit() {
                 const dataset = d[1]
                 const warn = !!datasetsSelected.find(d => d.id == dataset.id) && shouldDeleteDatasets
                 const selected = !!datasetsSelected.find(d => d.id == dataset.id)
-                return <DatasetCard key={dataset.id} dataset={dataset} warn={warn} selected={selected} onSelectedChange={updateDatasetsSelected} onRename={handleRefetch}></DatasetCard>
+                return <DatasetCard 
+                key={dataset.id} 
+                dataset={dataset} 
+                warn={warn} selected={selected} 
+                onSelectedChange={updateDatasetsSelected}
+                onRename={handleRefetch}></DatasetCard>
             })}
           </div>
           <Button_CreateDataset onCreate={handleRefetch} ></Button_CreateDataset>
@@ -793,7 +854,7 @@ export default function Window_Edit() {
               Deselect
             </button>
             <button 
-            ref={buttonDeleteDatasets}
+            ref={refButtonDeleteDatasets}
             className={buttonDeleteDatasetsClass}
             onClick={handleButtonDeleteDatasetsClick}
             onKeyDown={handleButtonDeleteKeydown}
@@ -826,18 +887,17 @@ export default function Window_Edit() {
           itemId={currentItemId ?? null}
           onImagesChange={handleImageChange}
           onImagesFromServerChange={handleImageFromServerChange}
-          imagesFromServerInput={items.get(currentItemId)?.images ?? []}
+          imagesFromServerInput={currentImagesFromServer}
           />
 
           <div className="window--edit--left-side--bottom-bar">
             <h2 className="window--edit--left-side--bottom-bar--heading" >{textHeadingLeft}</h2>
             <div style={{flexGrow: 1}}></div>
             {
-            currentItemId !== 0 ? 
-            <motion.button type="button" onClick={handleDiscardChanges} className="window--edit--left-side--button--cancel" animate={animatorButtonDiscard}>
+            currentItemId !== 0 && 
+            <motion.button type="button" onClick={discardItemChanges} className="window--edit--left-side--button--cancel" animate={animatorButtonDiscard} tabIndex={0}>
               Discard changes
             </motion.button> 
-            : null
             }
             <motion.input type="submit" value={textSubmitValue} animate={animatorButtonSubmit} tabIndex={0}/>
           </div>
@@ -863,6 +923,7 @@ export default function Window_Edit() {
         createItemCards()
         }
       </motion.div>
+
     </div>
   </>
 }
