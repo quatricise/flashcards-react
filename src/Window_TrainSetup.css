@@ -24,27 +24,57 @@
   font-size: 1.2rem;
 }
 
+.window--train-setup--contents--title {
+  font-weight: 400;
+  color: var(--color-light-2);
+  user-select: none;
+}
+
 .window--train-setup--dataset-select {
   display: flex;
   flex-direction: column;
   gap: 5px;
   padding: 20px;
-  flex-grow: 1;
-  /* border: 2px solid var(--color-light-8); */
+  height: 280px;
+  width: 100%;
   background-color: var(--color-light-8);
   border-radius: 10px;
 }
 
-.window--train-setup--setup--contents--title {
+.window--train-setup--dataset-select--datasets {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  user-select: none;
+}
+
+.window--train-setup--dataset-select--title {
   font-weight: 400;
+  padding-left: 3px;
+  margin-bottom: 12px;
   color: var(--color-light-2);
+  user-select: none;
 }
 
 .window--train-setup--side {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
+  min-height: max-content;
+  padding: 20px 20px 20px 80px;
   border-radius: 10px;
-  min-height: 60px;
+}
+
+.window--train-setup--training-method-sides {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-grow: 1;
 }
 
 .window--train-setup--side.a {
@@ -66,4 +96,49 @@
   color: var(--color-light-1);
   user-select: none;
   pointer-events: none;
+}
+
+.window--train-setup--training-method {
+  display: flex;
+  width: 100%;
+}
+
+.window--train-setup--training-data--field {
+  display: flex;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background-color: var(--color-light-7);
+  border: 2px solid var(--color-light-7);
+  user-select: none;
+  cursor: grab;
+}
+
+.window--train-setup--side.a 
+.window--train-setup--training-data--field:hover {
+  border-color: var(--color-light-4);
+}
+
+.window--train-setup--side.b 
+.window--train-setup--training-data--field:hover {
+  border-color: var(--color-light-5);
+}
+
+.window--train-setup--training-method--randomize {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  user-select: none;
+}
+
+
+
+/* UPDATES FOR EXTERNAL SHIT */
+
+#window--train-setup .dataset-button {
+  justify-content: start;
+  height: max-content;
+  min-height: max-content;
+  padding: 10px;
+  margin-right: 10px;
 }

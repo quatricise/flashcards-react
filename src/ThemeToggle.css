@@ -13,3 +13,8 @@
   width: 24px;
   height: 24px;
 }
+
+
+.button--theme-toggle:hover {
+  background-color: var(--color-light-6);
+}

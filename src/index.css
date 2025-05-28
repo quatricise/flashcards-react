@@ -97,6 +97,14 @@ input[type=text]:focus {
   border: 2px solid var(--color-white);
 }
 
+input[type=checkbox] {
+  margin: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  border: none;
+}
+
 textarea {
   border: 2px solid transparent;
   border-radius: 10px;

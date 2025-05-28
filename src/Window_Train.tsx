@@ -1,22 +1,20 @@
-import { useState, useCallback, cloneElement } from "react"
+import { useState, useCallback } from "react"
 import { useQuery, gql } from "@apollo/client"
 import { motion, useAnimation } from "motion/react"
-import type { Item, TrainingSetup, TrainingData } from "./GlobalTypes"
+import type { Item, TrainingSetup, TrainingData, Window_Train_Props } from "./GlobalTypes"
 import { waitFor } from "./GlobalFunctions"
 import type { AnimationControls } from "motion/react"
 import "./Window_Train.css"
-import ItemImage from "./ItemImage"
 
 
 const GET_ITEMS = gql`
-  query {
-    items {
+  query GetItems($datasetIds: [Int!]!) {
+    itemsByDatasetIds(datasetIds: $datasetIds) {
       id
       title
       description
       datasets {
         id
-        title
       }
       images {
         id
@@ -26,24 +24,27 @@ const GET_ITEMS = gql`
   }
 `
 type GET_ITEMS_RETURN = {
-  items: Item[]
+  itemsByDatasetIds: Item[]
 }
 
-export default function Window_Train() {
-
+export default function Window_Train({ datasetIds }: Window_Train_Props) {
+  console.log(datasetIds)
   const {loading: dataLoading, error: dataError} = useQuery<GET_ITEMS_RETURN>(GET_ITEMS, { //@todo this has no refetch
     onCompleted: (data) => {
 
-      setItems(data.items.map((item, index) => {
+      setItems(data.itemsByDatasetIds.map((item, index) => {
 
         /* I have to add the props for training because they will not be in the database */
-        const copy: Item = {...item, attempts: 0, success: 0}
+        const copy: Item = {...item, attempts: []}
         if(index === 0) setCurrentItem(copy)
         return copy
 
       }))
-    }
-  }) //no shuffling items for now, but maybe later
+    },
+    variables: {datasetIds}
+  }) 
+  
+  //no shuffling items for now, but maybe later
 
   const [trainingSetup] =               useState<TrainingSetup>({A: ["title"], B: ["description", "images"]}) //will not have a default here, later, for now it's good
   const [currentSide, setCurrentSide] = useState<"A"|"B">("A")
@@ -57,19 +58,14 @@ export default function Window_Train() {
     setCurrentSide((prev) => prev === "A" ? "B" : "A")
   }
 
+  /** @todo fix this to assign correct data first */
   const showNextItem = async (succ: boolean) => {
     if(!currentItem) return
 
     const index = items.indexOf(currentItem)
 
     const attempts = currentItem.attempts + 1
-    
     const success = currentItem.success + Number(succ)
-
-    //maybe just splice the items array at some point once an item reaches minimum attempts and a high-enough success
-    //if success / attempts > 80%, maybe, remove this item, that could be it!
-    //however, I still need to rebalance against older attempts, so maybe only keep track of the last couple attempts
-    //that could be done by simply subtracting from both
     
     const newData = { success, attempts }
     console.log((success / attempts) * 100 + "%")
@@ -122,7 +118,7 @@ export default function Window_Train() {
   }
 
   const createMessageError = () => {
-    if(dataError) return <div>"There was error loading data..."</div>
+    if(dataError) return <div>There was error loading data...</div>
     return null
   }
 
@@ -215,8 +211,9 @@ export default function Window_Train() {
           if(prop === "images" && currentItem.images.length !== 0) {
             const maxWidth = 100 / currentItem.images.length
             return <div key={index} className="training-card--images">
-              {currentItem.images.map(i => {
+              {currentItem.images.map((i, i_index) => {
                 return <img 
+                key={i_index}
                 className="training-card--image" 
                 src={i.url} 
                 alt=""

@@ -48,10 +48,13 @@
   background-color: var(--color-light-7);
 }
 
-.button--navigation--info:hover .navigation--about {
-  display: block;
+.button--navigation--info:hover {
+  background-color: var(--color-light-6);
 }
 
+.button--navigation--info:hover .navigation--about {
+  opacity: 1.0;
+}
 
 #navigation .icon.info {
   width: 24px;
@@ -59,26 +62,45 @@
 }
 
 .navigation--about {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #00000040;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: all 0.08s ease-in-out;
+}
+
+.navigation--about--contents {
   --width: 480px;
   position: fixed;
-  top: 80px;
+  top: 65px;
   left: calc(50% - var(--width)/2);
-  display: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
   width: var(--width);
-  padding: 80px;
+  padding: 60px 80px;
   background-color: var(--color-light-7);
   color: var(--color-light-0);
   border-radius: 10px;
+  box-shadow: 0 0 40px 0 #00000080;
 }
 
 .navigation--about--title {
   display: flex;
   align-items: center;
   gap: 10px;
+  text-align: center;
 }
 
 .navigation--about--description {
   display: flex;
   flex-direction: column;
   line-height: 160%;
+  text-align: center;
 }

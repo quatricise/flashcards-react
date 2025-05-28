@@ -48,20 +48,24 @@ export default function Navigation() {
       <div className="button--navigation--info">
         <div className="icon info"></div>
         <div className="navigation--about">
-          <h2 className="navigation--about--title">
-            <div className="navigation--about--title--text">
-              Written in:
+          <div className="navigation--about--contents">
+            <h2 className="navigation--about--title">
+              <div className="navigation--about--title--text">
+                Flashcards App
+              </div>
+            </h2>
+            <div className="navigation--about--description">
+              <div className="text--secondary">Frontend:</div>
+              TypeScript, React, Framer Motion
+              <br /><br />
+              <div className="text--secondary">Database:</div>
+              Apollo, GraphQL, Prisma, PostgreSQL
+              <br /> <br />
+              <div className="text--secondary">Packing:</div>
+              Vite
+              <br /><br />
+              <span className="text--secondary">Author:</span> Štěpán Trvaj
             </div>
-          </h2>
-          <div className="navigation--about--description">
-            Frontend: <br />
-            TypeScript, React, Framer Motion
-            <br /><br />
-            Database: <br />
-            Apollo, GraphQL, Prisma, PostgreSQL
-            <br /> <br />
-            Packing: <br />
-            Vite
           </div>
         </div>
       </div>

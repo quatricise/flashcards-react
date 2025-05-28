@@ -1,18 +1,13 @@
-import { useEffect } from 'react';
 import { useAppState } from './GlobalContext';
 import Navigation from './Navigation';
 
 
 function App() {
   const state = useAppState()
-
-  /* useEffect(() => {
-    document.documentElement.setAttribute('data-theme', "dark"); //temp hack, I suppose
-  }); */
-
+  console.log("<App/>: Dataset ids:\n", state.training.datasets)
   return <>
     <Navigation/>
-    {state.window()}
+    {state.window({datasetIds: state.training.datasets.map(d => d.id)})}
   </>
 }
 

@@ -62,6 +62,7 @@ export type AppState = {
   window:   AppWindow,
   windows:  AppWindows,
   history:  AppWindowHistory,
+  training: StateTrainingData
 };
 
 export type AppWindows = {
@@ -84,7 +85,7 @@ export type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE" | "EDIT_DATA"
 
 export interface AppActionPayload {
   window:     AppWindow | undefined
-  datasets?:   number[]
+  datasets?:   Dataset[]
 }
 
 export interface AppAction {
@@ -97,3 +98,10 @@ export type ImageUploadResult = {
   thumbnailUrl: string,
 }
 
+export type StateTrainingData = {
+  datasets: Dataset[]
+}
+
+export type Window_Train_Props = {
+  datasetIds: number[]
+}
