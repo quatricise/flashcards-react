@@ -2,18 +2,16 @@ import { createContext, useReducer, useContext } from "react"
 import type { ReactNode, Dispatch } from "react"
 import type { AppWindow, AppState, AppAction, AppActionPayload } from "./GlobalTypes"
 
-import Window_DatasetSelect from "./Window_DatasetSelect";
 import Window_Main from "./Window_Main";
 import Window_Edit from "./Window_Edit";
 import Window_Train from "./Window_Train";
 import Window_TrainSetup from './Window_TrainSetup';
 
 const appStateInitial: AppState = {
-  window:   () => <Window_Edit/>,
+  window:   () => <Window_TrainSetup/>,
   history:  [],
   windows:  {
     Main:          () => <Window_Main/>,
-    DatasetSelect: () => <Window_DatasetSelect/>,
     Edit:          () => <Window_Edit/>,
     Train:         () => <Window_Train/>,
     TrainSetup:    () => <Window_TrainSetup/>,

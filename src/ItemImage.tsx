@@ -6,7 +6,7 @@ type Props = {
   image:  ImageType | ImageBlob | ImageFromServer
   url:    string
   flags:  ItemImageFlags,
-  onDelete: () => void | undefined
+  onDelete?: () => void
 }
 
 interface ItemImageFlags {
@@ -24,6 +24,7 @@ export default function ItemImage({ image, url, flags, onDelete }: Props) {
 
   let className = "item-image"
   if(flags.willDelete) className += " will-delete"
+  if(flags.editable)   className += " editable"
 
   const handleClick = () => {
     onDelete?.()
@@ -37,7 +38,7 @@ export default function ItemImage({ image, url, flags, onDelete }: Props) {
           <img className="item-image--img" src={url} draggable={false}/>
           <div className="item-image--icons">
             {
-              flags.fromServer && !isMouseOver && 
+              flags.editable && flags.fromServer && !isMouseOver && 
               iconDatabaseYes
             }
             {

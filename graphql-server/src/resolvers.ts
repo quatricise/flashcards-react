@@ -191,6 +191,16 @@ export const resolvers = {
         })
       }
       await context.prisma.dataset.deleteMany({where: {id: {in: args.ids}}})
+
+      /* gonna do some transactions or shit to delete items, but the 'none: true' throws error */
+
+      /* await context.prisma.item.deleteMany({
+        where: {
+          datasets: {
+            none: true
+          }
+        }
+      }) */
       return args.ids
     },
 

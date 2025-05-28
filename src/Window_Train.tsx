@@ -5,6 +5,7 @@ import type { Item, TrainingSetup, TrainingData } from "./GlobalTypes"
 import { waitFor } from "./GlobalFunctions"
 import type { AnimationControls } from "motion/react"
 import "./Window_Train.css"
+import ItemImage from "./ItemImage"
 
 
 const GET_ITEMS = gql`
@@ -151,6 +152,7 @@ export default function Window_Train() {
     })
   }, [animatorCard])
 
+  /* this shit was broken */
   const cardCopyAnimateOnNext = useCallback(async (fadeColor: string | undefined) => {
     animatorCardCopy.set(
       {
@@ -207,11 +209,20 @@ export default function Window_Train() {
           if(prop === "title") {
             return <div key={index} className="training-card--title">{currentItem.title}</div>
           } else
-          if(prop === "description") {
+          if(prop === "description" && currentItem.description) {
             return <div key={index} className="training-card--description">{currentItem.description}</div>
           } else
-          if(prop === "images") {
-            return <div key={index} className="training-card--images">Images will be dealt with later...</div>
+          if(prop === "images" && currentItem.images.length !== 0) {
+            const maxWidth = 100 / currentItem.images.length
+            return <div key={index} className="training-card--images">
+              {currentItem.images.map(i => {
+                return <img 
+                className="training-card--image" 
+                src={i.url} 
+                alt=""
+                style={{maxWidth: maxWidth + "%"}}/>
+              })}
+            </div>
           }
         })}
       </motion.div>
@@ -227,6 +238,7 @@ export default function Window_Train() {
     return <div className="window--train--buttons">
       <button className="window--train--button--fail warning" onClick={() => showNextItem(false)}>Fail</button>
       <button className="window--train--button--success" onClick={() => showNextItem(true)}>Success</button>
+      <button className="window--train--button--review">Review</button>
     </div>
   }
 

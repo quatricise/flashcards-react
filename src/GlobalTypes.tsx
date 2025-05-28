@@ -1,6 +1,5 @@
 import Window_Train from './Window_Train';
 import Window_Edit from './Window_Edit';
-import Window_DatasetSelect from './Window_DatasetSelect';
 import Window_Main from './Window_Main';
 import Window_TrainSetup from './Window_TrainSetup';
 
@@ -18,6 +17,7 @@ export type ItemRef = {
   id: number
 }
 
+/*@todo add optional fields such as date, century, technique, whatever may exist on an art knowledge-based app */
 export type Item = {
   id:               number;
   title:            string;
@@ -25,11 +25,12 @@ export type Item = {
   images:           ImageType[];
   datasets:         DatasetRef[];
 
-  /** Used only in training. Ephemeral, is not kept between sessions. Tracks how well the trainee is doing. Percentage of successful card draws (0-100%).  */
-  success:   number;
-
   /** Used only in training. Ephemeral, is not kept between sessions. Tracks how well the trainee is doing. Total attempts this session.  */
-  attempts:  number;
+  attempts:  ItemAttempt[];
+}
+
+export type ItemAttempt = {
+  success: boolean
 }
 
 export type ImageType = {
@@ -38,11 +39,6 @@ export type ImageType = {
   items:  Item[];
   title:  string;
 }
-
-/* 
-export type ImageTypeFlags = {
-  willDelete: boolean
-} */
 
 export type ImageBlob =        File & { previewURL: string }
 
@@ -59,7 +55,6 @@ export type TrainingSetup = {
 export type AppWindow =
   | typeof Window_Train
   | typeof Window_Edit
-  | typeof Window_DatasetSelect
   | typeof Window_Main
   | typeof Window_TrainSetup;
 
@@ -71,7 +66,6 @@ export type AppState = {
 
 export type AppWindows = {
   Main:          typeof Window_Main,
-  DatasetSelect: typeof Window_DatasetSelect,
   Edit:          typeof Window_Edit,
   Train:         typeof Window_Train,
   TrainSetup:    typeof Window_TrainSetup,
@@ -81,7 +75,6 @@ export type AppWindowHistory = AppWindow[]
 
 export const WindowKeys_To_Names: Record<keyof AppWindows, string> = {
   Main:          "Home",
-  DatasetSelect: "Select datasets",
   Edit:          "Edit",
   Train:         "Train",
   TrainSetup:    "Setup training",

@@ -6,12 +6,12 @@ import Navigation from './Navigation';
 function App() {
   const state = useAppState()
 
-  useEffect(() => {
+  /* useEffect(() => {
     document.documentElement.setAttribute('data-theme', "dark"); //temp hack, I suppose
-  });
+  }); */
 
   return <>
-    <Navigation></Navigation>
+    <Navigation/>
     {state.window()}
   </>
 }

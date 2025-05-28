@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppState } from "./GlobalContext"
+import { ThemeToggle } from "./ThemeToggle"
 import "./Navigation.css"
-import type { AppWindow } from './GlobalTypes';
 
 export default function Navigation() {
 
@@ -19,11 +19,12 @@ export default function Navigation() {
     dispatch({name: "WINDOW_SET", payload: {window: state.windows.TrainSetup}})
   }
   
+  //now how about highlighting the current tag, just 3 if statements?
 
   return <>
     <div id="navigation">
       <div 
-      className="navigation--tab-button" 
+      className="navigation--tab-button"
       tabIndex={0}
       onClick={handleClickHome}>
         <div className="navigation--tab-button--icon icon home"></div>
@@ -42,6 +43,27 @@ export default function Navigation() {
       onClick={handleClickTrain}>
         <div className="navigation--tab-button--icon icon train"></div>
         <div className="navigation--tab-button--title">Train</div>
+      </div>
+      <ThemeToggle/>
+      <div className="button--navigation--info">
+        <div className="icon info"></div>
+        <div className="navigation--about">
+          <h2 className="navigation--about--title">
+            <div className="navigation--about--title--text">
+              Written in:
+            </div>
+          </h2>
+          <div className="navigation--about--description">
+            Frontend: <br />
+            TypeScript, React, Framer Motion
+            <br /><br />
+            Database: <br />
+            Apollo, GraphQL, Prisma, PostgreSQL
+            <br /> <br />
+            Packing: <br />
+            Vite
+          </div>
+        </div>
       </div>
     </div>
   </>

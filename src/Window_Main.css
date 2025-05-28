@@ -1,4 +1,4 @@
-#window-main {
+#window--main {
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -8,18 +8,18 @@
   gap: 40px;
 }
 
-#window-main h1 {
+#window--main h1 {
   font-size: 5rem;
 }
 
-#window-main .buttons {
+#window--main .buttons {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
 }
 
-#window-main button {
-  font-size: 2rem;
+#window--main button {
+  font-size: 1.5rem;
   width: max-content;
 }

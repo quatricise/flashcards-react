@@ -9,7 +9,61 @@
 }
 
 .window--train-setup--contents {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   width: 640px;
   border-radius: 20px;
   background-color: var(--color-light-7);
+  padding: 40px;
+  height: 100%;
+}
+
+.window--train-setup--button--begin {
+  background-color: var(--color-accent);
+  font-size: 1.2rem;
+}
+
+.window--train-setup--dataset-select {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 20px;
+  flex-grow: 1;
+  /* border: 2px solid var(--color-light-8); */
+  background-color: var(--color-light-8);
+  border-radius: 10px;
+}
+
+.window--train-setup--setup--contents--title {
+  font-weight: 400;
+  color: var(--color-light-2);
+}
+
+.window--train-setup--side {
+  position: relative;
+  width: 100%;
+  border-radius: 10px;
+  min-height: 60px;
+}
+
+.window--train-setup--side.a {
+  background-color: var(--color-light-5);
+}
+.window--train-setup--side.b {
+  background-color: var(--color-light-6);
+}
+
+.window--train-setup--side--label {
+  --height: 60px;
+  position: absolute;
+  left: 20px;
+  top: calc(50% - var(--height)/2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--height);
+  color: var(--color-light-1);
+  user-select: none;
+  pointer-events: none;
 }

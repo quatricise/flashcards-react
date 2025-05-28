@@ -67,7 +67,7 @@ function Button_CreateDataset({ onCreate }: Props) {
   return (
     <button onClick={handleClick} onKeyDown={handleKeyDown} className={buttonClass} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}>
         <div className="button--create-dataset--text">{buttonText}</div>
-        <input type="text" ref={datasetName} className='button--create-dataset--input' placeholder='Dataset name'/>
+        <input type="text" name='create-dataset' ref={datasetName} className='button--create-dataset--input' placeholder='Dataset name'/>
     </button>
     )
 }

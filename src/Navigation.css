@@ -6,6 +6,7 @@
   justify-content: center;
   width: 100vw;
   padding: 20px;
+  z-index: 1;
 }
 
 .navigation--tab-button {
@@ -34,4 +35,50 @@
 .navigation--tab-button .icon {
   width: 24px;
   height: 24px;
+}
+
+.button--navigation--info {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: var(--color-light-7);
+}
+
+.button--navigation--info:hover .navigation--about {
+  display: block;
+}
+
+
+#navigation .icon.info {
+  width: 24px;
+  height: 24px;
+}
+
+.navigation--about {
+  --width: 480px;
+  position: fixed;
+  top: 80px;
+  left: calc(50% - var(--width)/2);
+  display: none;
+  width: var(--width);
+  padding: 80px;
+  background-color: var(--color-light-7);
+  color: var(--color-light-0);
+  border-radius: 10px;
+}
+
+.navigation--about--title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navigation--about--description {
+  display: flex;
+  flex-direction: column;
+  line-height: 160%;
 }

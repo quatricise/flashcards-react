@@ -5,7 +5,7 @@
   transition: all 0.08s ease-in-out;
 }
 
-.item-image:hover {
+.item-image.editable:hover {
   box-shadow: 0 0 10px 2px #00000080;
 }
 

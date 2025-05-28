@@ -23,13 +23,18 @@
   font-size: 1rem;
 }
 
+.window--train--button--review {
+  font-size: 1rem;
+}
+
 .training-card {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 80px;
   width: 800px;
   height: 520px;
+  padding: 80px;
   border-radius: 20px;
   user-select: none;
   cursor: pointer;
@@ -62,7 +67,20 @@
 }
 
 .training-card--images {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  max-height: 100%;
+  padding: 0 40px;
   font-size: 1.5rem;
   font-weight: 300;
-  /* transition: all 0.5s cubic-bezier(0.1, 1.0, 0.1, 0.8); */
+}
+
+.training-card--image {
+  overflow: hidden;
+  max-height: 100%;
+  border-radius: 10px;
+  object-fit: contain;
 }

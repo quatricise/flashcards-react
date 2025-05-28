@@ -547,9 +547,9 @@ export default function Window_Edit() {
     return <>
             <div className="window--edit--right-side--contents">
               {datasetsSelected.length === 0 &&
-                <div className="window--edit--right-side--contents--info-no-datasets">Items will appear here once you select datasets to edit.</div>
+                <div className="window--edit--right-side--contents--info-no-datasets">Items will appear here once you <br/> select datasets to edit.</div>
               }
-              {Array.from(datasets.entries())?.map(d => {
+              {Array.from(datasets.entries())?.map((d, d_index) => {
                 const dataset = d[1]
                 let itemCount = 0
                 const itemCards = <>
@@ -576,7 +576,7 @@ export default function Window_Edit() {
                   })}
                 </>
 
-                if(itemCount === 0) return <></>
+                if(itemCount === 0) return
 
                 return (
                   <div key={dataset.id} className="window--edit--right-side--contents-block">
@@ -706,6 +706,12 @@ export default function Window_Edit() {
   const [isVeryLeftSideAnimating, setIsVeryLeftSideAnimating] = useState<boolean>(false);
   const veryLeftSideRef = useRef<HTMLDivElement>(null)
 
+  const toggleVeryLeftSideByKey = (e: KeyboardEvent) => {
+    if(e.code === "Enter" || e.code === "NumpadEnter") {
+      toggleVeryLeftSide()
+    }
+  }
+
   //sort of doesn't play out with the CSS class system, there is an overlap of definitions
   const toggleVeryLeftSide = async () => {
     setIsVeryLeftSideAnimating(true)
@@ -826,7 +832,7 @@ export default function Window_Edit() {
         ref={veryLeftSideRef}
         >
         <div className="window--edit--very-left-side--datasets-heading">
-          <div className="icon datasets" title="Toggle dataset panel" onClick={toggleVeryLeftSide} tabIndex={0}></div>
+          <div className="icon datasets" title="Toggle dataset panel" onClick={toggleVeryLeftSide} onKeyDown={toggleVeryLeftSideByKey} tabIndex={0}></div>
           {
             !isVeryLeftSideCollapsed &&
             <div className="window--edit--very-left-side--datasets-heading--title" >Datasets</div>
@@ -850,7 +856,11 @@ export default function Window_Edit() {
           </div>
           <Button_CreateDataset onCreate={handleRefetch} ></Button_CreateDataset>
           <div className="window--edit--very-left-side--buttons">
-            <button className="button--deselect-all" onClick={handleButtonDeselectClick}>
+            <button 
+            className="button--deselect-all" 
+            onClick={handleButtonDeselectClick} 
+            disabled={datasetsSelected.length !== 0 ? false : true}
+            tabIndex={0}>
               Deselect
             </button>
             <button 
@@ -858,7 +868,8 @@ export default function Window_Edit() {
             className={buttonDeleteDatasetsClass}
             onClick={handleButtonDeleteDatasetsClick}
             onKeyDown={handleButtonDeleteKeydown}
-            disabled={datasetsSelected.length !== 0 ? false : true}>
+            disabled={datasetsSelected.length !== 0 ? false : true}
+            tabIndex={0}>
               {shouldDeleteDatasets ?
               "Confirm?" :
               "Delete"
@@ -881,7 +892,7 @@ export default function Window_Edit() {
         </div>
         <form className="window--edit--left-side--input-form" onSubmit={handleSubmit}>
           <input className="window--edit--left-side--input--title" type="text" name="title" id="" placeholder="Title" onChange={handleTitleChange} ref={inputTitle} />
-          <textarea name="description" id="" placeholder="Description" onChange={handleDescriptionChange} ref={inputDescription} />
+          <textarea name="description" placeholder="Description" onChange={handleDescriptionChange} ref={inputDescription} />
           <ImageDropZone 
           key={imageDropZoneKey} 
           itemId={currentItemId ?? null}

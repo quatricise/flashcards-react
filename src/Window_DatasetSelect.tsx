@@ -128,9 +128,9 @@ function Window_DatasetSelect() {
             </div>
             <Button_CreateDataset onCreate={() => refetch()}/>
             <div 
-            className="window--dataset-select--buttons" 
-            style={isNoSelection ? {opacity: 0.5, filter: "grayscale(1)"} : undefined}
-            title={isNoSelection ? "Select at least 1 dataset by clicking on it." : undefined}
+              className="window--dataset-select--buttons" 
+              style={isNoSelection ? {opacity: 0.5, filter: "grayscale(1)"} : undefined}
+              title={isNoSelection ? "Select at least 1 dataset by clicking on it." : undefined}
             >
               <button 
               title={"Begin training on the selected datasets."}
@@ -139,18 +139,18 @@ function Window_DatasetSelect() {
                 Drink the poison
               </button>
               <button 
-              title={"Edit items in the selected datasets."}
-              style={{fontSize: "1rem", pointerEvents: isNoSelection ? "none" : undefined}}
-              onClick={handleEdit}
+                title={"Edit items in the selected datasets."}
+                style={{fontSize: "1rem", pointerEvents: isNoSelection ? "none" : undefined}}
+                onClick={handleEdit}
               >
                 Edit the poison
               </button>
               <button 
-              title={shouldDelete ? "To cancel: Click elsewhere or hit ESC." : "Delete selected datasets."}
-              style={{fontSize: "1rem", pointerEvents: isNoSelection ? "none" : undefined}}
-              className={classDelete} 
-              onClick={handleDelete} 
-              ref={refButtonDelete} 
+                title={shouldDelete ? "To cancel: Click elsewhere or hit ESC." : "Delete selected datasets."}
+                style={{fontSize: "1rem", pointerEvents: isNoSelection ? "none" : undefined}}
+                className={classDelete} 
+                onClick={handleDelete} 
+                ref={refButtonDelete} 
               >
                 {textDelete}
               </button>

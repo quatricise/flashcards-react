@@ -1,0 +1,15 @@
+.button--theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-light-7);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.button--theme-toggle .icon {
+  width: 24px;
+  height: 24px;
+}
