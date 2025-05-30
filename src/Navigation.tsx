@@ -20,6 +20,12 @@ export default function Navigation() {
   }
   
   //now how about highlighting the current tag, just 3 if statements?
+  //or generate the buttons like this
+
+  const handlers = [handleClickHome, handleClickEdit, handleClickTrain]
+  const createButton = () => {
+
+  }
 
   return <>
     <div id="navigation">

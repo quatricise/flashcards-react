@@ -16,11 +16,8 @@ import { waitFor } from "./GlobalFunctions"
 import DatasetCard from "./DatasetCard"
 import Button_CreateDataset from './Button_CreateDataset';
 
-/** 
- * We get ALL THE DATA for now. 
- * It's easier to work with, albeit inefficient if the total payload grows too much. 
- * It's obviously far below efficient to query this much redundant data.
- * */
+
+
 const GET_ITEMS_AND_DATASETS = gql`
   query GetItems($datasetIds: [Int!]!) {
     itemsByDatasetIds(datasetIds: $datasetIds) {
@@ -148,7 +145,7 @@ export default function Window_Edit() {
 
   const [deleteDatasets] = useMutation<DELETE_DATASETS_RETURN>(DELETE_DATASETS, {
     onCompleted: () => {
-      //I need to match datasetsSelected against actual datasets, so maybe on handleRefetch
+      //I need to match datasetsSelected against actual datasets, so maybe on handleRefetch //not sure if this was done already, tbh
       handleRefetch()
     }
   })
@@ -178,7 +175,7 @@ export default function Window_Edit() {
       data.datasets.forEach(dataset => map.set(dataset.id, dataset))
       return map
     })
-    /* this is temporarily disabled */
+    /* @todo this is temporarily disabled, i think it triggered an endless render loop, but now this doesn't work so there may be issues with adding or removing datasets */
     // setDatasetsSelected((prev) => {
     //   return prev.filter(d => data.datasets.find(dataset => dataset.id === d.id))
     // })
@@ -219,6 +216,7 @@ export default function Window_Edit() {
 
   useEffect(() => {
     console.log("Updated datasetsSelected:", datasetsSelected)
+    setItemStateAdd()
     handleRefetch()
   }, [datasetsSelected, handleRefetch])
 
