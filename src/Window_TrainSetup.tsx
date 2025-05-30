@@ -3,12 +3,8 @@ import DatasetButton from './DatasetButton';
 import "./Window_TrainSetup.css"
 import { gql, useQuery } from "@apollo/client";
 import type { Dataset, TrainingSetup, TrainingData } from "./GlobalTypes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import type { DragEndEvent, DragOverEvent } from "@dnd-kit/core";
-import { arrayMove, SortableContext, useSortable, sortableKeyboardCoordinates, rectSortingStrategy } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities"
 
 
 const GET_DATASETS = gql`
@@ -50,90 +46,35 @@ export default function Window_TrainSetup() {
     }
   }
 
+  const [trainingSetup, setTrainingSetup] = useState<TrainingSetup>({A:["title"], B:["images", "description"]});
 
-  type TrainingDataFieldProps = {
-    id: TrainingData
+  const fieldLabel = "Click and drag this to the other side of the card to change when it's displayed."
+  
+  let buttonBeginClass = "window--train-setup--button--begin"
+  let buttonBeginText = "Begin"
+  if(datasetsSelected.length === 0) {
+    buttonBeginClass += " disabled"
+    buttonBeginText = "Select datasets to begin"
   }
   
 
-  //it's a shame that this now prevents me from having the same field repeated, perhaps id should be something else, the whole structure is terrible btw
-  function TrainingDataField({ id }: TrainingDataFieldProps) {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-    } = useSortable({ id })
-
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-    };
-
-    return (
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="window--train-setup--training-data--field" title={fieldLabel}>
-        {id}
-      </div>
-    );
-  }
-
-  const [containerA, setContainerA] = useState<TrainingData[]>(["title", "images"]);
-  const [containerB, setContainerB] = useState<TrainingData[]>(["description",]);
-
-  const [isOverOtherSide, setIsOverOtherSide] = useState<boolean>(false)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  )
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-
-    if(!over) return
-
-    console.log(active)
-
-    const activeId = active.id as TrainingData
-    const overId =   over.id as TrainingData
-
-    const isInA = containerA.includes(activeId);
-
-    const [source, destination] = isInA ? [containerA, containerB] : [containerB, containerA]
-    const [setSource, setDestination] = isInA ? [setContainerA, setContainerB] : [setContainerB, setContainerA]
-
-    if (activeId !== overId) { //this is kinda shit, no?
-      if (source !== destination) {
-        setSource((prev) => prev.filter((item) => item !== activeId));
-        setDestination((prev) => [activeId, ...prev]);
-      } else {
-        const oldIndex = source.indexOf(activeId);
-        const newIndex = source.indexOf(overId);
-        setSource((items) => arrayMove(items, oldIndex, newIndex));
-      }
-    }
-  }
-
-  const handleDragOver = (e: DragOverEvent) => {
-    const { active, over } = e
-
-    console.log(active, over)
-  }
-
-
-
-  const [trainingSetup, setTrainingSetup] = useState<TrainingSetup>({A:[...containerA], B:[...containerB]});
-
-  const fieldLabel = "Click and drag this to the other side of the card to compose the desired training method."
 
   return <div className="window" id="window--train-setup">
     <div className="window--train-setup--contents">
       <h1 className="window--train-setup--contents--title" >Training setup</h1>
       <div className="window--train-setup--dataset-select">
-        <div className="window--train-setup--dataset-select--title" >Datasets:</div>
+        <div className="window--train-setup--dataset-select--heading">
+          <div className="window--train-setup--dataset-select--title" >Datasets:</div>
+          <div className="filler"></div>
+          <div className="window--train-setup--dataset-select--item-count" style={{cursor: "help"}} title="Some items may exist on multiple datasets, each will only be used once." >
+            <span>Total unique items:&nbsp;</span>
+            {(() => {
+              const uniqueItemIds: Set<number> = new Set()
+              datasetsSelected.forEach(d => d.items.forEach(i => uniqueItemIds.add(i.id)))
+              return <span>{uniqueItemIds.size}</span>
+            })()}
+            </div>
+        </div>
         {
         loading && 
         "Loading datasets..."
@@ -146,6 +87,7 @@ export default function Window_TrainSetup() {
           {
             data?.datasets !== undefined &&
             data.datasets.map(dataset => {
+              if(dataset.items.length === 0) return
               const active = datasetsSelected.find(d => d.id === dataset.id) !== undefined
               return <DatasetButton key={dataset.id} dataset={dataset} onToggle={handleToggleDataset} flags={{active}} ></DatasetButton>
             })
@@ -161,31 +103,23 @@ export default function Window_TrainSetup() {
         </div>
       </div>
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} onDragOver={handleDragOver}>
         <div className="window--train-setup--training-method-sides">
-
-          <SortableContext items={containerA} strategy={rectSortingStrategy}>
             <div className="window--train-setup--side a">
               <div className="window--train-setup--side--label">Front</div>
-              {containerA.map((field) => {
-                return <TrainingDataField key={field} id={field}></TrainingDataField>
+              {trainingSetup.A.map((field) => {
+                return <div key={field} className="window--train-setup--training-data--field" title={fieldLabel}>{field}</div>
               })}
           </div>
-          </SortableContext>
 
-          <SortableContext items={containerB} strategy={rectSortingStrategy}> {/* this side is broken for some reason */}
             <div className="window--train-setup--side b">
               <div className="window--train-setup--side--label">Back</div>
-              {containerB.map((field) => {
-                return <TrainingDataField key={field} id={field}></TrainingDataField>
+              {trainingSetup.B.map((field) => {
+                return <div key={field} className="window--train-setup--training-data--field" title={fieldLabel}>{field}</div>
               })}
           </div>
-          </SortableContext>
-
         </div>
-      </DndContext>
 
-      <button className="window--train-setup--button--begin" onClick={startTraining}>Begin</button>
+      <button className={buttonBeginClass} onClick={startTraining}>{buttonBeginText}</button>
     </div>
   </div>
 }

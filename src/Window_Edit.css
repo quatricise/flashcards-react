@@ -161,8 +161,8 @@
 .window--edit--left-side--bottom-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 5px 5px 5px 20px;
+  gap: 5px;
+  padding: 5px 5px 5px 5px;
   border: 2px solid var(--color-light-6);
   border-radius: 14px;
   user-select: none;
@@ -173,6 +173,7 @@
   padding-top: 0;
   padding-bottom: 0;
   color: var(--color-white);
+  padding-inline: 30px;
 }
 
 #window--edit input[type=submit]:focus-visible {
@@ -184,6 +185,7 @@
   font-size: 1.2rem;
   font-weight: 300;
   height: 60px;
+  padding-inline: 30px;
   white-space: nowrap;
 }
 
@@ -193,6 +195,15 @@
 
 .window--edit--left-side--button--cancel:focus-visible {
   outline: 2px solid var(--color-white);
+}
+
+.window--edit--left-side--button--preview {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-light-6);
+  font-size: 1.2rem;
+  height: 60px;
+  padding-inline: 30px;
 }
 
 .window--edit--left-side--bottom-bar--heading {

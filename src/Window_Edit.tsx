@@ -900,13 +900,16 @@ export default function Window_Edit() {
           />
 
           <div className="window--edit--left-side--bottom-bar">
-            <h2 className="window--edit--left-side--bottom-bar--heading" >{textHeadingLeft}</h2>
+            {/* <h2 className="window--edit--left-side--bottom-bar--heading" >{textHeadingLeft}</h2> */}
             <div style={{flexGrow: 1}}></div>
             {
             currentItemId !== 0 && 
             <motion.button type="button" onClick={discardItemChanges} className="window--edit--left-side--button--cancel" animate={animatorButtonDiscard} tabIndex={0}>
               Discard changes
             </motion.button> 
+            }
+            {
+              <button disabled style={{cursor: "not-allowed"}} title="Not implemented yet" className="window--edit--left-side--button--preview" >Preview</button> //this would be pretty cool, you could see how the card looks even before it's added to training
             }
             <motion.input type="submit" value={textSubmitValue} animate={animatorButtonSubmit} tabIndex={0}/>
           </div>

@@ -22,10 +22,10 @@
   --color-dark-8: #dddddd;
   --color-dark-9: #f2f2f2;
 
-  --color-accent: #1f3a92;
-  --color-accent-hover: #2a50ce;
-  --color-white: #ffffff;
-  --color-warning: #962525;
+  --color-accent:        #1f3a92;
+  --color-accent-hover:  #2a50ce;
+  --color-white:         #ffffff;
+  --color-warning:       #962525;
   --color-warning-hover: #ca3434;
 }
 
@@ -141,6 +141,11 @@ button.warning.permanent {
 button:hover, button.active {
   background-color: var(--color-accent);
   color: var(--color-white);
+}
+
+button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 input[type=submit] {

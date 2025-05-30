@@ -51,12 +51,20 @@
   user-select: none;
 }
 
+.window--train-setup--dataset-select--heading {
+  display: flex;
+}
+
 .window--train-setup--dataset-select--title {
   font-weight: 400;
   padding-left: 3px;
   margin-bottom: 12px;
   color: var(--color-light-2);
   user-select: none;
+}
+
+.window--train-setup--dataset-select--item-count {
+  color: var(--color-light-2);
 }
 
 .window--train-setup--side {
