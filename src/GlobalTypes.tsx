@@ -1,6 +1,6 @@
-import Window_Train from './Window_Train';
-import Window_Edit from './Window_Edit';
-import Window_Main from './Window_Main';
+import Window_Train from      './Window_Train';
+import Window_Edit from       './Window_Edit';
+import Window_Main from       './Window_Main';
 import Window_TrainSetup from './Window_TrainSetup';
 
 export type Dataset = {
@@ -22,18 +22,16 @@ export type Item = {
   id:               number;
   title:            string;
   description:      string;
-  images:           ImageType[];
+  images:           ItemImage[];
   datasets:         DatasetRef[];
-
-  /** Used only in training. Ephemeral, is not kept between sessions. Tracks how well the trainee is doing. Total attempts this session.  */
-  attempts:  ItemAttempt[];
+  bucket:           number; //used in training only
 }
 
 export type ItemAttempt = {
   success: boolean
 }
 
-export type ImageType = {
+export type ItemImage = {
   id:     number
   url:    string;
   items:  Item[];
@@ -42,7 +40,7 @@ export type ImageType = {
 
 export type ImageBlob =        File & { previewURL: string }
 
-export type ImageFromServer =  ImageType & { willDelete: boolean }
+export type ImageFromServer =  ItemImage & { willDelete: boolean }
 
 /** Refers to properties on type Item */
 export type TrainingData = "title" | "description" | "images"
@@ -84,8 +82,9 @@ export const WindowKeys_To_Names: Record<keyof AppWindows, string> = {
 export type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE" | "EDIT_DATA"
 
 export interface AppActionPayload {
-  window:     AppWindow | undefined
-  datasets?:   Dataset[]
+  window:         AppWindow | undefined
+  datasets?:      Dataset[]
+  trainingSetup:  TrainingSetup
 }
 
 export interface AppAction {
@@ -99,9 +98,11 @@ export type ImageUploadResult = {
 }
 
 export type StateTrainingData = {
-  datasets: Dataset[]
+  datasets: Dataset[],
+  setup:    TrainingSetup
 }
 
 export type Window_Train_Props = {
-  datasetIds: number[]
+  datasetIds:    number[],
+  trainingSetup: TrainingSetup
 }

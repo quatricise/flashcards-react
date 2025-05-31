@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { useQuery, gql } from "@apollo/client"
 import { motion, useAnimation } from "motion/react"
+import { cloneDeep } from "@apollo/client/utilities"
 import type { Item, TrainingSetup, TrainingData, Window_Train_Props } from "./GlobalTypes"
-import { waitFor } from "./GlobalFunctions"
+import { clamp, sum, waitFor } from "./GlobalFunctions"
 import type { AnimationControls } from "motion/react"
 import "./Window_Train.css"
 
@@ -27,94 +28,121 @@ type GET_ITEMS_RETURN = {
   itemsByDatasetIds: Item[]
 }
 
-export default function Window_Train({ datasetIds }: Window_Train_Props) {
-  console.log(datasetIds)
-  const {loading: dataLoading, error: dataError} = useQuery<GET_ITEMS_RETURN>(GET_ITEMS, { //@todo this has no refetch
-    onCompleted: (data) => {
+type ItemWithWeight = Item & { weight: number }
 
-      setItems(data.itemsByDatasetIds.map((item, index) => {
 
-        /* I have to add the props for training because they will not be in the database */
-        const copy: Item = {...item, attempts: []}
-        if(index === 0) setCurrentItem(copy)
-        return copy
+function getRandomItem(items: ItemWithWeight[]): ItemWithWeight | undefined {
+  const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+  if (totalWeight === 0) return undefined;
 
-      }))
-    },
+  const random = Math.random() * totalWeight;
+  let cumulativeWeight = 0;
+
+  for (const item of items) {
+    cumulativeWeight += item.weight;
+    if (random < cumulativeWeight) return item;
+  }
+  return undefined;
+}
+
+export default function Window_Train({ datasetIds, trainingSetup }: Window_Train_Props) {
+
+  const {data, loading: dataLoading, error: dataError} = useQuery<GET_ITEMS_RETURN>(GET_ITEMS, { //@todo this has no refetch
     variables: {datasetIds}
-  }) 
-  
-  //no shuffling items for now, but maybe later
+  })
 
-  const [trainingSetup] =               useState<TrainingSetup>({A: ["title"], B: ["description", "images"]}) //will not have a default here, later, for now it's good
-  const [currentSide, setCurrentSide] = useState<"A"|"B">("A")
-  const [currentItem, setCurrentItem] = useState<Item | null>(null)
-  const [items, setItems] =             useState<Item[]>([])
-  const [isAnimatingNext, setIsAnimatingNext] = useState<boolean>(false) /* Also used to disable pointer events if true */
+  useEffect(() => {
+    if(data === undefined) return
+    setItems(data.itemsByDatasetIds.map(i => { return {...i, bucket: 0}}))
+    setCurrentItem(data.itemsByDatasetIds[0])
+  }, [data])
 
+  console.log(trainingSetup)
+
+  // const [trainingSetup, setTrainingSetup]     = useState<TrainingSetup>(input_trainingSetup)
+  const [currentSide, setCurrentSide]         = useState<"A"|"B">("A")
+  const [currentItem, setCurrentItem]         = useState<Item | null>(null)
+  const [isAnimatingNext, setIsAnimatingNext] = useState<boolean>(false)
+  const [items, setItems]                     = useState<Item[]>([])
+  const [isTrainingDone, setIsTrainingDone]   = useState<boolean>(false)
 
   const flipCard = async () => {
     await cardAnimateFlip()
     setCurrentSide((prev) => prev === "A" ? "B" : "A")
   }
 
-  /** @todo fix this to assign correct data first */
-  const showNextItem = async (succ: boolean) => {
+  const showNextItem = async (success: boolean) => {
     if(!currentItem) return
+    if(items.length <= 1) return stopTraining()
 
-    const index = items.indexOf(currentItem)
+    setItems((prev) => {
+      let newItems = [...prev]
+      let item = newItems.find(i => i.id === currentItem.id) as Item
+      if(!item) {
+        console.error("Did not find item.")
+        return prev
+      }
 
-    const attempts = currentItem.attempts + 1
-    const success = currentItem.success + Number(succ)
+      item = cloneDeep(item)
+      newItems = newItems.filter(i => i.id !== item.id)
+
+      if(!newItems || newItems.length === 0) {
+        console.error("No newItems.")
+        return prev
+      }
+      
+      if(success) {
+        item = {...item, bucket: item.bucket + 1}
+      } else {
+        item = {...item, bucket: item.bucket - 1}
+      }
+
+      if(item.bucket < 0) {
+        item.bucket = 0
+        return newItems.concat([item])
+      } else
+      if(item.bucket >= 5) {
+        return newItems //return without the item, because you succeeded 5 times
+      } else {
+        return newItems.concat([item])
+      }
+    })
+
+    const bucketWeights = [6, 4, 3, 2, 1]
     
-    const newData = { success, attempts }
-    console.log((success / attempts) * 100 + "%")
-    updateItems(currentItem.id, newData)
+    let nextItem
 
-    const next = items[index + 1]
+    let attempts = 0
+    do {
+      nextItem = getRandomItem(items.map(i => {
+        const weight = bucketWeights[i.bucket]
+        if(!weight) throw new Error(`No weight for bucket: ${i.bucket}`)
+        return {...i, weight}
+      }))
+      attempts++
+    } while (attempts < 10000 && items.length >= 2 && nextItem?.id === currentItem.id)
+
+    if(attempts >= 10000) {
+      console.error("Attempts >= 10000")
+      console.error("Items.length: ", items.length)
+      console.error("Prev and next Item id match: ", nextItem?.id, currentItem.id)
+    }
 
     if(currentSide === "B") await flipCard()
     else await cardAnimateFlip()
 
-    if(!next) {
-      setCurrentItem(items[0])
-    } else {
-      setCurrentItem(next)
+    if(nextItem) {
+      console.log(nextItem.bucket)
+      setCurrentItem(nextItem)
     }
-
-    
-
-    /* this code below for dropping a copy of the card is kinda glitchy and I don't know why */
-    //   flipCard()
-    // if(currentSide === "B")   {
-    //   flipCard()
-    //   .then(() => {
-    //     cardCopyAnimateOnNext(succ ? "var(--color-accent)" : "var(--color-warning)")
-    //   })
-    // } 
-    // else {
-    //   cardCopyAnimateOnNext(succ ? "var(--color-accent)" : "var(--color-warning)")
-    // }
-
-    // setIsAnimatingNext(true)
+    else {
+      throw new Error("No next item")
+    }
   }
 
-  function updateObjectOfType<T extends object>(target: T, newData: Partial<T>): T {
-    const result = {...target};
-    (Object.keys(newData) as (keyof T)[]).forEach((key) => {
-        const value = newData[key];
-        if (value !== undefined) {
-          result[key] = value;
-        }
-    });
-    return result
-  }
-
-  const updateItems = (id: number, newData: Partial<Item>) => {
-    const newItems = items.map((item) => {
-      return item.id === id ? updateObjectOfType(item, newData) : item
-    })
-    setItems(newItems)
+  const stopTraining = () => {
+    //training is over, now it just says something like training is over or it shows you the review button only
+    setIsTrainingDone(true)
   }
 
   const createMessageError = () => {
@@ -148,44 +176,12 @@ export default function Window_Train({ datasetIds }: Window_Train_Props) {
     })
   }, [animatorCard])
 
-  /* this shit was broken */
-  const cardCopyAnimateOnNext = useCallback(async (fadeColor: string | undefined) => {
-    animatorCardCopy.set(
-      {
-        position: "absolute",
-        x: 0,
-        y: 0,
-        rotateZ: "0",
-        opacity: 0.5,
-        backgroundColor: "var(--color-light-7)",
-      }
-    )
-    animatorCard.set({
-      y: 5,
-      rotateY: "0",
-      rotateZ: "-3deg",
-      scale: 1,
-      opacity: 0.0,
-    })
-    animatorCard.start({
-      y: 0,
-      rotateY: "0",
-      rotateZ: "0",
-      scale: 1,
-      opacity: 1,
-      transition: {duration: 0.2, easings: [0.3, 0.9, 0.1, 1.0]}
-    })
-    await animatorCardCopy.start({
-      position: "absolute",
-      x: 5,
-      y: 150,
-      rotateZ: "9deg",
-      opacity: 0,
-      backgroundColor: fadeColor,
-      transition: {duration: 0.5, ease: [0.5, 0.9, 0.1, 1.0]}
-    })
-    setIsAnimatingNext(false)
-  }, [animatorCard, animatorCardCopy])
+  const createTrainingDoneMessage = () => {
+    return <div className="training-card side-end">
+      <h1 className="training-card--side-end--title" >Congratulations!</h1>
+      <div className="training-card--side-end--description" >You have finished your training. You can rest now.</div>
+    </div>
+  }
 
   const createCard = () => {
     if(!currentItem) return
@@ -235,12 +231,12 @@ export default function Window_Train({ datasetIds }: Window_Train_Props) {
     return <div className="window--train--buttons">
       <button className="window--train--button--fail warning" onClick={() => showNextItem(false)}>Fail</button>
       <button className="window--train--button--success" onClick={() => showNextItem(true)}>Success</button>
-      <button className="window--train--button--review">Review</button>
     </div>
   }
 
   return <div id="window--train" className="window" style={{pointerEvents: isAnimatingNext ? "none" : undefined}}>
-    {createCard()}
+    {!isTrainingDone && createCard()}
+    {isTrainingDone && createTrainingDoneMessage()}
     {createButtons()}
     {createMessageError()}
     {createMessageLoading()}

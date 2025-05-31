@@ -1,9 +1,9 @@
 import { useState } from "react"
 import "./ItemImage.css"
-import type { ImageBlob, ImageFromServer, ImageType } from "./GlobalTypes"
+import type { ImageBlob, ImageFromServer, ItemImage } from "./GlobalTypes"
 
 type Props = {
-  image:  ImageType | ImageBlob | ImageFromServer
+  image:  ItemImage | ImageBlob | ImageFromServer
   url:    string
   flags:  ItemImageFlags,
   onDelete?: () => void

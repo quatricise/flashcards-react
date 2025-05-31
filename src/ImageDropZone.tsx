@@ -1,14 +1,14 @@
 import "./ImageDropZone.css";
 import { useDropzone } from "react-dropzone";
 import { useCallback, useState, useEffect } from 'react';
-import type { ImageType, ImageFromServer, ImageBlob } from "./GlobalTypes";
+import type { ItemImage, ImageFromServer, ImageBlob } from "./GlobalTypes";
 import ItemImage from "./ItemImage";
 
 type Props = {
   itemId:                     number | null,
   onImagesChange:             (files: File[]) => void
   onImagesFromServerChange:   (images: ImageFromServer[]) => void
-  imagesFromServerInput:      ImageType[] | undefined
+  imagesFromServerInput:      ItemImage[] | undefined
 }
 
 //@todo there is some weird setState rendering trouble again in this component

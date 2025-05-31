@@ -35,7 +35,7 @@ export default function Window_TrainSetup() {
   const [datasetsSelected, setDatasetsSelected] = useState<Dataset[]>([])
 
   const startTraining = () => {
-    dispatch({name: "WINDOW_SET", payload: {window: state.windows.Train, datasets: datasetsSelected}})
+    dispatch({name: "WINDOW_SET", payload: {window: state.windows.Train, datasets: datasetsSelected, trainingSetup: trainingSetup}})
   }
 
   const handleToggleDataset = (dataset: Dataset) => {
@@ -46,7 +46,7 @@ export default function Window_TrainSetup() {
     }
   }
 
-  const [trainingSetup, setTrainingSetup] = useState<TrainingSetup>({A:["title"], B:["images", "description"]});
+  const [trainingSetup, setTrainingSetup] = useState<TrainingSetup>({A:["images"], B:["title", "description"]});
 
   const fieldLabel = "Click and drag this to the other side of the card to change when it's displayed."
   

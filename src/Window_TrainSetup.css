@@ -65,6 +65,7 @@
 
 .window--train-setup--dataset-select--item-count {
   color: var(--color-light-2);
+  margin-right: 10px;
 }
 
 .window--train-setup--side {
