@@ -257,6 +257,19 @@ input[type=submit]:hover {
 .icon.light {
   background-image: url(./images/ui/icon_light.png);
 }
+
 .icon.dark {
   background-image: url(./images/ui/icon_dark.png);
+}
+
+.icon.present {
+  background-image: url(./images/ui/icon_present.png);
+}
+
+.icon.cross {
+  background-image: url(./images/ui/icon_cross.png);
+}
+
+.icon.tick {
+  background-image: url(./images/ui/icon_tick.png);
 }

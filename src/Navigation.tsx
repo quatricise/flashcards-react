@@ -51,6 +51,9 @@ export default function Navigation() {
         <div className="navigation--tab-button--title">Train</div>
       </div>
       <ThemeToggle/>
+      <div className="button--navigation--present" title="Presentation: Brainrot challenge">
+        <div className="icon present"></div>
+      </div>
       <div className="button--navigation--info">
         <div className="icon info"></div>
         <div className="navigation--about">
@@ -75,6 +78,9 @@ export default function Navigation() {
           </div>
         </div>
       </div>
+    </div>
+    <div className="navigation--presentation">
+      {/* this stands separate and is fullscreen and has arrows and a count at the bottom. Visually shows how the Brainrot challenge works. */}
     </div>
   </>
 }

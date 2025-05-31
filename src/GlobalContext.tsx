@@ -7,7 +7,7 @@ import Window_Edit from "./Window_Edit";
 import Window_Train from "./Window_Train";
 import Window_TrainSetup from './Window_TrainSetup';
 
-const trainingDataInitial: StateTrainingData = {datasets: [], setup: {A: [], B: []}}
+const trainingDataInitial: StateTrainingData = {datasets: [], setup: {A: [], B: []}, mode: "brainrot"}
 
 const appStateInitial: AppState = {
   window:   () => <Window_TrainSetup/>,
@@ -16,7 +16,7 @@ const appStateInitial: AppState = {
   windows:  {
     Main:          () => <Window_Main/>,
     Edit:          () => <Window_Edit/>,
-    Train:         (props: Window_Train_Props) => <Window_Train datasetIds={props.datasetIds} trainingSetup={props.trainingSetup}/>,
+    Train:         (props: Window_Train_Props) => <Window_Train datasetIds={props.datasetIds} trainingSetup={props.trainingSetup} trainingMode={props.trainingMode}/>,
     TrainSetup:    () => <Window_TrainSetup/>,
   },
 };

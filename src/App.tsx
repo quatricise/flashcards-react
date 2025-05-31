@@ -7,7 +7,7 @@ function App() {
   console.log(state.training.setup)
   return <>
     <Navigation/>
-    {state.window({datasetIds: state.training.datasets.map(d => d.id), trainingSetup: state.training.setup})}
+    {state.window({datasetIds: state.training.datasets.map(d => d.id), trainingSetup: state.training.setup, trainingMode: state.training.mode})}
   </>
 }
 

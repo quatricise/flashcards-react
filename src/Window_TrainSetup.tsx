@@ -2,8 +2,9 @@ import { useAppDispatch, useAppState } from "./GlobalContext"
 import DatasetButton from './DatasetButton';
 import "./Window_TrainSetup.css"
 import { gql, useQuery } from "@apollo/client";
-import type { Dataset, TrainingSetup, TrainingData } from "./GlobalTypes";
-import { useState } from "react";
+import type { Dataset, TrainingSetup, TrainingMode, TrainingData } from "./GlobalTypes";
+import { useRef, useState, type KeyboardEvent } from "react";
+import type { Team } from './GlobalTypes';
 
 
 
@@ -33,9 +34,18 @@ export default function Window_TrainSetup() {
   const state =     useAppState()
 
   const [datasetsSelected, setDatasetsSelected] = useState<Dataset[]>([])
+  const [trainingMode, setTrainingMode]         = useState<TrainingMode>("brainrot")
+  const [teams, setTeams]                       = useState<Team[]>([])
+  const [trainingSetup, setTrainingSetup]       = useState<TrainingSetup>({A:["images"], B:["title", "description"]});
 
   const startTraining = () => {
-    dispatch({name: "WINDOW_SET", payload: {window: state.windows.Train, datasets: datasetsSelected, trainingSetup: trainingSetup}})
+    dispatch({name: "WINDOW_SET", 
+      payload: {
+        window: state.windows.Train, 
+        datasets: datasetsSelected, 
+        trainingSetup: trainingSetup,
+        trainingMode: trainingMode,
+      }})
   }
 
   const handleToggleDataset = (dataset: Dataset) => {
@@ -46,8 +56,29 @@ export default function Window_TrainSetup() {
     }
   }
 
-  const [trainingSetup, setTrainingSetup] = useState<TrainingSetup>({A:["images"], B:["title", "description"]});
+  const teamAdd = (title: string) => {
+    setTeams(prev => {
+      return [...prev, {title: title, score: []}]
+    })
+    if(refInputTeamAdd.current) {
+      refInputTeamAdd.current.value = ""
+    }
+  }
 
+  const teamRemove = (title: string) => {
+    setTeams(prev => {
+      return prev.filter(t => t.title !== title)
+    })
+  }
+
+  const handleTeamInputKeyDown = (e: KeyboardEvent) => {
+    if(e.code === "Enter" && refInputTeamAdd.current?.value) {
+      teamAdd(refInputTeamAdd.current?.value)
+    }
+  }
+
+
+  const refInputTeamAdd = useRef<HTMLInputElement>(null)
   const fieldLabel = "Click and drag this to the other side of the card to change when it's displayed."
   
   let buttonBeginClass = "window--train-setup--button--begin"
@@ -61,7 +92,13 @@ export default function Window_TrainSetup() {
 
   return <div className="window" id="window--train-setup">
     <div className="window--train-setup--contents">
-      <h1 className="window--train-setup--contents--title" >Training setup</h1>
+      <div className="window--train-setup--contents--title" >
+        <h1>Training setup</h1>
+      </div>
+        <div className="window--train-setup--mode-switch">
+          <div className={"window--train-setup--mode-switch--tab" + ( trainingMode === "regular" ? " active" : "")} onClick={() => setTrainingMode("regular")} >Serious training</div>
+          <div className={"window--train-setup--mode-switch--tab" + ( trainingMode === "brainrot" ? " active" : "")} onClick={() => setTrainingMode("brainrot")} >Brainrot Challenge</div>
+        </div>
       <div className="window--train-setup--dataset-select">
         <div className="window--train-setup--dataset-select--heading">
           <div className="window--train-setup--dataset-select--title" >Datasets:</div>
@@ -94,7 +131,21 @@ export default function Window_TrainSetup() {
           }
         </div>
       </div>
-      <div className="window--train-setup--training-method">
+
+      <div className="window--train-setup--teams" style={{display: trainingMode === "brainrot" ? "flex" : "none"}}>
+        <div className="text--secondary" >Teams</div>
+        <div className="window--train-setup--teams--list">
+          {teams.map((team, index) => {
+            return <div className="team-card" key={index}>
+              {team.title}
+              <div className="icon cross" onClick={() => teamRemove(team.title)}></div>
+            </div>
+          })}
+        </div>
+        <input ref={refInputTeamAdd} className="window--train-setup--teams--input" type="text" name="teams" id="" placeholder={"Add team"} onKeyDown={handleTeamInputKeyDown}/>
+      </div>
+
+      <div className="window--train-setup--training-method" style={{display: trainingMode === "regular" ? "flex" : "none"}}>
         <div style={{userSelect: "none"}} >Training method</div>
         <div className="filler"></div>
         <div className="window--train-setup--training-method--randomize" >
@@ -103,7 +154,7 @@ export default function Window_TrainSetup() {
         </div>
       </div>
 
-        <div className="window--train-setup--training-method-sides">
+        <div className="window--train-setup--training-method-sides" style={{display: trainingMode === "regular" ? "flex" : "none"}}>
             <div className="window--train-setup--side a">
               <div className="window--train-setup--side--label">Front</div>
               {trainingSetup.A.map((field) => {

@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect } from "react"
+import React, { useState, useCallback, useEffect } from "react"
 import { useQuery, gql } from "@apollo/client"
 import { motion, useAnimation } from "motion/react"
 import { cloneDeep } from "@apollo/client/utilities"
-import type { Item, TrainingSetup, TrainingData, Window_Train_Props } from "./GlobalTypes"
+import type { Item, TrainingSetup, TrainingData, TrainingMode,  Window_Train_Props } from "./GlobalTypes"
 import { clamp, sum, waitFor } from "./GlobalFunctions"
 import type { AnimationControls } from "motion/react"
 import "./Window_Train.css"
@@ -30,7 +30,6 @@ type GET_ITEMS_RETURN = {
 
 type ItemWithWeight = Item & { weight: number }
 
-
 function getRandomItem(items: ItemWithWeight[]): ItemWithWeight | undefined {
   const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
   if (totalWeight === 0) return undefined;
@@ -45,7 +44,7 @@ function getRandomItem(items: ItemWithWeight[]): ItemWithWeight | undefined {
   return undefined;
 }
 
-export default function Window_Train({ datasetIds, trainingSetup }: Window_Train_Props) {
+export default function Window_Train({ datasetIds, trainingSetup, trainingMode, teams }: Window_Train_Props) {
 
   const {data, loading: dataLoading, error: dataError} = useQuery<GET_ITEMS_RETURN>(GET_ITEMS, { //@todo this has no refetch
     variables: {datasetIds}
@@ -228,9 +227,16 @@ export default function Window_Train({ datasetIds, trainingSetup }: Window_Train
   }
 
   const createButtons = () => {
-    return <div className="window--train--buttons">
-      <button className="window--train--button--fail warning" onClick={() => showNextItem(false)}>Fail</button>
-      <button className="window--train--button--success" onClick={() => showNextItem(true)}>Success</button>
+    const style: Partial<React.CSSProperties> = isTrainingDone ? {opacity: 0.5, pointerEvents: "none"} : {opacity: 1.0, pointerEvents: "all"}
+    return <div className="window--train--buttons" style={style}>
+      <button className="window--train--button--fail warning" onClick={() => showNextItem(false)}>
+        <div className="icon cross"></div>
+        <div>Fail</div>
+      </button>
+      <button className="window--train--button--success" onClick={() => showNextItem(true)}>
+        <div className="icon tick"></div>
+        <div>Success</div>
+      </button>
     </div>
   }
 

@@ -50,6 +50,8 @@ export type TrainingSetup = {
   B: TrainingData[]
 };
 
+export type TrainingMode = "regular" | "brainrot"
+
 export type AppWindow =
   | typeof Window_Train
   | typeof Window_Edit
@@ -85,6 +87,7 @@ export interface AppActionPayload {
   window:         AppWindow | undefined
   datasets?:      Dataset[]
   trainingSetup:  TrainingSetup
+  trainingMode:   TrainingMode
 }
 
 export interface AppAction {
@@ -98,11 +101,20 @@ export type ImageUploadResult = {
 }
 
 export type StateTrainingData = {
-  datasets: Dataset[],
-  setup:    TrainingSetup
+  datasets:   Dataset[],
+  setup:      TrainingSetup
+  mode:       TrainingMode
+  teams:      Team[]
 }
 
 export type Window_Train_Props = {
-  datasetIds:    number[],
-  trainingSetup: TrainingSetup
+  datasetIds:     number[],
+  trainingSetup:  TrainingSetup
+  trainingMode:   TrainingMode
+  teams:          Team[]
+};
+
+export type Team = {
+  title:    string
+  score:    ItemAttempt[]
 }

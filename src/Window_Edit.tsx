@@ -909,7 +909,7 @@ export default function Window_Edit() {
             </motion.button> 
             }
             {
-              <button disabled style={{cursor: "not-allowed"}} title="Not implemented yet" className="window--edit--left-side--button--preview" >Preview</button> //this would be pretty cool, you could see how the card looks even before it's added to training
+              <button style={{cursor: "not-allowed", opacity: 0.5, pointerEvents: "none"}} title="Not implemented yet" className="window--edit--left-side--button--preview" >Preview</button> //this would be pretty cool, you could see how the card looks even before it's added to training
             }
             <motion.input type="submit" value={textSubmitValue} animate={animatorButtonSubmit} tabIndex={0}/>
           </div>

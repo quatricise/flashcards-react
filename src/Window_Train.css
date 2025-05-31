@@ -17,15 +17,31 @@
 }
 
 .window--train--button--fail {
-  font-size: 1rem;
+  display: flex;
+  gap: 10px;
+  font-size: 1.2rem;
 }
 
 .window--train--button--success {
-  font-size: 1rem;
+  display: flex;
+  gap: 10px;
+  font-size: 1.2rem;
 }
 
 .window--train--button--review {
+  display: flex;
+  gap: 10px;
   font-size: 1rem;
+}
+
+.window--train--button--fail .icon {
+  width: 24px;
+  height: 24px;
+}
+
+.window--train--button--success .icon {
+  width: 24px;
+  height: 24px;
 }
 
 .training-card {
