@@ -24,6 +24,10 @@
   font-size: 1.2rem;
 }
 
+.window--train-setup--button--begin:focus-visible {
+  outline: 2px solid var(--color-white);
+}
+
 .window--train-setup--contents--title {
   display: flex;
 }
@@ -157,12 +161,15 @@
 
 .window--train-setup--training-data--field {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 6px 10px;
   border-radius: 10px;
+  height: 40px;
   background-color: var(--color-light-7);
   border: 2px solid var(--color-light-7);
   user-select: none;
-  cursor: grab;
+  cursor: pointer;
 }
 
 .window--train-setup--side.a 
@@ -187,6 +194,10 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex-grow: 1;
+  max-height: 50%;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 20px;
   border-radius: 10px;
   /* background-color: var(--color-light-6); */
@@ -232,6 +243,16 @@
 
 .team-card .icon:hover {
   background-color: var(--color-light-6);
+}
+
+.window--train-setup--side .icon.arrow {
+  display: none;
+  width: 24px;
+  height: 24px;
+}
+
+.window--train-setup--training-data--field:hover .icon {
+  display: block;
 }
 
 

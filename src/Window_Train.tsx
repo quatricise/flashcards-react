@@ -2,10 +2,10 @@ import React, { useState, useCallback, useEffect } from "react"
 import { useQuery, gql } from "@apollo/client"
 import { motion, useAnimation } from "motion/react"
 import { cloneDeep } from "@apollo/client/utilities"
-import type { Item, TrainingSetup, TrainingData, TrainingMode,  Window_Train_Props } from "./GlobalTypes"
-import { clamp, sum, waitFor } from "./GlobalFunctions"
+import type { Item, TrainingSetup, TrainingData, TrainingMode,  Window_Train_Props, Team } from "./GlobalTypes"
 import type { AnimationControls } from "motion/react"
 import "./Window_Train.css"
+import { clamp, sum } from "./GlobalFunctions"
 
 
 const GET_ITEMS = gql`
@@ -56,23 +56,71 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
     setCurrentItem(data.itemsByDatasetIds[0])
   }, [data])
 
-  console.log(trainingSetup)
-
-  // const [trainingSetup, setTrainingSetup]     = useState<TrainingSetup>(input_trainingSetup)
-  const [currentSide, setCurrentSide]         = useState<"A"|"B">("A")
-  const [currentItem, setCurrentItem]         = useState<Item | null>(null)
-  const [isAnimatingNext, setIsAnimatingNext] = useState<boolean>(false)
-  const [items, setItems]                     = useState<Item[]>([])
-  const [isTrainingDone, setIsTrainingDone]   = useState<boolean>(false)
+  const [currentSide, setCurrentSide]           = useState<"A"|"B">("A")
+  const [currentItem, setCurrentItem]           = useState<Item | null>(null)
+  const [isAnimatingNext, setIsAnimatingNext]   = useState<boolean>(false)
+  const [items, setItems]                       = useState<Item[]>([])
+  const [isTrainingDone, setIsTrainingDone]     = useState<boolean>(false)
+  const [currentTeam, setCurrentTeam]           = useState<Team>(teams[0])
+  const [currentTeamIndex, setCurrentTeamIndex] = useState<number>(0)
+  const [itemIndexForTeam, setItemIndexForTeam] = useState<number>(0)
 
   const flipCard = async () => {
     await cardAnimateFlip()
     setCurrentSide((prev) => prev === "A" ? "B" : "A")
   }
 
+  const itemsPerTeam = 6
+  const teamCount = teams.length
+
+  const onTeamChangeItem = (success: boolean) => {
+    const nextItemIndex = itemIndexForTeam + 1
+
+    teams[currentTeamIndex].score.push({success})
+
+    if(nextItemIndex > itemsPerTeam - 1) {
+      const t = teams.find(t => t.title === currentTeam.title)
+      if(!t) throw "Fuck"
+
+      const currentTeamIndex = teams.indexOf(t)
+
+      if(currentTeamIndex < teamCount - 1) {
+        setCurrentTeam(teams[currentTeamIndex + 1])
+        setCurrentTeamIndex(currentTeamIndex + 1)
+      } else {
+        setCurrentTeam(teams[0])
+        setCurrentTeamIndex(0)
+      }
+
+      setItemIndexForTeam(0)
+      teamsAnimateChange()
+    }
+    else 
+    {
+      setItemIndexForTeam(nextItemIndex)
+    }
+  }
+
+  const failedLastXTimes = (team: Team, x: number) => {
+    const l_i = team.score.length
+    const f_i = clamp(l_i, 0, Infinity) - clamp(x, 0, Infinity) //clamp so it does not produce weirdness
+    const successes = sum(...team.score.slice(f_i, l_i).map(attempt => attempt.success ? 1 : 0))
+    console.log(`Team at index: ${currentTeamIndex} score: \n`, team.score.map(att => att.success))
+    // console.log(`Fails for last ${x} attempts: `, )
+    return successes === 0 && (l_i - f_i >= x)
+  }
+
   const showNextItem = async (success: boolean) => {
     if(!currentItem) return
     if(items.length <= 1) return stopTraining()
+
+    onTeamChangeItem(success)
+
+    const hasFailed = failedLastXTimes(teams[currentTeamIndex], 3)
+    
+    if(hasFailed) {
+      alert("drink!")
+    }
 
     setItems((prev) => {
       let newItems = [...prev]
@@ -92,6 +140,7 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
       
       if(success) {
         item = {...item, bucket: item.bucket + 1}
+        
       } else {
         item = {...item, bucket: item.bucket - 1}
       }
@@ -156,6 +205,7 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
 
   const animatorCard =      useAnimation()
   const animatorCardCopy =  useAnimation()
+  const animatorTeams =     useAnimation()
 
   const cardAnimateFlip = useCallback(async () => {
     await animatorCard.start({
@@ -175,19 +225,60 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
     })
   }, [animatorCard])
 
-  const createTrainingDoneMessage = () => {
-    return <div className="training-card side-end">
-      <h1 className="training-card--side-end--title" >Congratulations!</h1>
-      <div className="training-card--side-end--description" >You have finished your training. You can rest now.</div>
-    </div>
+  const teamsAnimateChange = async () => {
+    const transition = {duration: 0.25}
+    await animatorTeams.start({
+      backgroundColor: "var(--color-accent)",
+      transform: "scale(1.5)",
+      transition
+    })
+    await animatorTeams.start({
+      backgroundColor: "var(--color-light-7)",
+      transform: "scale(1.0)",
+      transition
+    })
   }
+
+  const createTrainingDoneMessage = () => {
+    if(trainingMode === "brainrot") {
+      return <div className="training-card side-end">
+        <h1 className="training-card--side-end--title" >Congratulations!</h1>
+        <div className="training-card--side-end--description" >The winning team is: {"@todo team"}.</div>
+      </div>
+    }
+
+    if(trainingMode === "regular") {
+      return <div className="training-card side-end">
+        <h1 className="training-card--side-end--title" >Congratulations!</h1>
+        <div className="training-card--side-end--description" >You have finished your training. You can rest now.</div>
+      </div>
+    }
+  }
+
+  const createTeam = () => {
+    return <motion.div className="window--train--team" animate={animatorTeams}>
+      <div className="window--train--team--title">Team:</div>
+      <div className="window--train--team--description">{currentTeam.title}</div>
+    </motion.div>
+  }
+
 
   const createCard = () => {
     if(!currentItem) return
 
     let className = "training-card"
-    if(currentSide === "B") className += " side-b"
-    if(currentSide === "A") className += " side-a"
+    
+    if(currentSide === "B") {
+      className += " side-b"
+    }
+
+    if(currentSide === "A") {
+      className += " side-a"
+    }
+    
+    if(trainingMode === "brainrot") {
+      if(currentItem.bucket === 4) className += " golden"
+    }
 
     const createElement = (animator: AnimationControls, isVisible: boolean, onclick?: () => void) => {
 
@@ -240,7 +331,13 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
     </div>
   }
 
-  return <div id="window--train" className="window" style={{pointerEvents: isAnimatingNext ? "none" : undefined}}>
+  let classWindow = "window"
+  if(trainingMode === "brainrot") {
+    classWindow += " brainrot"
+  }
+
+  return <div id="window--train" className={classWindow} style={{pointerEvents: isAnimatingNext ? "none" : undefined}}>
+    {createTeam()}
     {!isTrainingDone && createCard()}
     {isTrainingDone && createTrainingDoneMessage()}
     {createButtons()}

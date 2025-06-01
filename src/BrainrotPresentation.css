@@ -1,0 +1,53 @@
+.brainrot-presentation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--color-light-8);
+  z-index: 1;
+}
+
+.presentation-slide {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brainrot-presentation--controls {
+  position: fixed;
+  bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  gap: 10px;
+  height: 40px;
+}
+
+.brainrot-presentation .icon.arrow {
+  width: 40px;
+  height: 40px;
+}
+
+.brainrot-presentation .icon.arrow:hover {
+  background-color: var(--color-light-6);
+  border-radius: 5px;
+}
+
+.brainrot-presentation .icon.arrow.back {
+  transform: scaleX(-1);
+}
+
+.brainrot-presentation--current-slide {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-light-6);
+  color: var(--color-white);
+  border-radius: 5px;
+  font-weight: 500;
+  font-size: 1.2rem;
+}

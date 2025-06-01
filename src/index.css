@@ -113,7 +113,7 @@ textarea {
   font-size: 1rem;
 }
 
-textarea:focus {
+textarea:focus-visible {
   border: 2px solid var(--color-white);
 }
 
@@ -272,4 +272,16 @@ input[type=submit]:hover {
 
 .icon.tick {
   background-image: url(./images/ui/icon_tick.png);
+}
+
+.icon.arrow {
+  background-image: url(./images/ui/icon_arrow.png);
+}
+
+.icon.arrow.down {
+  transform: rotate(90deg);
+}
+
+.icon.arrow.up {
+  transform: rotate(-90deg);
 }

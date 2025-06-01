@@ -1,6 +1,9 @@
 import { useAppDispatch, useAppState } from "./GlobalContext"
 import { ThemeToggle } from "./ThemeToggle"
+import { useRef, useState, type KeyboardEvent } from "react"
 import "./Navigation.css"
+import "./BrainrotPresentation.css"
+import { clamp } from "./GlobalFunctions"
 
 export default function Navigation() {
 
@@ -27,6 +30,48 @@ export default function Navigation() {
 
   }
 
+  const [currentSlide, setCurrentSlide] = useState<number>(0)
+  const [isPresenting, setIsPresenting] = useState<boolean>(false)
+
+  const presentationBegin = () => {
+    setIsPresenting(true)
+    setCurrentSlide(0)
+    refPresentation.current?.focus()
+  }
+
+  const presentationEnd = () => {
+    setIsPresenting(false)
+  }
+
+  const slidesTotal = 9
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if(isPresenting) {
+      if(e.code === "ArrowLeft") {
+        slidePrev()
+      }
+      if(e.code === "ArrowRight") {
+        slideNext()
+      }
+      if(e.code === "Escape") {
+        presentationEnd()
+      }
+    }
+  }
+
+  const slidePrev = () => {
+    setCurrentSlide((prev) => clamp(prev - 1, 0, slidesTotal - 1))
+  }
+
+  const slideNext = () => {
+    if(currentSlide === slidesTotal - 1) {
+      presentationEnd()
+    }
+    setCurrentSlide((prev) => clamp(prev + 1, 0, slidesTotal - 1))
+  }
+
+  const refPresentation = useRef<HTMLDivElement>(null)
+
   return <>
     <div id="navigation">
       <div 
@@ -52,7 +97,18 @@ export default function Navigation() {
       </div>
       <ThemeToggle/>
       <div className="button--navigation--present" title="Presentation: Brainrot challenge">
-        <div className="icon present"></div>
+        <div className="icon present" onClick={presentationBegin}></div>
+        {
+        isPresenting &&
+         <div className="brainrot-presentation" tabIndex={0} onKeyDown={handleKeyDown} ref={refPresentation}>
+            <img src={`./images/brainrot_presentation/${currentSlide + 1}.png`} alt="" className="presentation-slide" />
+            <div className="brainrot-presentation--controls">
+              <div className="icon arrow back" onClick={slidePrev}></div>
+              <div className="brainrot-presentation--current-slide">{currentSlide + 1}</div>
+              <div className="icon arrow" onClick={slideNext}></div>
+            </div>
+        </div>
+        }
       </div>
       <div className="button--navigation--info">
         <div className="icon info"></div>

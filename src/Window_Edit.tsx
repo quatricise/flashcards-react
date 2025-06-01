@@ -247,7 +247,11 @@ export default function Window_Edit() {
     if(inputDescription.current) {
       inputDescription.current.value = ""
     }
-    setUploadData(uploadDataInitial)
+    if(windowState === "add") { //this option retains the selected dataset buttons
+      setUploadData({...uploadDataInitial, datasets: uploadData.datasets})
+    } else {
+      setUploadData(uploadDataInitial)
+    }
     setCurrentItemId(0)
     setWindowState("add")
   }
@@ -347,7 +351,7 @@ export default function Window_Edit() {
     
     let datasets: number[] = []
 
-    //handle the source of datasets which is dependent on windowState, which is actually kinda shitty design, it uploadData should always be all that is uploaded, why the fuck am I getting datasets from the current item??
+    //handle the source of datasets which is dependent on windowState, which is actually kinda shitty design, uploadData should always be all that is uploaded, why the fuck am I getting datasets from the current item??
     //oh yes.. probably because I do not store the default state of the dataset buttons elsewhere, which I should do; yes, I should cache it and then restore it if the windowState is "add" again
     if(windowState === "add") {
       datasets = uploadData.datasets.map(d => d.id)
@@ -361,9 +365,14 @@ export default function Window_Edit() {
       throw new Error("Missing case for windowState: " + windowState)
     }
 
-    if(!uploadData.title)     return console.warn("Missing title in uploadData")
-    if(datasets.length === 0) return console.warn("Missing datasets in uploadData")
-    //@todo notify user somehow that it's needed to select a dataset, via animation probably
+    if(!uploadData.title) {
+      animateTitleReminder()
+      return console.warn("Missing title in uploadData")
+    }
+    if(datasets.length === 0) {
+      animateDatasetButtonsReminder()
+      return console.warn("Missing datasets in uploadData")
+    }
 
     const variables = {
       title: uploadData.title, 
@@ -545,7 +554,12 @@ export default function Window_Edit() {
     return <>
             <div className="window--edit--right-side--contents">
               {datasetsSelected.length === 0 &&
-                <div className="window--edit--right-side--contents--info-no-datasets">Items will appear here once you <br/> select datasets to edit.</div>
+                <div className="window--edit--right-side--contents--info-no-datasets">
+                  Items will appear here once you <br/> 
+                  select datasets to edit.
+                  <br /><br />
+                  You don't need to select a dataset <br /> to add items, only if you wish to edit existing items.
+                </div>
               }
               {Array.from(datasets.entries())?.map((d, d_index) => {
                 const dataset = d[1]
@@ -652,6 +666,48 @@ export default function Window_Edit() {
         return newMap
       })
     }
+  }
+
+  const animatorDatasetButtons = useAnimation();
+
+  const animateDatasetButtonsReminder = async () => {
+    const animator = animatorDatasetButtons
+    const transition = {duration: 0.5, easings: ["easeInOut"]};
+    animator.set({
+      transform: "scale(1.0)",
+      backgroundColor: "var(--color-light-8)",
+    });
+    await animator.start({
+      transform: "scale(1.05)",
+      backgroundColor: "var(--color-accent)",
+      transition
+    })
+    await animator.start({
+      transform: "scale(1.0)",
+      backgroundColor: "var(--color-light-8)",
+      transition
+    })
+  }
+
+  const animatorTitle = useAnimation();
+
+  const animateTitleReminder = async () => {
+    const animator = animatorTitle;
+    const transition = {duration: 0.5, easings: ["easeInOut"]};
+    animator.set({
+      transform: "scale(1.0)",
+      backgroundColor: "var(--color-light-8)",
+    });
+    await animator.start({
+      transform: "scale(1.05)",
+      backgroundColor: "var(--color-accent)",
+      transition
+    })
+    await animator.start({
+      transform: "scale(1.0)",
+      backgroundColor: "var(--color-light-8)",
+      transition
+    })
   }
 
   const animatorRightSide = useAnimation();
@@ -847,7 +903,8 @@ export default function Window_Edit() {
                 return <DatasetCard 
                 key={dataset.id} 
                 dataset={dataset} 
-                warn={warn} selected={selected} 
+                warn={warn} 
+                selected={selected} 
                 onSelectedChange={updateDatasetsSelected}
                 onRename={handleRefetch}></DatasetCard>
             })}
@@ -880,16 +937,24 @@ export default function Window_Edit() {
 
       <div className="window--edit--left-side">
         <h1 className="window--edit--left-side--heading">{textHeadingLeft}</h1>
-        <div className="window--edit--left-side--dataset-list">
+        <motion.div className="window--edit--left-side--dataset-list" animate={animatorDatasetButtons}>
           <div 
           className="window--edit--left-side--dataset-list--title text--secondary" 
           title="Which datasets this item will be added into. Select at least 1.">
             Datasets:&nbsp;
           </div>
           {createDatasetButtons()}
-        </div>
+        </motion.div>
         <form className="window--edit--left-side--input-form" onSubmit={handleSubmit}>
-          <input className="window--edit--left-side--input--title" type="text" name="title" id="" placeholder="Title" onChange={handleTitleChange} ref={inputTitle} />
+          <motion.input 
+          className="window--edit--left-side--input--title" 
+          type="text" 
+          name="title" 
+          id="" 
+          placeholder="Title" 
+          onChange={handleTitleChange}
+          animate={animatorTitle}
+          ref={inputTitle}/>
           <textarea name="description" placeholder="Description" onChange={handleDescriptionChange} ref={inputDescription} />
           <ImageDropZone 
           key={imageDropZoneKey} 
@@ -909,7 +974,8 @@ export default function Window_Edit() {
             </motion.button> 
             }
             {
-              <button style={{cursor: "not-allowed", opacity: 0.5, pointerEvents: "none"}} title="Not implemented yet" className="window--edit--left-side--button--preview" >Preview</button> //this would be pretty cool, you could see how the card looks even before it's added to training
+              //this would be pretty cool, you could see how the card looks even before it's added to training
+              // <button disabled style={{cursor: "not-allowed", opacity: 0.5, pointerEvents: "none"}} title="Not implemented yet" className="window--edit--left-side--button--preview">Preview</button> 
             }
             <motion.input type="submit" value={textSubmitValue} animate={animatorButtonSubmit} tabIndex={0}/>
           </div>

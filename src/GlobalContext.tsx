@@ -7,7 +7,7 @@ import Window_Edit from "./Window_Edit";
 import Window_Train from "./Window_Train";
 import Window_TrainSetup from './Window_TrainSetup';
 
-const trainingDataInitial: StateTrainingData = {datasets: [], setup: {A: [], B: []}, mode: "brainrot"}
+const trainingDataInitial: StateTrainingData = {datasets: [], setup: {A: [], B: []}, mode: "brainrot", teams: []}
 
 const appStateInitial: AppState = {
   window:   () => <Window_TrainSetup/>,
@@ -16,7 +16,7 @@ const appStateInitial: AppState = {
   windows:  {
     Main:          () => <Window_Main/>,
     Edit:          () => <Window_Edit/>,
-    Train:         (props: Window_Train_Props) => <Window_Train datasetIds={props.datasetIds} trainingSetup={props.trainingSetup} trainingMode={props.trainingMode}/>,
+    Train:         (props: Window_Train_Props) => <Window_Train datasetIds={props.datasetIds} trainingSetup={props.trainingSetup} trainingMode={props.trainingMode} teams={props.teams}/>,
     TrainSetup:    () => <Window_TrainSetup/>,
   },
 };
@@ -37,7 +37,12 @@ function stateReducer(state: AppState, action: AppAction): AppState {
   const payload = action.payload
   switch (action.name) {
     case 'WINDOW_SET': {
-      const training: StateTrainingData = {...state.training, datasets: payload.datasets ?? state.training.datasets, setup: payload.trainingSetup ?? state.training.setup}
+      const training: StateTrainingData = 
+      {...state.training, 
+        datasets: payload.datasets ?? state.training.datasets, 
+        setup: payload.trainingSetup ?? state.training.setup,
+        teams: payload.teams ?? state.training.teams
+      }
 
       return { ...state, window: payload.window ?? state.window, training: training };
     }

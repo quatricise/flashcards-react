@@ -88,6 +88,7 @@ export interface AppActionPayload {
   datasets?:      Dataset[]
   trainingSetup:  TrainingSetup
   trainingMode:   TrainingMode
+  teams:          Team[]
 }
 
 export interface AppAction {

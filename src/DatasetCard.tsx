@@ -26,7 +26,6 @@ type RENAME_DATASET_RETURN = {
 }
 
 function DatasetCard({ dataset, warn, selected, onSelectedChange, onRename }: Props) {
-  //@todo this won't now work in Window_DatasetSelect due to changes to selection, fix this and remove the comment
 
   const [isHover, setIsHover]               = useState<true | false>(false);
   const [isRenaming, setIsRenaming]         = useState<true | false>(false);
@@ -104,7 +103,6 @@ function DatasetCard({ dataset, warn, selected, onSelectedChange, onRename }: Pr
     console.log(e.target)
 
     onSelectedChange(dataset, !selected) // '!active' because of the state update delay
-    // setIsActive(active ? false : true)
   }
 
   if(isRenaming) {
