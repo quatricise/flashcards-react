@@ -7,8 +7,13 @@
   gap: 40px;
   width: 100vw;
   height: 100vh;
-  padding: 80px;
-  padding-top: 120px;
+  /* padding: 80px; */
+  /* padding-top: 120px; */
+}
+
+#window--train.top-padding {
+  /* padding: 80px; */
+  padding-top: 80px;
 }
 
 .window--train--buttons {
@@ -165,4 +170,42 @@
 
 .window--train--team--description {
   font-size: 3rem;
+}
+
+.window--train--team--round {
+  font-size: 3rem;
+  margin-left: 80px;
+}
+
+.window--train--drink-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  user-select: none;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.window--train--drink-popup--contents {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 80px 60px;
+  background-color: var(--color-warning);
+  border-radius: 100%;
+}
+
+.window--train--drink-popup--title {
+  font-size: 3rem;
+}
+
+.window--train--drink-popup--description {
+  font-size: 6rem;
 }

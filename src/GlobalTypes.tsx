@@ -25,6 +25,7 @@ export type Item = {
   images:           ItemImage[];
   datasets:         DatasetRef[];
   bucket:           number; //used in training only
+  value:            number; //used in training -> brainrot edition only
 }
 
 export type ItemAttempt = {
@@ -63,7 +64,12 @@ export type AppState = {
   windows:  AppWindows,
   history:  AppWindowHistory,
   training: StateTrainingData
+  flags:    AppStateFlags
 };
+
+export type AppStateFlags = {
+  showNav: boolean
+}
 
 export type AppWindows = {
   Main:          typeof Window_Main,
@@ -81,14 +87,15 @@ export const WindowKeys_To_Names: Record<keyof AppWindows, string> = {
   TrainSetup:    "Setup training",
 }
 
-export type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE" | "EDIT_DATA"
+export type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE" | "EDIT_DATA" | "APPLY_FLAGS"
 
 export interface AppActionPayload {
-  window:         AppWindow | undefined
-  datasets?:      Dataset[]
-  trainingSetup:  TrainingSetup
-  trainingMode:   TrainingMode
-  teams:          Team[]
+  window?:           AppWindow | undefined
+  datasets?:        Dataset[]
+  trainingSetup?:   TrainingSetup
+  trainingMode?:    TrainingMode
+  teams?:           Team[]
+  flags?:           AppStateFlags
 }
 
 export interface AppAction {
@@ -116,6 +123,7 @@ export type Window_Train_Props = {
 };
 
 export type Team = {
-  title:    string
-  score:    ItemAttempt[]
+  title:          string
+  score:          ItemAttempt[]
+  failedThisTurn: boolean
 }

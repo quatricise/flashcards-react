@@ -1,6 +1,6 @@
 import { createContext, useReducer, useContext } from "react"
 import type { ReactNode, Dispatch } from "react"
-import type { AppWindow, AppState, AppAction, AppActionPayload, Dataset, StateTrainingData, Window_Train_Props } from "./GlobalTypes"
+import type { AppWindow, AppState, AppAction, AppActionPayload, Dataset, StateTrainingData, Window_Train_Props, Team } from "./GlobalTypes"
 
 import Window_Main from "./Window_Main";
 import Window_Edit from "./Window_Edit";
@@ -19,6 +19,7 @@ const appStateInitial: AppState = {
     Train:         (props: Window_Train_Props) => <Window_Train datasetIds={props.datasetIds} trainingSetup={props.trainingSetup} trainingMode={props.trainingMode} teams={props.teams}/>,
     TrainSetup:    () => <Window_TrainSetup/>,
   },
+  flags: {showNav: true}
 };
 
 
@@ -44,10 +45,13 @@ function stateReducer(state: AppState, action: AppAction): AppState {
         teams: payload.teams ?? state.training.teams
       }
 
-      return { ...state, window: payload.window ?? state.window, training: training };
+      return { ...state, window: payload.window ?? state.window, training: training, flags: {...state.flags, ...payload.flags} };
     }
     case 'WINDOW_CLOSE': {
       return { ...state, window: state.history.pop() ?? state.window };
+    }
+    case 'APPLY_FLAGS': {
+      return {...state, flags: {...state.flags, ...payload.flags}}
     }
     default: {
       return state;

@@ -27,6 +27,17 @@ type GET_DATASETS_RETURN = {
   datasets: Dataset[]
 }
 
+const teamsInitialPlaceholder: Team[] = [
+  {title: "Haškolbrainroti", score: [], failedThisTurn: false}, 
+  {title: "Brainroti", score: [], failedThisTurn: false},
+  {title: "Ministerstvo brainrotu", score: [], failedThisTurn: false},
+  {title: "Mladí brainroti", score: [], failedThisTurn: false},
+  {title: "Náměstci brainrot ministerstva", score: [], failedThisTurn: false},
+  {title: "Brainrot-cián", score: [], failedThisTurn: false},
+  {title: "Středeční brainroti", score: [], failedThisTurn: false},
+  {title: "Cestovní brainrot", score: [], failedThisTurn: false},
+  {title: "GogoBrainrotmanTV", score: [], failedThisTurn: false},
+]
 
 
 export default function Window_TrainSetup() {
@@ -38,7 +49,7 @@ export default function Window_TrainSetup() {
 
   const [datasetsSelected, setDatasetsSelected] = useState<Dataset[]>([])
   const [trainingMode, setTrainingMode]         = useState<TrainingMode>("brainrot")
-  const [teams, setTeams]                       = useState<Team[]>([])
+  const [teams, setTeams]                       = useState<Team[]>(teamsInitialPlaceholder)
   const [trainingSetup, setTrainingSetup]       = useState<TrainingSetup>({A:["images"], B:["title", "description"]});
 
   const animatorTeamInput = useAnimation()
@@ -60,6 +71,7 @@ export default function Window_TrainSetup() {
         trainingSetup: trainingSetup,
         teams: teams,
         trainingMode: trainingMode,
+        flags: {showNav: false},
       }})
   }
 
@@ -144,7 +156,7 @@ export default function Window_TrainSetup() {
       </div>
         <div className="window--train-setup--mode-switch">
           <div className={"window--train-setup--mode-switch--tab" + ( trainingMode === "regular" ? " active" : "")} onClick={() => setTrainingMode("regular")} >Serious training</div>
-          <div className={"window--train-setup--mode-switch--tab" + ( trainingMode === "brainrot" ? " active" : "")} onClick={setTrainingModeBrainrot} >Brainrot Challenge</div>
+          <div className={"window--train-setup--mode-switch--tab" + ( trainingMode === "brainrot" ? " active" : "")} onClick={setTrainingModeBrainrot} >Brainrot Drinking Game 🍻</div>
         </div>
       <motion.div className="window--train-setup--dataset-select" animate={animatorDatasets}>
         <div className="window--train-setup--dataset-select--heading">
@@ -180,7 +192,7 @@ export default function Window_TrainSetup() {
       </motion.div>
 
       <div className="window--train-setup--teams" style={{display: trainingMode === "brainrot" ? "flex" : "none"}}>
-        <div className="text--secondary" >Teams</div>
+        <div className="text--secondary" >Teams&nbsp;({teams.length})</div>
         <div className="window--train-setup--teams--list">
           {teams.map((team, index) => {
             return <div className="team-card" key={index}>
@@ -200,14 +212,14 @@ export default function Window_TrainSetup() {
         animate={animatorTeamInput}/>
       </div>
 
-      <div className="window--train-setup--training-method" style={{display: trainingMode === "regular" ? "flex" : "none"}}>
+      {/* <div className="window--train-setup--training-method" style={{display: trainingMode === "regular" ? "flex" : "none"}}>
         <div style={{userSelect: "none"}} >Training method</div>
         <div className="filler"></div>
         <div className="window--train-setup--training-method--randomize" >
           <label htmlFor="input--randomize">Randomize each card</label>
           <input type="checkbox" name="randomize" id="input--randomize"/>
         </div>
-      </div>
+      </div> */}
 
         <div className="window--train-setup--training-method-sides" style={{display: trainingMode === "regular" ? "flex" : "none"}}>
 

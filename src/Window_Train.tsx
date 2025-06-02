@@ -1,11 +1,14 @@
-import React, { useState, useCallback, useEffect } from "react"
+import React, { useState, useCallback, useEffect, type KeyboardEvent } from "react"
 import { useQuery, gql } from "@apollo/client"
 import { motion, useAnimation } from "motion/react"
+
 import { cloneDeep } from "@apollo/client/utilities"
-import type { Item, TrainingSetup, TrainingData, TrainingMode,  Window_Train_Props, Team } from "./GlobalTypes"
+import type { Item, Window_Train_Props, Team } from "./GlobalTypes"
 import type { AnimationControls } from "motion/react"
 import "./Window_Train.css"
-import { clamp, sum } from "./GlobalFunctions"
+import { clamp, sum, waitFor } from "./GlobalFunctions"
+import { useAppDispatch, useAppState } from "./GlobalContext"
+import { playSound } from "./SFX"
 
 
 const GET_ITEMS = gql`
@@ -50,6 +53,9 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
     variables: {datasetIds}
   })
 
+  const dispatch  = useAppDispatch()
+  const state     = useAppState()
+
   useEffect(() => {
     if(data === undefined) return
     setItems(data.itemsByDatasetIds.map(i => { return {...i, bucket: 0}}))
@@ -58,12 +64,14 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
 
   const [currentSide, setCurrentSide]           = useState<"A"|"B">("A")
   const [currentItem, setCurrentItem]           = useState<Item | null>(null)
-  const [isAnimatingNext, setIsAnimatingNext]   = useState<boolean>(false)
+  const [isAnimating, setIsAnimating]           = useState<boolean>(false)
   const [items, setItems]                       = useState<Item[]>([])
   const [isTrainingDone, setIsTrainingDone]     = useState<boolean>(false)
   const [currentTeam, setCurrentTeam]           = useState<Team>(teams[0])
   const [currentTeamIndex, setCurrentTeamIndex] = useState<number>(0)
   const [itemIndexForTeam, setItemIndexForTeam] = useState<number>(0)
+  const [drinkPopupTitle, setDrinkPopupTitle]   = useState<string>(teams[0].title)
+  const [currentRound, setCurrentRound]         = useState<number>(1) //1-indexed, not 0-indexed
 
   const flipCard = async () => {
     await cardAnimateFlip()
@@ -71,55 +79,66 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
   }
 
   const itemsPerTeam = 6
-  const teamCount = teams.length
 
-  const onTeamChangeItem = (success: boolean) => {
-    const nextItemIndex = itemIndexForTeam + 1
-
-    teams[currentTeamIndex].score.push({success})
-
-    if(nextItemIndex > itemsPerTeam - 1) {
-      const t = teams.find(t => t.title === currentTeam.title)
-      if(!t) throw "Fuck"
-
-      const currentTeamIndex = teams.indexOf(t)
-
-      if(currentTeamIndex < teamCount - 1) {
-        setCurrentTeam(teams[currentTeamIndex + 1])
-        setCurrentTeamIndex(currentTeamIndex + 1)
-      } else {
-        setCurrentTeam(teams[0])
-        setCurrentTeamIndex(0)
-      }
-
-      setItemIndexForTeam(0)
-      teamsAnimateChange()
-    }
-    else 
-    {
-      setItemIndexForTeam(nextItemIndex)
-    }
-  }
-
-  const failedLastXTimes = (team: Team, x: number) => {
-    const l_i = team.score.length
-    const f_i = clamp(l_i, 0, Infinity) - clamp(x, 0, Infinity) //clamp so it does not produce weirdness
-    const successes = sum(...team.score.slice(f_i, l_i).map(attempt => attempt.success ? 1 : 0))
+  const failedLastXTimesThisTurn = (team: Team, x: number) => {
+    const index_end = team.score.length
+    const index_start = clamp(index_end, 0, Infinity) - clamp(x, 0, Infinity)
+    const fails = sum(...team.score.slice(index_start, index_end).map(attempt => attempt.success ? 0 : 1)) // im converting successes to fails, that's why return 0 when it's success and vice versa
     console.log(`Team at index: ${currentTeamIndex} score: \n`, team.score.map(att => att.success))
-    // console.log(`Fails for last ${x} attempts: `, )
-    return successes === 0 && (l_i - f_i >= x)
+    return fails === x && fails === clamp(x, 0, itemIndexForTeam + 1)
   }
 
   const showNextItem = async (success: boolean) => {
     if(!currentItem) return
     if(items.length <= 1) return stopTraining()
 
-    onTeamChangeItem(success)
+    setIsAnimating(true)
 
-    const hasFailed = failedLastXTimes(teams[currentTeamIndex], 3)
+    teams[currentTeamIndex].score.push({success})
+    const hasFailed = failedLastXTimesThisTurn(teams[currentTeamIndex], 3)
     
-    if(hasFailed) {
-      alert("drink!")
+
+    //drink condition, @todo update for the golden card logic
+    if(
+      hasFailed && 
+      teams[currentTeamIndex].failedThisTurn === false &&
+      currentRound > 1
+    ) {
+      console.log("Has failed this turn: ", teams[currentTeamIndex].failedThisTurn)
+      animateDrinkPopup(currentTeam.title)
+      teams[currentTeamIndex].failedThisTurn = true
+    }
+
+    const nextItemIndex = itemIndexForTeam + 1
+    const shouldChangeTeam = nextItemIndex > itemsPerTeam - 1
+
+    //change team because the current already gone through the correct amount of cards
+    if(shouldChangeTeam) {
+
+      playSound("team_change")
+
+      /* reset the fail state for current team */
+      teams[currentTeamIndex].failedThisTurn = false
+
+      const t = teams.find(t => t.title === currentTeam.title)
+      if(!t) throw "Fuck"
+
+      const shouldBeNextRound = currentTeamIndex >= teams.length - 1
+
+      if(shouldBeNextRound) {
+        setCurrentTeam(teams[0])
+        setCurrentTeamIndex(0)
+        setCurrentRound(prev => prev + 1)
+      } else {
+        setCurrentTeam(teams[currentTeamIndex + 1])
+        setCurrentTeamIndex(currentTeamIndex + 1)
+      }
+
+      setItemIndexForTeam(0)
+    }
+    else 
+    {
+      setItemIndexForTeam(nextItemIndex)
     }
 
     setItems((prev) => {
@@ -176,16 +195,31 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
       console.error("Prev and next Item id match: ", nextItem?.id, currentItem.id)
     }
 
-    if(currentSide === "B") await flipCard()
-    else await cardAnimateFlip()
+    
+    if(!nextItem) throw new Error("No next item")
 
-    if(nextItem) {
-      console.log(nextItem.bucket)
-      setCurrentItem(nextItem)
+    if(currentSide === "B") {
+      if(shouldChangeTeam) {
+        await teamsAnimateChange(() => setCurrentItem(nextItem))
+        await flipCard()
+      }
+      else {
+        await flipCard()
+        setCurrentItem(nextItem) 
+      }
     }
     else {
-      throw new Error("No next item")
+      if(shouldChangeTeam) {
+        await teamsAnimateChange(() => setCurrentItem(nextItem))
+        await cardAnimateFlip()
+      }
+      else {
+        await cardAnimateFlip()
+        setCurrentItem(nextItem) 
+      }
     }
+
+    setIsAnimating(false)
   }
 
   const stopTraining = () => {
@@ -204,39 +238,63 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
   }
 
   const animatorCard =      useAnimation()
-  const animatorCardCopy =  useAnimation()
   const animatorTeams =     useAnimation()
 
   const cardAnimateFlip = useCallback(async () => {
+    playSound("card_flip")
+    animatorCard.set({opacity: 1.0, rotateZ: 0, rotateY: 0})
     await animatorCard.start({
       y: -5,
       x: 5,
-      rotateY: "4deg",
-      rotateZ: "-10deg",
+      rotateY: 4,
+      rotateZ: -10,
       scale: 0.97,
+      opacity: 1.0,
       transition: {duration: 0.02}
     })
     await animatorCard.start({
       y: 0,
-      rotateY: "0",
-      rotateZ: "0",
+      rotateY: 0,
+      rotateZ: 0,
       scale: 1,
+      opacity: 1.0,
       transition: {duration: 0.02, easings: ["easeIn", "easeOut"]}
     })
   }, [animatorCard])
 
-  const teamsAnimateChange = async () => {
-    const transition = {duration: 0.25}
+  const teamsAnimateChange = async (onCardDisappear: (() => void)) => {
+    const transition = {duration: 0.35, ease: [0.1, 0.1, 0.1, 1.0]}
+    await animatorCard.start({
+      rotateZ: -3,
+      opacity: 1.0,
+      transition: {duration: 0.03, ease: [0.1, 0.1, 0.1, 1.0]}
+    })
+    await animatorCard.start({
+      opacity: 0.0,
+      scale: 0.89,
+      rotateZ: 3,
+      transition
+    })
     await animatorTeams.start({
       backgroundColor: "var(--color-accent)",
       transform: "scale(1.5)",
       transition
     })
+    onCardDisappear()
+    await waitFor(100)
     await animatorTeams.start({
       backgroundColor: "var(--color-light-7)",
       transform: "scale(1.0)",
       transition
     })
+
+    // /* we do not await this one, the card needs to be flipped before this */
+    // animatorCard.start({
+    //   opacity: 1.0,
+    //   scale: 1.0,
+    //   rotate: 0,
+    //   transition: {duration: 0.02, ease: [0.1, 0.1, 0.1, 1.0]}
+    // })
   }
 
   const createTrainingDoneMessage = () => {
@@ -259,9 +317,50 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
     return <motion.div className="window--train--team" animate={animatorTeams}>
       <div className="window--train--team--title">Team:</div>
       <div className="window--train--team--description">{currentTeam.title}</div>
+      <div className="window--train--team--round">Round: {currentRound}</div>
     </motion.div>
   }
 
+  const animatorDrinkPopup = useAnimation()
+
+  const animateDrinkPopup = async (text: string) => {
+    playSound("drink_up")
+    setDrinkPopupTitle(text)
+    const animator = animatorDrinkPopup
+    await animator.start({
+      scale: [0, 1.2, 0.9, 1.1, 1],
+      rotate: [0, 360, 330, 360, 0],
+      opacity: [0, 0.8, 1, 1, 1],
+      y: 0,
+      transition: {
+        duration: 1.5,
+        ease: [0.16, 1, 0.3, 1],
+        times: [0, 0.3, 0.6, 0.8, 1],
+      }
+    })
+    await animator.start({
+      scale: 0,
+      rotate: 0,
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 1.5,
+        ease: "anticipate",
+      }
+    })
+  }
+
+  const createDrinkPopup = () => {
+    return <motion.div 
+              className="window--train--drink-popup"
+              animate={animatorDrinkPopup}>
+              <div className="window--train--drink-popup--contents">
+                <img src="none" alt="" />
+                <div className="window--train--drink-popup--title">{drinkPopupTitle}</div>
+                <div className="window--train--drink-popup--description">🍻</div>
+              </div>
+            </motion.div>
+  }
 
   const createCard = () => {
     if(!currentItem) return
@@ -313,8 +412,14 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
 
     return <>
       {createElement(animatorCard, true, flipCard)}
-      {createElement(animatorCardCopy, isAnimatingNext)}
+      {/* {createElement(animatorCardCopy, isAnimating)} */}
     </>
+  }
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if(e.code === "Escape") {
+      dispatch({name: "APPLY_FLAGS", payload: {flags: {showNav: !state.flags.showNav}}})
+    }
   }
 
   const createButtons = () => {
@@ -335,13 +440,17 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
   if(trainingMode === "brainrot") {
     classWindow += " brainrot"
   }
+  if(state.flags.showNav) {
+    classWindow += " top-padding"
+  }
 
-  return <div id="window--train" className={classWindow} style={{pointerEvents: isAnimatingNext ? "none" : undefined}}>
+  return <div id="window--train" className={classWindow} style={{pointerEvents: isAnimating ? "none" : undefined}} tabIndex={0} onKeyDown={handleKeyDown}>
     {createTeam()}
     {!isTrainingDone && createCard()}
     {isTrainingDone && createTrainingDoneMessage()}
     {createButtons()}
     {createMessageError()}
     {createMessageLoading()}
+    {createDrinkPopup()}
   </div>
 }
