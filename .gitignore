@@ -13,11 +13,11 @@ dist
 dist-ssr
 *.local
 
-.env.prod
-.env.dev
-.env.production
-.env.development
-.env
+graphql-server/.env.prod
+graphql-server/.env.dev
+graphql-server/.env.production
+graphql-server/.env.development
+graphql-server/.env
 
 # Editor directories and files
 .vscode/*
