@@ -25,10 +25,10 @@ export default function Navigation() {
   //now how about highlighting the current tag, just 3 if statements?
   //or generate the buttons like this
 
-  const handlers = [handleClickHome, handleClickEdit, handleClickTrain]
-  const createButton = () => {
+  // const handlers = [handleClickHome, handleClickEdit, handleClickTrain]
+  // const createButton = () => {
 
-  }
+  // }
 
   const [currentSlide, setCurrentSlide] = useState<number>(0)
   const [isPresenting, setIsPresenting] = useState<boolean>(false)

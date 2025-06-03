@@ -1,6 +1,6 @@
 import { createContext, useReducer, useContext } from "react"
 import type { ReactNode, Dispatch } from "react"
-import type { AppWindow, AppState, AppAction, AppActionPayload, Dataset, StateTrainingData, Window_Train_Props, Team } from "./GlobalTypes"
+import type { AppState, AppAction, StateTrainingData, Window_Train_Props } from "./GlobalTypes"
 
 import Window_Main from "./Window_Main";
 import Window_Edit from "./Window_Edit";

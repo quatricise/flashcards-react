@@ -4,10 +4,11 @@ import { motion, useAnimation } from "motion/react"
 
 import { cloneDeep } from "@apollo/client/utilities"
 import type { Item, Window_Train_Props, Team } from "./GlobalTypes"
+// import { TrainingDataLSKey } from "./GlobalTypes"
+import { useAppDispatch, useAppState } from "./GlobalContext"
+import { clamp, sum, waitFor } from "./GlobalFunctions"
 import type { AnimationControls } from "motion/react"
 import "./Window_Train.css"
-import { clamp, sum, waitFor } from "./GlobalFunctions"
-import { useAppDispatch, useAppState } from "./GlobalContext"
 import { playSound } from "./SFX"
 
 
@@ -73,6 +74,21 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
   const [drinkPopupTitle, setDrinkPopupTitle]   = useState<string>(teams[0].title)
   const [currentRound, setCurrentRound]         = useState<number>(1) //1-indexed, not 0-indexed
 
+  // if(localStorage.getItem(TrainingDataLSKey)) {
+  //   const d = localStorage.getItem(TrainingDataLSKey)
+  //   setCurrentSide(d.currentSide)
+  //   setCurrentItem(d.currentItem)
+  //   setIsAnimating(d.isAnimating)
+  //   setItems(d.items)
+  //   setIsTrainingDone(d.isTrainingDone)
+  //   setCurrentTeam(d.currentTeam)
+  //   setCurrentTeamIndex(d.currentTeamIndex)
+  //   setItemIndexForTeam(d.itemIndexForTeam)
+  //   setDrinkPopupTitle(d.drinkPopupTitle)
+  //   setCurrentRound(d.currentRound)
+  //   console.log("applied state data")
+  // }
+
   const flipCard = async () => {
     await cardAnimateFlip()
     setCurrentSide((prev) => prev === "A" ? "B" : "A")
@@ -83,7 +99,8 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
   const failedLastXTimesThisTurn = (team: Team, x: number) => {
     const index_end = team.score.length
     const index_start = clamp(index_end, 0, Infinity) - clamp(x, 0, Infinity)
-    const fails = sum(...team.score.slice(index_start, index_end).map(attempt => attempt.success ? 0 : 1)) // im converting successes to fails, that's why return 0 when it's success and vice versa
+    // im converting successes to fails, that's why return 0 when it's success and vice versa
+    const fails = sum(...team.score.slice(index_start, index_end).map(attempt => attempt.success ? 0 : 1)) 
     console.log(`Team at index: ${currentTeamIndex} score: \n`, team.score.map(att => att.success))
     return fails === x && fails === clamp(x, 0, itemIndexForTeam + 1)
   }
@@ -443,6 +460,27 @@ export default function Window_Train({ datasetIds, trainingSetup, trainingMode, 
   if(state.flags.showNav) {
     classWindow += " top-padding"
   }
+
+  // const stateData = {
+  //   currentSide,
+  //   currentItem,
+  //   isAnimating,
+  //   items,
+  //   isTrainingDone,
+  //   currentTeam,
+  //   currentTeamIndex,
+  //   itemIndexForTeam,
+  //   drinkPopupTitle,
+  //   currentRound,
+  // }
+
+  // window.onbeforeunload = () => {
+  //   console.log("Set localStorage to", stateData)
+  //   localStorage.setItem(TrainingDataLSKey, JSON.stringify(stateData, undefined, 2))
+  // }
+
+  //i need to make sure the state data is restored when you restart the app, 
+  // I think this is a case for @todo, because about the global state management, will it open on the last opened tab?
 
   return <div id="window--train" className={classWindow} style={{pointerEvents: isAnimating ? "none" : undefined}} tabIndex={0} onKeyDown={handleKeyDown}>
     {createTeam()}

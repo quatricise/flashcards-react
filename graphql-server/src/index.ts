@@ -8,7 +8,8 @@ import uploadRouter from './upload'
 import cors from "cors"
 import dotenv from 'dotenv'
 
-dotenv.config()
+const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env.development"
+dotenv.config({path: envFile})
 
 const frontendUrl = process.env.FRONTEND_BASE_URL
 const backendUrl =  process.env.API_BASE_URL
@@ -31,12 +32,13 @@ app.use((req, res, next) => {
   next();
 });
 
+const plugins = process.env.NODE_ENV === "development" ? [] : [ApolloLogger]
 
 async function startServer() {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    plugins: [ApolloLogger],
+    plugins,
     context: () => ({ prisma }),
   })
   await server.start()

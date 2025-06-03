@@ -2,9 +2,9 @@ import { useAppDispatch, useAppState } from "./GlobalContext"
 import DatasetButton from './DatasetButton';
 import "./Window_TrainSetup.css"
 import { gql, useQuery } from "@apollo/client";
-import type { Dataset, TrainingSetup, TrainingMode, TrainingData } from "./GlobalTypes";
+import type { Dataset, TrainingSetup, TrainingMode, TrainingData, Team } from "./GlobalTypes";
 import { useRef, useState, type KeyboardEvent } from "react";
-import type { Team } from './GlobalTypes';
+import { TrainingDataLSKey } from './GlobalTypes';
 import { useAnimation, motion } from "motion/react";
 import { cloneDeep } from "@apollo/client/utilities";
 
@@ -73,6 +73,10 @@ export default function Window_TrainSetup() {
         trainingMode: trainingMode,
         flags: {showNav: false},
       }})
+
+
+    //clear training data in localStorage
+    localStorage.removeItem(TrainingDataLSKey)
   }
 
   const handleButtonBeginKeyDown = (e: KeyboardEvent) => {
@@ -94,7 +98,7 @@ export default function Window_TrainSetup() {
     if(teams.find(t => t.title === title)) return
 
     setTeams(prev => {
-      return [...prev, {title: title, score: []}]
+      return [...prev, {title: title, score: [], failedThisTurn: false}]
     })
     if(refInputTeamAdd.current) {
       refInputTeamAdd.current.value = ""

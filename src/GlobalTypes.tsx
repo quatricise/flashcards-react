@@ -22,7 +22,7 @@ export type Item = {
   id:               number;
   title:            string;
   description:      string;
-  images:           ItemImage[];
+  images:           ImageType[];
   datasets:         DatasetRef[];
   bucket:           number; //used in training only
   value:            number; //used in training -> brainrot edition only
@@ -32,7 +32,7 @@ export type ItemAttempt = {
   success: boolean
 }
 
-export type ItemImage = {
+export type ImageType = {
   id:     number
   url:    string;
   items:  Item[];
@@ -41,7 +41,7 @@ export type ItemImage = {
 
 export type ImageBlob =        File & { previewURL: string }
 
-export type ImageFromServer =  ItemImage & { willDelete: boolean }
+export type ImageFromServer =  ImageType & { willDelete: boolean }
 
 /** Refers to properties on type Item */
 export type TrainingData = "title" | "description" | "images"
@@ -127,3 +127,5 @@ export type Team = {
   score:          ItemAttempt[]
   failedThisTurn: boolean
 }
+
+export const TrainingDataLSKey = "trainingData"

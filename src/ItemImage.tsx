@@ -1,9 +1,9 @@
 import { useState } from "react"
 import "./ItemImage.css"
-import type { ImageBlob, ImageFromServer, ItemImage } from "./GlobalTypes"
+import type { ImageBlob, ImageFromServer, ImageType } from "./GlobalTypes"
 
 type Props = {
-  image:  ItemImage | ImageBlob | ImageFromServer
+  image:  ImageType | ImageBlob | ImageFromServer
   url:    string
   flags:  ItemImageFlags,
   onDelete?: () => void
@@ -15,7 +15,7 @@ interface ItemImageFlags {
   willDelete: boolean
 }
 
-export default function ItemImage({ image, url, flags, onDelete }: Props) {
+export default function ItemImage({ url, flags, onDelete }: Props) {
 
   const [isMouseOver, setIsMouseOver] = useState<boolean>(false)
 

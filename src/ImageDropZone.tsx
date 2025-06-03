@@ -1,14 +1,14 @@
 import "./ImageDropZone.css";
 import { useDropzone } from "react-dropzone";
 import { useCallback, useState, useEffect } from 'react';
-import type { ItemImage, ImageFromServer, ImageBlob } from "./GlobalTypes";
+import type { ImageType, ImageFromServer, ImageBlob } from "./GlobalTypes";
 import ItemImage from "./ItemImage";
 
 type Props = {
   itemId:                     number | null,
   onImagesChange:             (files: File[]) => void
   onImagesFromServerChange:   (images: ImageFromServer[]) => void
-  imagesFromServerInput:      ItemImage[] | undefined
+  imagesFromServerInput:      ImageType[] | undefined
 }
 
 //@todo there is some weird setState rendering trouble again in this component
@@ -28,9 +28,9 @@ export default function ImageDropZone({ itemId, onImagesChange, onImagesFromServ
   //it should keep the state for imagesFromServer locally 
   //the images which will be removed from the server later, I need to first load them here and then this component takes over and makes modifications
 
-  const onDrop = useCallback((acceptedFiles: ImageBlob[]) => {
-    const newFiles = acceptedFiles.map(file => {
-      file.previewURL = URL.createObjectURL(file)
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const newFiles = acceptedFiles.map(f => {
+      const file: ImageBlob = {...f, previewURL: URL.createObjectURL(f)}
       return file
     })
     setImages((prev) => {

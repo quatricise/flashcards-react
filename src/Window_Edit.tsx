@@ -561,7 +561,7 @@ export default function Window_Edit() {
                   You don't need to select a dataset <br /> to add items, only if you wish to edit existing items.
                 </div>
               }
-              {Array.from(datasets.entries())?.map((d, d_index) => {
+              {Array.from(datasets.entries())?.map((d) => {
                 const dataset = d[1]
                 let itemCount = 0
                 const itemCards = <>

@@ -1,9 +1,13 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
     "module": "CommonJS",
     "target": "ES2019",
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-  }
+  },
+  "include": ["src"]
 }

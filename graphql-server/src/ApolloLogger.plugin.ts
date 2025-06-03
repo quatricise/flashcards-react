@@ -1,7 +1,7 @@
-import { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from "apollo-server-plugin-base"
+import { ApolloServerPlugin, /* GraphQLRequestContext, */ GraphQLRequestListener } from "apollo-server-plugin-base"
 
 export const ApolloLogger: ApolloServerPlugin = {
-  async requestDidStart(requestContext: GraphQLRequestContext<unknown>): Promise<GraphQLRequestListener<unknown>> {
+  async requestDidStart(/* requestContext: GraphQLRequestContext<unknown> */): Promise<GraphQLRequestListener<unknown>> {
     console.log('[GraphQL] Incoming request');
 
     return {
@@ -11,7 +11,7 @@ export const ApolloLogger: ApolloServerPlugin = {
         console.log('[GraphQL] Variables:', ctx.request.variables);
       },
       async willSendResponse(ctx) {
-        console.log('[GraphQL] Sending response');
+        console.log('[GraphQL] Sending response', ctx.response);
       },
       async didEncounterErrors(ctx) {
         console.log("[GraphQL] Encountered errors:", ctx.errors);
