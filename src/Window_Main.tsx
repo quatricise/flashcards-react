@@ -11,6 +11,7 @@ export default function Window_Main() {
   }
 
   return <div id="window--main" className="window">
+    <img src="./images/splash.png" alt="" width={500} />
     <h1>Flashcards</h1>
     <div className="buttons">
       <button onClick={handleClick}>Open the torture box</button>

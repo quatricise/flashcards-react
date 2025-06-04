@@ -19,3 +19,11 @@ export function clamp(num: number, min: number, max: number): number {
   if(num > max) return max
   return num
 }
+
+export function randomFloatFromTo(min: number, max: number): number {
+  return Math.random() * (max - min) + min
+}
+
+export function randomIntFromTo(min: number, max: number): number {
+  return Math.round(Math.random() * (max - min) + min)
+}

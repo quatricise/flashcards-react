@@ -17,15 +17,23 @@ export type ItemRef = {
   id: number
 }
 
-/*@todo add optional fields such as date, century, technique, whatever may exist on an art knowledge-based app */
+//@todo add optional fields such as date, century, technique, whatever may exist on an art knowledge-based app
 export type Item = {
   id:               number;
+
   title:            string;
+
   description:      string;
+
   images:           ImageType[];
+
   datasets:         DatasetRef[];
-  bucket:           number; //used in training only
-  value:            number; //used in training -> brainrot edition only
+
+  /** Used in Training. */
+  bucket:           number;
+  
+  /** Used in Training>Brainrot. Only used for golden cards. This is their value, i.e. how many times the team drinks if they fail it. */
+  value:            number;
 }
 
 export type ItemAttempt = {

@@ -42,7 +42,8 @@ function stateReducer(state: AppState, action: AppAction): AppState {
       {...state.training, 
         datasets: payload.datasets ?? state.training.datasets, 
         setup: payload.trainingSetup ?? state.training.setup,
-        teams: payload.teams ?? state.training.teams
+        teams: payload.teams ?? state.training.teams,
+        mode: payload.trainingMode ?? state.training.mode
       }
 
       return { ...state, window: payload.window ?? state.window, training: training, flags: {...state.flags, ...payload.flags} };

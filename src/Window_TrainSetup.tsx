@@ -33,7 +33,7 @@ const teamsInitialPlaceholder: Team[] = [
   {title: "Ministerstvo brainrotu", score: [], failedThisTurn: false},
   {title: "Mladí brainroti", score: [], failedThisTurn: false},
   {title: "Náměstci brainrot ministerstva", score: [], failedThisTurn: false},
-  {title: "Brainrot-cián", score: [], failedThisTurn: false},
+  {title: "Brainrot-cián!", score: [], failedThisTurn: false},
   {title: "Středeční brainroti", score: [], failedThisTurn: false},
   {title: "Cestovní brainrot", score: [], failedThisTurn: false},
   {title: "GogoBrainrotmanTV", score: [], failedThisTurn: false},
@@ -48,7 +48,7 @@ export default function Window_TrainSetup() {
   const state =     useAppState()
 
   const [datasetsSelected, setDatasetsSelected] = useState<Dataset[]>([])
-  const [trainingMode, setTrainingMode]         = useState<TrainingMode>("brainrot")
+  const [trainingMode, setTrainingMode]         = useState<TrainingMode>("regular")
   const [teams, setTeams]                       = useState<Team[]>(teamsInitialPlaceholder)
   const [trainingSetup, setTrainingSetup]       = useState<TrainingSetup>({A:["images"], B:["title", "description"]});
 
@@ -56,23 +56,35 @@ export default function Window_TrainSetup() {
   const animatorDatasets =  useAnimation()
 
   const startTraining = () => {
-    if(teams.length <= 1) {
-      return alert("Not enough teams to compete.")
-    }
-
     if(datasetsSelected.length === 0) {
-      return alert()
+      return alert("Select datasets")
     }
 
-    dispatch({name: "WINDOW_SET", 
+    if(trainingMode === "brainrot") {
+      if(teams.length <= 1) {
+        return alert("Not enough teams to compete.");
+      }
+      dispatch({name: "WINDOW_SET", 
       payload: {
         window: state.windows.Train, 
         datasets: datasetsSelected, 
         trainingSetup: trainingSetup,
         teams: teams,
-        trainingMode: trainingMode,
+        trainingMode: "brainrot",
         flags: {showNav: false},
       }})
+    } else
+    if(trainingMode === "regular") {
+      dispatch({name: "WINDOW_SET", 
+      payload: {
+        window: state.windows.Train, 
+        datasets: datasetsSelected, 
+        trainingSetup: trainingSetup,
+        teams: [],
+        trainingMode: "regular",
+        flags: {showNav: false},
+      }})
+    }
 
 
     //clear training data in localStorage
@@ -160,7 +172,7 @@ export default function Window_TrainSetup() {
       </div>
         <div className="window--train-setup--mode-switch">
           <div className={"window--train-setup--mode-switch--tab" + ( trainingMode === "regular" ? " active" : "")} onClick={() => setTrainingMode("regular")} >Serious training</div>
-          <div className={"window--train-setup--mode-switch--tab" + ( trainingMode === "brainrot" ? " active" : "")} onClick={setTrainingModeBrainrot} >Brainrot Drinking Game 🍻</div>
+          <div className={"window--train-setup--mode-switch--tab" + ( trainingMode === "brainrot" ? " active" : "")} onClick={setTrainingModeBrainrot} >Brainrot 🍻</div>
         </div>
       <motion.div className="window--train-setup--dataset-select" animate={animatorDatasets}>
         <div className="window--train-setup--dataset-select--heading">

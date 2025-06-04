@@ -181,6 +181,8 @@
 }
 
 .window--edit--left-side--button--cancel {
+  display: flex;
+  align-items: center;
   background-color: var(--color-light-6);
   font-size: 1.2rem;
   font-weight: 300;

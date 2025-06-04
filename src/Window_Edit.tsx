@@ -241,11 +241,11 @@ export default function Window_Edit() {
   const [windowState, setWindowState] = useState<"add"|"edit">("add"); 
 
   const setItemStateAdd = () => {
-    if(inputTitle.current) {
-      inputTitle.current.value = ""
+    if(refInputTitle.current) {
+      refInputTitle.current.value = ""
     }
-    if(inputDescription.current) {
-      inputDescription.current.value = ""
+    if(refInputDescription.current) {
+      refInputDescription.current.value = ""
     }
     if(windowState === "add") { //this option retains the selected dataset buttons
       setUploadData({...uploadDataInitial, datasets: uploadData.datasets})
@@ -258,12 +258,12 @@ export default function Window_Edit() {
 
   const setItemStateEdit = (itemId: number) => {
     const currentItem = items.get(itemId)
-    if(!currentItem) throw new Error("No current item. Cannot set state to 'edit'. There is a mistake somewhere.")
-    if(!inputTitle.current) return
-    if(!inputDescription.current) return
+    if(!currentItem) throw new Error("No current item. Cannot set state to 'edit'.")
+    if(!refInputTitle.current) return
+    if(!refInputDescription.current) return
 
-    inputTitle.current.value = currentItem.title
-    inputDescription.current.value = currentItem.description
+    refInputTitle.current.value = currentItem.title
+    refInputDescription.current.value = currentItem.description
     
     handleTitleChange()
     handleDescriptionChange()
@@ -279,8 +279,10 @@ export default function Window_Edit() {
   const animatorButtonDiscard = useAnimation()
   const animatorButtonSubmit  = useAnimation()
 
-  const inputTitle =        useRef<HTMLInputElement>(null)
-  const inputDescription =  useRef<HTMLTextAreaElement>(null)
+  const refInputTitle =       useRef<HTMLInputElement>(null)
+  const refSubmitButton =     useRef<HTMLInputElement>(null)
+  const refInputDescription = useRef<HTMLTextAreaElement>(null)
+  const refInputForm =        useRef<HTMLFormElement>(null)
   
   const selectItem = (id: number) => {
     if(windowState === "edit") {
@@ -337,12 +339,12 @@ export default function Window_Edit() {
 
   const handleTitleChange = () => {
     setUploadData((prev) => {
-      return {...prev, title: String(inputTitle.current?.value)}
+      return {...prev, title: String(refInputTitle.current?.value)}
     })
   }
   const handleDescriptionChange = () => {
     setUploadData((prev) => {
-      return {...prev, description: String(inputDescription.current?.value)}
+      return {...prev, description: String(refInputDescription.current?.value)}
     })
   }
 
@@ -400,6 +402,11 @@ export default function Window_Edit() {
     }
 
     console.log("Submitted upload form. \n", "windowState: ", windowState, "\n", "Variables: ", variables, "\n")
+
+    if(document.activeElement && document.activeElement === refSubmitButton.current) {
+      console.log("hey")
+      refInputTitle.current?.focus()
+    }
   }
 
   const discardItemChanges = () => {
@@ -510,7 +517,8 @@ export default function Window_Edit() {
       formData.append('images', img)
     }
 
-    console.log(`uploadImageFiles: \n url: ${API_URL}/upload \n data: ${uploadData.images}`)
+    console.log(`uploadImageFiles: \n url: ${API_URL}/upload \n data: `)
+    console.log(uploadData.images)
 
     const res = await fetch(`${API_URL}/upload`, {
       method: 'POST',
@@ -568,14 +576,12 @@ export default function Window_Edit() {
                   {dataset.items.map(itemRef => {
                           const item = items.get(itemRef.id)
                           if(!item) {
-                            // throw new Error("Discrepancy between datasets and items, couldn't find item by id: " + itemRef.id)
                             return
                           }
                           itemCount++
 
-                          const isDim = currentItemId !== 0 && itemRef.id !== currentItemId 
-                          //here this logic makes sense, item can only be deleted if it's the one selected or there is no selection
-                          const canBeDeleted = !isDim 
+                          const isDim = currentItemId !== 0 && itemRef.id !== currentItemId
+                          const canBeDeleted = !isDim //this logic makes sense, item can only be deleted if it's the one selected or there is no selection
                           const isTryToDelete = itemAboutToDelete?.id === itemRef.id
                           return <ItemCard 
                             item={item}
@@ -901,15 +907,15 @@ export default function Window_Edit() {
                 const warn = !!datasetsSelected.find(d => d.id == dataset.id) && shouldDeleteDatasets
                 const selected = !!datasetsSelected.find(d => d.id == dataset.id)
                 return <DatasetCard 
-                key={dataset.id} 
-                dataset={dataset} 
-                warn={warn} 
-                selected={selected} 
-                onSelectedChange={updateDatasetsSelected}
-                onRename={handleRefetch}></DatasetCard>
+                          key={dataset.id} 
+                          dataset={dataset} 
+                          warn={warn} 
+                          selected={selected} 
+                          onSelectedChange={updateDatasetsSelected}
+                          onRename={handleRefetch}/>
             })}
           </div>
-          <Button_CreateDataset onCreate={handleRefetch} ></Button_CreateDataset>
+          <Button_CreateDataset onCreate={handleRefetch}/>
           <div className="window--edit--very-left-side--buttons">
             <button 
             className="button--deselect-all" 
@@ -945,17 +951,18 @@ export default function Window_Edit() {
           </div>
           {createDatasetButtons()}
         </motion.div>
-        <form className="window--edit--left-side--input-form" onSubmit={handleSubmit}>
+        <form className="window--edit--left-side--input-form" onSubmit={handleSubmit} ref={refInputForm}>
           <motion.input 
-          className="window--edit--left-side--input--title" 
-          type="text" 
-          name="title" 
-          id="" 
-          placeholder="Title" 
-          onChange={handleTitleChange}
-          animate={animatorTitle}
-          ref={inputTitle}/>
-          <textarea name="description" placeholder="Description" onChange={handleDescriptionChange} ref={inputDescription} />
+            className="window--edit--left-side--input--title" 
+            type="text" 
+            name="title" 
+            id="" 
+            placeholder="Title" 
+            onChange={handleTitleChange}
+            animate={animatorTitle}
+            ref={refInputTitle}
+          />
+          <textarea name="description" placeholder="Description" onChange={handleDescriptionChange} ref={refInputDescription} />
           <ImageDropZone 
           key={imageDropZoneKey} 
           itemId={currentItemId ?? null}
@@ -977,7 +984,7 @@ export default function Window_Edit() {
               //this would be pretty cool, you could see how the card looks even before it's added to training
               // <button disabled style={{cursor: "not-allowed", opacity: 0.5, pointerEvents: "none"}} title="Not implemented yet" className="window--edit--left-side--button--preview">Preview</button> 
             }
-            <motion.input type="submit" value={textSubmitValue} animate={animatorButtonSubmit} tabIndex={0}/>
+            <motion.input type="submit" value={textSubmitValue} animate={animatorButtonSubmit} ref={refSubmitButton} tabIndex={0}/>
           </div>
         </form>
       </div>

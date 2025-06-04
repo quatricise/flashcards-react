@@ -27,6 +27,7 @@
   --color-white:         #ffffff;
   --color-warning:       #962525;
   --color-warning-hover: #ca3434;
+  --color-gold: rgb(153, 137, 49);
 }
 
 /* Dark Theme Overrides */

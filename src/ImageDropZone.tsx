@@ -36,7 +36,7 @@ export default function ImageDropZone({ itemId, onImagesChange, onImagesFromServ
     setImages((prev) => {
       return prev.concat(...newFiles)
     });
-    onImagesChange(newFiles)
+    onImagesChange(acceptedFiles) // important: must send File[] and not ImageBlob[]
   }, [onImagesChange]);
   
   // useEffect(() => {
@@ -47,7 +47,7 @@ export default function ImageDropZone({ itemId, onImagesChange, onImagesFromServ
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'image/*': [] },
-    onDrop, //this does not accept ImageBlob[], only File[], but it works in practice
+    onDrop,
   });
 
   const removeImageBlob = (index: number) => {
