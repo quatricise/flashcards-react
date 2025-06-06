@@ -50,12 +50,22 @@ function DatasetCard({ dataset, warn, selected, onSelectedChange, onRename }: Pr
   }
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if(!isRenaming) return
-    if(e.code === "Enter") {
-      tryRename()
-    } else
-    if(e.code === "Escape") {
-      exitRenameMode()
+    if(!isRenaming) {
+      if(e.code === "Enter") {
+        onSelectedChange(dataset, !selected)
+      }
+      if(e.code === "KeyR") {
+        enterRenameMode()
+      }
+    }
+    else
+    if(isRenaming) {
+      if(e.code === "Enter") {
+        tryRename()
+      } else
+      if(e.code === "Escape") {
+        exitRenameMode()
+      }
     }
   }
 
@@ -102,7 +112,7 @@ function DatasetCard({ dataset, warn, selected, onSelectedChange, onRename }: Pr
 
     console.log(e.target)
 
-    onSelectedChange(dataset, !selected) // '!active' because of the state update delay
+    onSelectedChange(dataset, !selected)
   }
 
   if(isRenaming) {
@@ -117,9 +127,10 @@ function DatasetCard({ dataset, warn, selected, onSelectedChange, onRename }: Pr
           className={cardClass} 
           onKeyDown={handleKeyDown} 
           onClick={handleClick} 
-          tabIndex={0}
           onMouseEnter={handleMouseEnter} 
-          onMouseLeave={handleMouseLeave}>
+          onMouseLeave={handleMouseLeave}
+          tabIndex={0}
+          >
             {
             !isRenaming &&
             <div className="dataset-card--title">

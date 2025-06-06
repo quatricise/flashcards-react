@@ -1,7 +1,10 @@
 import { gql, useMutation, useQuery } from "@apollo/client"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import type { MouseEvent, KeyboardEvent } from "react"
-const API_URL = import.meta.env.VITE_API_BASE_URL
+
+let API_URL = import.meta.env.VITE_API_BASE_URL
+const isTunnel = (window.location.href as string).includes("brainrot.loca.lt") === true
+if(isTunnel) API_URL = "https://brainrot.loca.lt/api"
 
 import ImageDropZone from "./ImageDropZone"
 import ItemCard from "./ItemCard"

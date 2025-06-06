@@ -7,10 +7,15 @@ import Window_Edit from "./Window_Edit";
 import Window_Train from "./Window_Train";
 import Window_TrainSetup from './Window_TrainSetup';
 
+export const isInProductionProbably = (window.location.href as string).includes("localhost:5173") === false
+export const isTunnel = (window.location.href as string).includes("brainrot.loca.lt") === true
+
 const trainingDataInitial: StateTrainingData = {datasets: [], setup: {A: [], B: []}, mode: "brainrot", teams: []}
+const splashWindow = () => <Window_Main/>
+const devWindow =    () => <Window_TrainSetup/>
 
 const appStateInitial: AppState = {
-  window:   () => <Window_TrainSetup/>,
+  window:   isInProductionProbably ? splashWindow : devWindow,
   history:  [],
   training: trainingDataInitial,
   windows:  {

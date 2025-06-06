@@ -4,7 +4,6 @@ import "./Window_TrainSetup.css"
 import { gql, useQuery } from "@apollo/client";
 import type { Dataset, TrainingSetup, TrainingMode, TrainingData, Team } from "./GlobalTypes";
 import { useRef, useState, type KeyboardEvent } from "react";
-import { TrainingDataLSKey } from './GlobalTypes';
 import { useAnimation, motion } from "motion/react";
 import { cloneDeep } from "@apollo/client/utilities";
 
@@ -55,14 +54,42 @@ export default function Window_TrainSetup() {
   const animatorTeamInput = useAnimation()
   const animatorDatasets =  useAnimation()
 
+  const animateTeamWarning = async () => {
+    const transition = {duration: 0.2, easings: ["easeInOut"]}
+    await animatorTeamInput.start({
+      scaleX: 1.02,
+      scaleY: 1.1,
+      transition
+    })
+    await animatorTeamInput.start({
+      scaleX: 1.0,
+      scaleY: 1.0,
+      transition
+    })
+  }
+
+  const animateDatasetWarning = async () => {
+    const transition = {duration: 0.2, easings: ["easeInOut"]}
+    await animatorDatasets.start({
+      scaleX: 1.05,
+      scaleY: 1.1,
+      transition
+    })
+    await animatorDatasets.start({
+      scaleX: 1.0,
+      scaleY: 1.0,
+      transition
+    })
+  }
+
   const startTraining = () => {
     if(datasetsSelected.length === 0) {
-      return alert("Select datasets")
+      return animateDatasetWarning()
     }
 
     if(trainingMode === "brainrot") {
       if(teams.length <= 1) {
-        return alert("Not enough teams to compete.");
+        return animateTeamWarning()
       }
       dispatch({name: "WINDOW_SET", 
       payload: {
@@ -85,15 +112,10 @@ export default function Window_TrainSetup() {
         flags: {showNav: false},
       }})
     }
-
-
-    //clear training data in localStorage
-    localStorage.removeItem(TrainingDataLSKey)
   }
 
   const handleButtonBeginKeyDown = (e: KeyboardEvent) => {
     if(e.code === "Enter" || e.code === "NumpadEnter") {
-      console.log("f")
       startTraining()
     }
   }
@@ -171,8 +193,20 @@ export default function Window_TrainSetup() {
         <h1>Training setup</h1>
       </div>
         <div className="window--train-setup--mode-switch">
-          <div className={"window--train-setup--mode-switch--tab" + ( trainingMode === "regular" ? " active" : "")} onClick={() => setTrainingMode("regular")} >Serious training</div>
-          <div className={"window--train-setup--mode-switch--tab" + ( trainingMode === "brainrot" ? " active" : "")} onClick={setTrainingModeBrainrot} >Brainrot 🍻</div>
+          <div 
+          className={"window--train-setup--mode-switch--tab" + ( trainingMode === "regular" ? " active" : "")} 
+          onClick={() => setTrainingMode("regular")} 
+          onKeyDown={(e: KeyboardEvent) => {if(e.code === "Enter" || e.code === "NumpadEnter") setTrainingMode("regular")}}
+          tabIndex={0}>
+            Serious training
+          </div>
+          <div 
+          className={"window--train-setup--mode-switch--tab" + ( trainingMode === "brainrot" ? " active" : "")} 
+          onClick={setTrainingModeBrainrot} 
+          onKeyDown={(e: KeyboardEvent) => {if(e.code === "Enter" || e.code === "NumpadEnter") setTrainingModeBrainrot()}}
+          tabIndex={0}>
+            Brainrot 🍻
+          </div>
         </div>
       <motion.div className="window--train-setup--dataset-select" animate={animatorDatasets}>
         <div className="window--train-setup--dataset-select--heading">
@@ -228,10 +262,11 @@ export default function Window_TrainSetup() {
         animate={animatorTeamInput}/>
       </div>
 
+      {/* @todo not using this for now */}
       {/* <div className="window--train-setup--training-method" style={{display: trainingMode === "regular" ? "flex" : "none"}}>
         <div style={{userSelect: "none"}} >Training method</div>
         <div className="filler"></div>
-        <div className="window--train-setup--training-method--randomize" >
+        <div className="window--train-setup--training-method--randomize">
           <label htmlFor="input--randomize">Randomize each card</label>
           <input type="checkbox" name="randomize" id="input--randomize"/>
         </div>

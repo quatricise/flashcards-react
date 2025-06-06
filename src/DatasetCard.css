@@ -15,15 +15,27 @@
   transition: all 0.08s ease-in-out;
   box-shadow: 0 0 10px 2px #00000020;
 }
+
 .dataset-card:hover {
   background-color: var(--color-accent);
   color: var(--color-white);
 }
+
 .dataset-card:hover * {
   color: var(--color-white);
 }
+
+*[data-theme=light] .dataset-card:hover {
+  color: var(--color-light-0);
+}
+
 .dataset-card.active {
   background-color: var(--color-accent);
+  color: var(--color-white);
+}
+
+.dataset-card.hover * {
+  color: var(--color-white);
 }
 
 .dataset-card.warning {
@@ -33,7 +45,7 @@
 }
 
 .dataset-card.renaming {
-  background-color: var(--color-light-7)!important;
+  background-color: var(--color-light-7) !important;
   padding: 10px;
 }
 
@@ -80,6 +92,14 @@ input.dataset-card--rename-input {
   border: 2px solid var(--color-accent);
 }
 
+*[data-theme=light] input.dataset-card--rename-input {
+  color: inherit;
+}
+
+*[data-theme=light] .dataset-card--items {
+  color: inherit;
+}
+
 
 
 /* ICONS */
@@ -94,4 +114,8 @@ input.dataset-card--rename-input {
 
 .dataset-card .icon.edit:hover {
   background-color: var(--color-accent-hover);
+}
+
+*[data-theme=light] .dataset-card .icon.edit {
+  background-image: url(./images/ui/icon_edit.png)
 }

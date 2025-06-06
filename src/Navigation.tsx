@@ -21,8 +21,24 @@ export default function Navigation() {
   const handleClickTrain = () => {
     dispatch({name: "WINDOW_SET", payload: {window: state.windows.TrainSetup}})
   }
+
+  const handleKeyDownHome = (e: KeyboardEvent) => {
+    if(e.code === "Enter" || e.code === "NumpadEnter") {
+      dispatch({name: "WINDOW_SET", payload: {window: state.windows.Main}})
+    } 
+  }
+  const handleKeyDownEdit = (e: KeyboardEvent) => {
+    if(e.code === "Enter" || e.code === "NumpadEnter") {
+      dispatch({name: "WINDOW_SET", payload: {window: state.windows.Edit}})
+    } 
+  }
+  const handleKeyDownTrain = (e: KeyboardEvent) => {
+    if(e.code === "Enter" || e.code === "NumpadEnter") {
+      dispatch({name: "WINDOW_SET", payload: {window: state.windows.TrainSetup}})
+    } 
+  }
   
-  //now how about highlighting the current tag, just 3 if statements?
+  //@todo now how about highlighting the current tag, just 3 'if' statements?
   //or generate the buttons like this
 
   // const handlers = [handleClickHome, handleClickEdit, handleClickTrain]
@@ -77,21 +93,27 @@ export default function Navigation() {
       <div 
       className="navigation--tab-button"
       tabIndex={0}
-      onClick={handleClickHome}>
+      onClick={handleClickHome}
+      onKeyDown={handleKeyDownHome}
+      >
         <div className="navigation--tab-button--icon icon home"></div>
         <div className="navigation--tab-button--title">Home</div>
       </div>
       <div 
       className="navigation--tab-button" 
       tabIndex={0}
-      onClick={handleClickEdit}>
+      onClick={handleClickEdit}
+      onKeyDown={handleKeyDownEdit}
+      >
         <div className="navigation--tab-button--icon icon edit"></div>
         <div className="navigation--tab-button--title">Edit</div>
       </div>
       <div 
       className="navigation--tab-button" 
       tabIndex={0}
-      onClick={handleClickTrain}>
+      onClick={handleClickTrain}
+      onKeyDown={handleKeyDownTrain}
+      >
         <div className="navigation--tab-button--icon icon train"></div>
         <div className="navigation--tab-button--title">Train</div>
       </div>
@@ -123,7 +145,7 @@ export default function Navigation() {
               <div className="text--secondary">Frontend:</div>
               TypeScript, React, Framer Motion
               <br /><br />
-              <div className="text--secondary">Database:</div>
+              <div className="text--secondary">Backend:</div>
               Apollo, GraphQL, Prisma, PostgreSQL
               <br /> <br />
               <div className="text--secondary">Packing:</div>

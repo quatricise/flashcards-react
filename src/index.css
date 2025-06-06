@@ -95,7 +95,7 @@ input[type=text] {
 }
 
 input[type=text]:focus {
-  border: 2px solid var(--color-white);
+  border: 2px solid var(--color-light-0);
 }
 
 input[type=checkbox] {
@@ -115,7 +115,7 @@ textarea {
 }
 
 textarea:focus-visible {
-  border: 2px solid var(--color-white);
+  border: 2px solid var(--color-light-0);
 }
 
 button {
@@ -129,14 +129,16 @@ button {
   color: var(--color-light-0);
   border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.1s ease-in-out, color 0.5s ease-in-out;
+  transition: background-color 0.1s ease-in-out, color 0.15s ease-in-out;
   user-select: none;
 }
 
 button.warning:hover,
 button.warning.active,
-button.warning.permanent {
+button.warning.permanent,
+button.warning.confirm {
   background-color: var(--color-warning);
+  color: var(--color-white);
 }
 
 button:hover, button.active {
@@ -224,59 +226,111 @@ input[type=submit]:hover {
 }
 
 .icon:focus-visible {
-  outline: 2px solid var(--color-white);
+  outline: 2px solid var(--color-light-0);
 }
 
 .icon.datasets {
   background-image: url(./images/ui/icon_datasets.png);
 }
 
+*[data-theme=light] .icon.datasets {
+  background-image: url(./images/ui/icon_datasets__dark.png);
+}
+
 .icon.items {
   background-image: url(./images/ui/icon_items.png);
+}
+
+*[data-theme=light] .icon.items {
+  background-image: url(./images/ui/icon_items__dark.png);
 }
 
 .icon.edit {
   background-image: url(./images/ui/icon_edit.png);
 }
 
+*[data-theme=light] .icon.edit {
+  background-image: url(./images/ui/icon_edit__dark.png);
+}
+
 .icon.database-yes {
   background-image: url(./images/ui/icon_database_yes.png);
+}
+
+*[data-theme=light] .icon.database-yes {
+  background-image: url(./images/ui/icon_database_yes__dark.png);
 }
 
 .icon.home {
   background-image: url(./images/ui/icon_home.png);
 }
 
+*[data-theme=light] .icon.home {
+  background-image: url(./images/ui/icon_home__dark.png);
+}
+
 .icon.train {
   background-image: url(./images/ui/icon_train.png);
+}
+
+*[data-theme=light] .icon.train {
+  background-image: url(./images/ui/icon_train__dark.png);
 }
 
 .icon.info {
   background-image: url(./images/ui/icon_info.png);
 }
 
+*[data-theme=light] .icon.info {
+  background-image: url(./images/ui/icon_info__dark.png);
+}
+
 .icon.light {
   background-image: url(./images/ui/icon_light.png);
+}
+
+*[data-theme=light] .icon.light {
+  background-image: url(./images/ui/icon_light__dark.png);
 }
 
 .icon.dark {
   background-image: url(./images/ui/icon_dark.png);
 }
 
+*[data-theme=light] .icon.dark {
+  background-image: url(./images/ui/icon_dark__dark.png);
+}
+
 .icon.present {
   background-image: url(./images/ui/icon_present.png);
+}
+
+*[data-theme=light] .icon.present {
+  background-image: url(./images/ui/icon_present__dark.png);
 }
 
 .icon.cross {
   background-image: url(./images/ui/icon_cross.png);
 }
 
+*[data-theme=light] .icon.cross {
+  background-image: url(./images/ui/icon_cross__dark.png);
+}
+
 .icon.tick {
   background-image: url(./images/ui/icon_tick.png);
 }
 
+*[data-theme=light] .icon.tick {
+  background-image: url(./images/ui/icon_tick__dark.png);
+}
+
 .icon.arrow {
   background-image: url(./images/ui/icon_arrow.png);
+}
+
+*[data-theme=light] .icon.arrow {
+  background-image: url(./images/ui/icon_arrow__dark.png);
 }
 
 .icon.arrow.down {

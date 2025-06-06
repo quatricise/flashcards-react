@@ -3,6 +3,7 @@ import Window_Edit from       './Window_Edit';
 import Window_Main from       './Window_Main';
 import Window_TrainSetup from './Window_TrainSetup';
 
+//@todo I think there was a little quirk with this somewhere, that the ItemRef[] were actually Item[] but I don't think it matters
 export type Dataset = {
   id:           number;
   title:        string;
@@ -29,10 +30,10 @@ export type Item = {
 
   datasets:         DatasetRef[];
 
-  /** Used in Training. */
+  /** Used in Training. Index of the current bucket the item is in. Items travel in buckets upwards until they reach the last one, after which they are excluded from the training data. */
   bucket:           number;
   
-  /** Used in Training>Brainrot. Only used for golden cards. This is their value, i.e. how many times the team drinks if they fail it. */
+  /** Used in Training>Brainrot. Only used for golden cards. This is their value, how many times the team drinks if they fail it and how many points a team gets for throwing it out.  */
   value:            number;
 }
 
@@ -95,7 +96,7 @@ export const WindowKeys_To_Names: Record<keyof AppWindows, string> = {
   TrainSetup:    "Setup training",
 }
 
-export type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE" | "EDIT_DATA" | "APPLY_FLAGS"
+export type AppActionName = "WINDOW_SET" | "WINDOW_CLOSE" | "APPLY_FLAGS"
 
 export interface AppActionPayload {
   window?:           AppWindow | undefined

@@ -177,7 +177,7 @@
 }
 
 #window--edit input[type=submit]:focus-visible {
-  outline: 2px solid var(--color-white);
+  outline: 2px solid var(--color-light-0);
 }
 
 .window--edit--left-side--button--cancel {
@@ -196,7 +196,7 @@
 }
 
 .window--edit--left-side--button--cancel:focus-visible {
-  outline: 2px solid var(--color-white);
+  outline: 2px solid var(--color-light-0);
 }
 
 .window--edit--left-side--button--preview {
@@ -282,7 +282,7 @@
 }
 
 #window--edit .button--delete-datasets:focus-visible {
-  outline: 2px solid var(--color-white);
+  outline: 2px solid var(--color-light-0);
 }
 
 #window--edit .button--delete-datasets:disabled,

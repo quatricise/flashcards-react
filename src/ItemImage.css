@@ -10,7 +10,7 @@
 }
 
 .item-image--icon-delete:focus-visible {
-  outline: 2px solid var(--color-white);
+  outline: 2px solid var(--color-light-0);
 }
 
 .item-image.will-delete .item-image--img {

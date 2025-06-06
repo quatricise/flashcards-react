@@ -11,6 +11,8 @@ import dotenv from 'dotenv'
 const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env.development"
 dotenv.config({path: envFile})
 
+const brainrotUrl = "https://brainrot.loca.lt"
+
 const frontendUrl = process.env.FRONTEND_BASE_URL
 const backendUrl =  process.env.API_BASE_URL
 const port =        new URL(backendUrl).port
@@ -20,7 +22,7 @@ const prisma = new PrismaClient()
 const app = express()
 
 app.use(cors({
-  origin: frontendUrl,
+  origin: [frontendUrl, brainrotUrl],
 }))
 
 app.use("/api", uploadRouter)

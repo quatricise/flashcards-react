@@ -168,6 +168,7 @@ export const resolvers = {
       args: DeleteItemArgs, 
       context: Context
     ) => {
+      return args.id //temp for trying this out publicly
       console.log("Hi, deleting item.")
       await context.prisma.item.delete({where: {id: args.id}})
       //@todo delete images if they only had this item as reference
@@ -179,6 +180,7 @@ export const resolvers = {
       args: DeleteDatasetsArgs,
       context: Context
     ) => {
+      return args.ids //temp for trying this out publicly
       console.log("Ids: " + args.ids)
       for(const id of args.ids) {
         await context.prisma.dataset.update({

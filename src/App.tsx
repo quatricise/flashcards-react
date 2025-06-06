@@ -2,7 +2,7 @@ import { useAppState } from './GlobalContext';
 import Navigation from './Navigation';
 
 
-function App() {
+export default function App() {
   const state = useAppState()
   return <>
     {
@@ -18,4 +18,4 @@ function App() {
   </>
 }
 
-export default App;
+//@todo open on last opened tab? open on main?

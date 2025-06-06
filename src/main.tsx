@@ -4,9 +4,10 @@ import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import './index.css'
 import App from './App.tsx'
 import { AppProvider } from './GlobalContext';
-const API_URL = import.meta.env.VITE_GRAPHQL_SERVER_URL
 
-
+const isTunnel = (window.location.href as string).includes("brainrot.loca.lt") === true
+let API_URL = import.meta.env.VITE_GRAPHQL_SERVER_URL
+if(isTunnel) API_URL = "https://new-husky-87.loca.lt/graphql"
 
 // 👇 Replace this with your actual GraphQL server URL
 const client = new ApolloClient({
